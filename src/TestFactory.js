@@ -1,0 +1,7 @@
+var TestFactory = {
+	
+	getInstance: function() {
+		
+	}
+	
+};

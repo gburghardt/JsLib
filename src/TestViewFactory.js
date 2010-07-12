@@ -1,0 +1,7 @@
+var TestViewFactory = {
+	
+	getInstance: function() {
+		
+	}
+	
+};
