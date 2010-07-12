@@ -4,8 +4,8 @@
  *
  * @extends Object
  */
-function Test( id, testController ) {
-	this.constructor( id, testController );
+function Test( suiteId, testController, id ) {
+	this.constructor( suiteId, testController, id );
 }
 
 /** @lends Test */
@@ -24,17 +24,22 @@ Test.prototype = {
 	/**
 	 * @constructs
 	 *
+	 * @param {String} suiteId The test suite Id to which this test belongs
 	 * @param {Object} testController The controller managing this test
 	 * @param {String} id Optional unique Id for this test
 	 * @return {void}
 	 */
-	constructor: function( id, testController ) {
-		if ( !this.setId( id ) ) {
-			this.setId( String( ( new Date() ).getTime() ) );
+	constructor: function( suiteId, testController, id ) {
+		if ( !this.setSuiteId( suiteId ) ) {
+			throw new Error( "Test.prototype.constructor argument 1 must be {String} suiteId" );
 		}
 		
 		if ( !this.setTestController( testController ) ) {
-			throw new Error( "Test.prototype.constructor requires 1 argument: Object testController" );
+			throw new Error( "Test.prototype.constructor argument 2 must be {Object} testController" );
+		}
+		
+		if ( !this.setId( id ) ) {
+			this.setId( String( ( new Date() ).getTime() ) );
 		}
 		
 		this.assertions = {
@@ -199,6 +204,39 @@ Test.prototype = {
 	
 	
 	/**
+	 * @property {String} Id of the test suite to which this test belongs
+	 */
+	suiteId: null,
+	
+	/**
+	 * Get the suite Id
+	 *
+	 * @param {void}
+	 * @return {String}
+	 */
+	getSuiteId: function() {
+		return this.suiteId;
+	},
+	
+	/**
+	 * Set the suite Id
+	 *
+	 * @param {String} suiteId
+	 * @return {Boolean} True if set successfully
+	 */
+	setSuiteId: function( suiteId ) {
+		if ( typeof suiteId === "string" && suiteId !== "" ) {
+			this.suiteId = suiteId;
+			
+			return true;
+		}
+		
+		return false;
+	},
+	
+	
+	
+	/**
 	 * @property {Object} The controller managing this test
 	 */
 	testController: null,
@@ -261,7 +299,10 @@ Test.prototype = {
 				
 				case "number":
 					// start a timer so this test doesn't stay in progress forever
+					this.info( "Test returned and is in progress asynchronously. Waiting up to " + result + " milliseconds" );
 					this.startTimeout( result );
+				break;
+				
 				default:
 					// test can stay in progress forever
 					this.info( "Test returned and is in progress asynchronously" );
@@ -379,7 +420,7 @@ Test.prototype = {
 		var test = this;
 		
 		var timeoutCallback = function() {
-			test.timeout( message );
+			test.timeout();
 			test = null;
 		};
 		
