@@ -177,23 +177,23 @@ Test.prototype = {
 	setStatus: function( status ) {
 		switch ( status ) {
 			
-			case Test.STATUS_IN_PROGRESS:
+			case this.STATUS_IN_PROGRESS:
 				this.status = this.STATUS_IN_PROGRESS;
 			break;
 			
-			case Test.STATUS_TIMED_OUT:
+			case this.STATUS_TIMED_OUT:
 				this.status = this.STATUS_TIMED_OUT;
 			break;
 			
-			case Test.STATUS_PASSED:
+			case this.STATUS_PASSED:
 				this.status = this.STATUS_PASSED;
 			break;
 			
-			case Test.STATUS_FAILED:
+			case this.STATUS_FAILED:
 				this.status = this.STATUS_FAILED;
 			break;
 			
-			case Test.STATUS_PENDING:
+			case this.STATUS_PENDING:
 			default:
 				this.status = this.STATUS_PENDING;
 			break;

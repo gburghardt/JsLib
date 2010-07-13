@@ -4,10 +4,15 @@
  * extensively, as the test controller is passed to each test suite, which then
  * passes the test controller to each test.
  *
+ * The Abstract Factory Pattern is also used to generate factory objects, which
+ * then return instances of test suites, individual tests, and the view classes
+ * that update the user on test progress. You can create your own view classes
+ * and then specify your own view factory to change the views.
+ *
  * @extends Object
  */
-function TestController( suiteFactory, viewFactory ) {
-	this.constructor( suiteFactory, viewFactory );
+function TestController( factoryGenerator, log, id ) {
+	this.constructor( factoryGenerator, log, id );
 }
 
 /** @lends TestController */
@@ -16,23 +21,115 @@ TestController.prototype = {
 	/**
 	 * @constructs
 	 *
-	 * @param {Object} suiteFactory The object responsible for churning out new
-	 *                              instances of test suite objects.
-	 * @param {Object} viewFactory The object responsible for returning an
-	 *                             instance of a view object.
+	 * @param {Object} factoryGenerator The object responsible for generating
+	 *                                  instances of factory objects.
 	 * @param {Object} log The application logging object
+	 * @param {String} id The optional Id for this test controller
 	 * @return {void}
 	 */
-	constructor: function( suiteFactory, viewFactory, log ) {
-		if ( !this.setSuiteFactory( suiteFactory ) ) {
-			throw new Error( "Argument 1 in TestController.prototype.constructor requires an instance of a test suite factory." );
+	constructor: function( factoryGenerator, log, id ) {
+		if ( !this.setFactoryGenerator( factoryGenerator ) ) {
+			throw new Error( "TestController.prototype.constructor: Argument 1 must be an instance of a factory generator." );
 		}
 		
-		if ( !this.setViewFactory( viewFactory ) ) {
-			throw new Error( "Argument 2 in TestController.prototype.constructor requires an instance of a view factory." );
+		if ( !this.setLog( log ) ) {
+			throw new Error( "TestController.prototype.constructor: Argument 2 must be an application logger." );
+		}
+		
+		if ( !this.setId( id ) ) {
+			this.setId( String( ( new Date() ).getTime() ) );
+		}
+		
+		var viewFactory = this.factoryGenerator.getViewFactory();
+		var viewId = "testController_" + this.id;
+		
+		if ( !this.setView( viewFactory.getInstance( viewId ) ) ) {
+			throw new Error( "No view object was returned from the view factory." );
 		}
 		
 		this.testSuites = [];
+		
+		viewFactory = null;
+	},
+	
+	/**
+	 * Initialize this test controller
+	 *
+	 * @param {void}
+	 * @return {void}
+	 */
+	init: function() {
+		var data = null;
+		
+		for ( var i = 0, length = this.testSuites.length; i < length; i++ ) {
+			data = {
+				testSuite: this.testSuites[ i ]
+			};
+			
+			if ( i === this.length - 1 ) {
+				// render the test progress on the last iteration
+				data.progress = this.getProgress();
+			}
+			
+			this.view.render( data );
+		}
+	},
+	
+	
+	
+	/**
+	 * @property {Object} The object responsible for creating instance of
+	 *                    test suites
+	 */
+	factoryGenerator: null,
+	
+	/**
+	 * Set the suiteFactory property
+	 *
+	 * @param {Object} factoryGenerator The new factoryGenerator property
+	 * @return {Boolean} True if set successfully
+	 */
+	setFactoryGenerator: function( factoryGenerator ) {
+		if ( factoryGenerator && typeof factoryGenerator === "object" ) {
+			this.factoryGenerator = factoryGenerator;
+			
+			return true;
+		}
+		
+		return false;
+	},
+	
+	
+	
+	/**
+	 * @property {String} Unique Id for this test
+	 */
+	id: null,
+	
+	/**
+	 * Get the Id associated with this test.
+	 *
+	 * @param {void}
+	 * @return {String}
+	 */
+	getId: function() {
+		return this.id;
+	},
+	
+	/**
+	 * Sets the Id for this test.
+	 *
+	 * @param {String} id New Id for this test
+	 * @return {Boolean} True if set successfully
+	 */
+	setId: function( id ) {
+		if ( typeof id === "string" && id !== "" ) {
+			this.id = id;
+			
+			return true;
+		}
+		
+		return false;
 	},
 	
 	
@@ -61,30 +158,6 @@ TestController.prototype = {
 	
 	
 	/**
-	 *  @property {Object} The object responsible for creating instance of
-	 *                     test suites
-	 */
-	suiteFactory: null,
-	
-	/**
-	 * Set the suiteFactory property
-	 *
-	 * @param {Object} suiteFactory The new suiteFactory property
-	 * @return {Boolean} True if set successfully
-	 */
-	setSuiteFactory: function( suiteFactory ) {
-		if ( suiteFactory && typeof suiteFactory === "object" ) {
-			this.suiteFactory = suiteFactory;
-			
-			return true;
-		}
-		
-		return false;
-	},
-	
-	
-	
-	/**
 	 *  @property {Array} An array of test suites this controller manages
 	 */
 	testSuites: null,
@@ -100,7 +173,9 @@ TestController.prototype = {
 			suiteId = String( ( new Date() ).getTime() );
 		}
 		
-		var suite = this.suiteFactory.getInstance( this, suiteId );
+		var suiteFactory = this.factoryGenerator.getSuiteFactory();
+		var testFactory = this.factoryGenerator.getTestFactory();
+		var suite = suiteFactory.getInstance( this, testFactory, suiteId );
 		
 		/**
 		 * A shortcut function allowing tests to be easily added to the suite.
@@ -132,6 +207,9 @@ TestController.prototype = {
 		
 		this.testSuites.push( suite );
 		
+		suiteFactory = null;
+		testFactory = null;
+		
 		return testGenerator;
 	},
 	
@@ -161,28 +239,43 @@ TestController.prototype = {
 	
 	
 	/**
-	 *  @property {Object} The object responsible for getting an instance of a
-	 *                     test view
-	 */
-	viewFactory: null,
-	
-	/**
-	 * Set the viewFactory property
+	 * Get information on the progress of all tests
 	 *
-	 * @param {Object} viewFactory The new viewFactory property
-	 * @return {Boolean} True if set successfully
+	 * @param {void}
+	 * @return {Object}
 	 */
-	setViewFactory: function( viewFactory ) {
-		if ( viewFactory && typeof viewFactory === "object" ) {
-			this.viewFactory = viewFactory;
-			
-			return true;
+	getProgress: function() {
+		var total = 0,
+		    passed = 0,
+		    failed = 0,
+		    pending = 0,
+		    timedOut = 0,
+		    inProgress = 0,
+		    percentComplete = 0
+		;
+		
+		for ( var i = 0, length = this.testSuites.length; i < length; i++ ) {
+			passed += this.testSuites[ i ].getPassedCount();
+			failed += this.testSuites[ i ].getFailedCount();
+			pending += this.testSuites[ i ].getPendingCount();
+			timedOut += this.testSuites[ i ].getTimedOutCount();
+			inProgress += this.testSuites[ i ].getInProgressCount();
 		}
 		
-		return false;
+		total = passed + failed + pending + timedOut + inProgress;
+		
+		percentComplete = Math.round( ( passed + failed + timedOut ) / total * 100 );
+		
+		return {
+			total: total,
+			passed: passed,
+			failed: failed,
+			pending: pending,
+			timedOut: timedOut,
+			inProgress: inProgress,
+			percentComplete: percentComplete
+		};
 	},
-	
-	
 	
 	/**
 	 * Log an info statement to the application logger
@@ -196,7 +289,12 @@ TestController.prototype = {
 	},
 	
 	/**
-	 * 
+	 * Notify the user that an assertion has failed
+	 *
+	 * @param {Object} test The test that made the failed assertion
+	 * @param {String} message The failure message
+	 * @param {String} type The assertion type
+	 * @return {void}
 	 */
 	notifyAssertFailed: function( test, message, type ) {
 		this.log.error( message, test.getId() );
@@ -219,7 +317,13 @@ TestController.prototype = {
 		}
 		
 		this.log.error( message, test.getId() );
-		this.view.render( test );
+		
+		var data = {
+			test: test,
+			progress: this.getProgress()
+		};
+		
+		this.view.render( data );
 	},
 	
 	/**
@@ -230,7 +334,13 @@ TestController.prototype = {
 	 */
 	notifyTestPassed: function( test ) {
 		this.log.info( "Passed", test.getId() );
-		this.view.render( test );
+		
+		var data = {
+			test: test,
+			progress: this.getProgress()
+		};
+		
+		this.view.render( data );
 	},
 	
 	/**
@@ -241,7 +351,13 @@ TestController.prototype = {
 	 */
 	notifyTestTimedOut: function( test ) {
 		this.log.error( "Timed out", test.getId() );
-		this.view.render( test );
+		
+		var data = {
+			test: test,
+			progress: this.getProgress()
+		};
+		
+		this.view.render( data );
 	},
 	
 	/**

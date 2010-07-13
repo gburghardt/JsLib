@@ -168,6 +168,98 @@ TestSuite.prototype = {
 		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
 			this.tests[ i ].runTest();
 		}
+	},
+	
+	
+	
+	/**
+	 * Get the number of failed tests.
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getFailedCount: function() {
+		var count = 0;
+		
+		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			if ( this.tests[ i ].hasFailed() ) {
+				count++;
+			}
+		}
+		
+		return count;
+	},
+	
+	/**
+	 * Get the number of tests still in progress.
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getInProgressCount: function() {
+		var count = 0;
+		
+		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			if ( this.tests[ i ].inProgress() ) {
+				count++;
+			}
+		}
+		
+		return count;
+	},
+	
+	/**
+	 * Get the number of passed tests.
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getPassedCount: function() {
+		var count = 0;
+		
+		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			if ( this.tests[ i ].hasPassed() ) {
+				count++;
+			}
+		}
+		
+		return count;
+	},
+	
+	/**
+	 * Get the number of pending tests.
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getPendingCount: function() {
+		var count = 0;
+		
+		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			if ( this.tests[ i ].isPending() ) {
+				count++;
+			}
+		}
+		
+		return count;
+	},
+	
+	/**
+	 * Get the number of timed out tests.
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getTimedOutCount: function() {
+		var count = 0;
+		
+		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			if ( this.tests[ i ].hasTimedOut() ) {
+				count++;
+			}
+		}
+		
+		return count;
 	}
 	
 };
