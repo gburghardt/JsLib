@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Testing ConsoleLogger</title>
+		<script src="../src/external/json2.js"></script>
+		<script src="../src/ConsoleLogger.js"></script>
+		<script>
+			var log = new ConsoleLogger( JSON );
+			
+			var data = {
+				str: "string value",
+				num: 23,
+				obj: {
+					foo: "bar"
+				},
+				arr: [ 1, 4, true, "foo" ]
+			};
+			
+			log.profile( "logMessages" );
+			
+			log.info( "My message" );
+			log.debug( "Something else" );
+			log.warn( "A warning goes here" );
+			log.error( "Oops! Something went wrong." );
+			
+			log.info( "My message", "ConsoleLogger.html" );
+			log.debug( "Something else", "ConsoleLogger.html" );
+			log.warn( "A warning goes here", "ConsoleLogger.html" );
+			log.error( "Oops! Something went wrong.", "ConsoleLogger.html" );
+			
+			log.info( "My message", "ConsoleLogger.html", data );
+			log.debug( "Something else", "ConsoleLogger.html", data );
+			log.warn( "A warning goes here", "ConsoleLogger.html", data );
+			log.error( "Oops! Something went wrong.", "ConsoleLogger.html", data );
+			
+			log.info( "My message", null, data );
+			log.debug( "Something else", null, data );
+			log.warn( "A warning goes here", null, data );
+			log.error( "Oops! Something went wrong.", null, data );
+			
+			log.info( null, null, data );
+			log.debug( null, null, data );
+			log.warn( null, null, data );
+			log.error( null, null, data );
+			
+			log.profile( "logMessages" );
+			
+			log.profile( "Info click", "ConsoleLogger.html" );
+			
+		</script>
+	</head>
+	<body>
+		<h1>Testing ConsoleLogger</h1>
+		<button onclick="log.profile( 'Info click', 'ConsoleLogger.html' ); log.info('foo');">Info</button> &lt;&mdash; Click me to show an info and profile statement!
+	</body>
+</html>

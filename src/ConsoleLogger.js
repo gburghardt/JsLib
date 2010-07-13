@@ -22,6 +22,7 @@ ConsoleLogger.prototype = {
 	constructor: function( jsonService ) {
 		this.setJsonService( jsonService );
 		this.cachedMessages = [];
+		this.profiles = {};
 	},
 	
 	
@@ -57,14 +58,15 @@ ConsoleLogger.prototype = {
 	 * @return {Boolean} True if all messages displayed properly
 	 */
 	displayCachedMessages: function() {
-		for ( var i = 0, length = this.cachedMessages.length; i < length; i++ ) {
-			try {
+		try {
+			for ( var i = 0, length = this.cachedMessages.length; i < length; i++ ) {
 				console.log( this.cachedMessages[ i ] );
-				this.cachedMessages.splice( i, 1 );
 			}
-			catch ( error ) {
-				return false;
-			}
+			
+			this.cachedMessages = [];
+		}
+		catch ( error ) {
+			return false;
 		}
 		
 		return true;
@@ -97,6 +99,41 @@ ConsoleLogger.prototype = {
 	
 	
 	/**
+	 * @property {Object} Profile labels and their start dates
+	 */
+	profiles: null,
+	
+	/**
+	 * Start or display profile log statements
+	 *
+	 * @param {String} text Log text to display
+	 * @param {String} source Log message origin: file, function or method name
+	 * @return {void}
+	 */
+	profile: function( text, source ) {
+		var label = "";
+		
+		if ( source ) {
+			label = source + " " + String.fromCharCode( 8212 ) + " " + text;
+		}
+		else {
+			label = text;
+		}
+		
+		if ( !this.profiles[ label ] ) {
+			this.profiles[ label ] = new Date();
+		}
+		else {
+			var now = new Date();
+			var elapsedTime = now.getTime() - this.profiles[ label ].getTime();
+			this.report( "profile", text + " (" + elapsedTime + " ms)", source );
+		}
+	},
+	
+	
+	
+	
+	/**
 	 * @property {Number} Id of the timer used to detect the existence of the
 	 *                    console object
 	 */
@@ -122,7 +159,7 @@ ConsoleLogger.prototype = {
 		var self = this;
 		
 		var timerCallback = function() {
-			if ( typeof console === "object" ) {
+			if ( self.consoleAvailable() ) {
 				self.stopTimer();
 				self = null;
 			}
@@ -160,19 +197,19 @@ ConsoleLogger.prototype = {
 	report: function( type, text, source, data ) {
 		var message = this.formatMessage( type, text, source, data );
 		
-		if ( !console ) {
-			this.cacheMessage( message );
-			this.startTimer();
-		}
-		else {
+		if ( this.consoleAvailable() ) {
 			this.stopTimer();
-			
 			if ( this.displayCachedMessages() ) {
 				console.log( message );
 			}
 			else {
+				this.startTimer();
 				this.cacheMessage( message );
 			}
+		}
+		else {
+			this.startTimer();
+			this.cacheMessage( message );
 		}
 	},
 	
@@ -229,6 +266,10 @@ ConsoleLogger.prototype = {
 	
 	// utility methods
 	
+	consoleAvailable: function() {
+		return ( typeof console === "object" );
+	},
+	
 	/**
 	 * Format a message and ready it for display
 	 *
@@ -239,15 +280,15 @@ ConsoleLogger.prototype = {
 	 * @return {String}
 	 */
 	formatMessage: function( type, text, source, data ) {
-		var message = this.pad( type.toUpperCase(), 6 );
+		var message = this.pad( type.toUpperCase(), 7 );
 		var undef;
 		
-		if ( source !== undef ) {
+		if ( source !== undef && source !== null ) {
 			message += " " + source;
 		}
 		
-		if ( text !== undef ) {
-			message += " &mdash; " + text;
+		if ( text !== undef && text !== null ) {
+			message += " " + String.fromCharCode( 8212 ) + " " + text;
 		}
 		
 		if ( data !== undef && this.jsonService ) {
@@ -268,7 +309,7 @@ ConsoleLogger.prototype = {
 		var str = "";
 		
 		if ( "object" === type && type !== null ) {
-			str = this.jsonService.stringify( x );
+			str = this.jsonService.stringify( x, null, 4 );
 		}
 		else {
 			str = String( x );
