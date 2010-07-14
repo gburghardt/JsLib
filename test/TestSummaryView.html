@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Testing TestProgressView</title>
+		<script src="../src/external/json2.js"></script>
+		<script src="../src/ConsoleLogger.js"></script>
+		<script src="../src/TestProgressView.js"></script>
+		<link rel="stylesheet" type="text/css" media="all" href="../src/test.css">
+		<script>
+			var log = new ConsoleLogger( JSON );
+			var view = new TestSummaryView( "test-summaryViewWrapper" );
+			
+			window.onload = function() {
+				var progress = {
+					pending: 3,
+					inProgress: 12,
+					passed: 45,
+					failed: 0,
+					timedOut: 0,
+					total: 60,
+					percentComplete: 75
+				};
+				
+				view.init();
+				
+				view.render( progress );
+			};
+		</script>
+	</head>
+	<body>
+		<h1>Testing TestProgressView</h1>
+		<div id="test-summaryViewWrapper"></div>
+	</body>
+</html>

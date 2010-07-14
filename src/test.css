@@ -1,0 +1,32 @@
+.test-summaryView table {
+	border-collapse: collapse;
+}
+
+.test-summaryView caption {
+	font-size: 1.25em;
+	font-weight: bold;
+	margin: 0;
+	padding: 0 0 .2em 0;
+	text-align: left;
+}
+
+.test-summaryView td,
+.test-summaryView th {
+	border: 1px solid #999;
+	padding: 3px;
+}
+
+.test-summaryView td.test-summaryView-indicatorBox {
+	background-color: #f0f0f0;
+	padding: 0;
+}
+
+.test-summaryView th {
+	font-weight: bold;
+	text-align: left;
+}
+
+.test-summaryView-indicator {
+	background-color: #ccc;
+}
+
