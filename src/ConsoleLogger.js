@@ -315,9 +315,6 @@ ConsoleLogger.prototype = {
 			str = String( x );
 		}
 		
-		// sanitize for HTML injection
-		str = str.replace( /&/g ,"&amp;" ).replace( />/g, "&gt;" ).replace( /</g, "&lt;" );
-		
 		return str;
 	},
 	
