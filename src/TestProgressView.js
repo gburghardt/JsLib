@@ -3,17 +3,27 @@
  *
  * @extends Object
  */
-function TestProgressView( id ) {
+function TestSummaryView( id ) {
 	this.constructor( id );
 }
 
-/** @lends TestProgressView */
-TestProgressView.prototype = {
+/** @lends TestSummaryView */
+TestSummaryView.prototype = {
 	
 	/**
 	 * @property {HTMLDivElement} The bar that advances as tests are completed
 	 */
 	indicatorNode: null,
+	
+	/**
+	 * @property {String} The class name assigned to the root node for this view
+	 */
+	rootClassName: "test-summaryView",
+	
+	/**
+	 * @property {HTMLTableElement} The root node of this view
+	 */
+	rootNode: null,
 	
 	/**
 	 * @constructs
@@ -23,7 +33,7 @@ TestProgressView.prototype = {
 	 */
 	constructor: function( id ) {
 		if ( !this.setId( id ) ) {
-			throw new Error( "TestProgressView.prototype.constructor: Argument 1 is not a valid HTML tag Id - " + id + " given." );
+			throw new Error( "TestSummaryView.prototype.constructor: Argument 1 is not a valid HTML tag Id - " + id + " given." );
 		}
 	},
 	
@@ -35,70 +45,50 @@ TestProgressView.prototype = {
 	 */
 	init: function() {
 		var rootNode = document.getElementById( this.id );
+		var template = this.getTemplateSource();
 		
-		if ( !this.setRootNode( rootNode ) ) {
-			if ( rootNode ) {
-				rootNode.parentNode.removeChild( rootNode );
-				rootNode = null;
-			}
-			
-			rootNode = document.createElement( "table" );
-			rootNode.setAttribute( "id", this.id );
-			
-			document.getElementsByTagName( "body" )[ 0 ].appendChild( rootNode );
-		}
+		rootNode.className = this.rootClassName;
+		rootNode.innerHTML = template;
 		
-		if ( !rootNode.getAttribute( "class" ) ) {
-			rootNode.setAttribute( "class", this.rootClassName );
-		}
-		
-		this.setRootNode( rootNode );
-		this.initTable();
+		this.rootNode = document.getElementById( "test-summaryView-" + this.id );
+		this.indicatorNode = document.getElementById( "test-summaryView-indicator-" + this.id );
 	},
 	
 	/**
-	 * Initialize the table DOM structure
+	 * Get the template source code
 	 *
 	 * @param {void}
-	 * @return {void}
+	 * @return {String} The HTML to be injected into the DOM for this view
 	 */
-	initTable: function() {
-		var thead = document.createElement( "thead" );
-		var tbody = document.createElement( "tbody" );
-		
-		thead.innerHTML = [
-			'<tr>',
-				'<th class="test-progressView-pending">Pending</th>',
-				'<th class="test-progressView-inProgress">In Progress</th>',
-				'<th class="test-progressView-passed">Passed</th>',
-				'<th class="test-progressView-failed">Failed</th>',
-				'<th class="test-progressView-timedOut">Timed Out</th>',
-				'<th class="test-progressView-timedOut">Total</th>',
-			'</tr>'
+	getTemplateSource: function() {
+		return [
+			'<table cellpadding="0" cellspacing="0" border="0" id="test-summaryView-' + this.id + '">',
+				'<caption>Test Summary</caption>',
+				'<thead>',
+					'<tr>',
+						'<th class="test-summaryView-pending">Pending</th>',
+						'<th class="test-summaryView-inProgress">In Progress</th>',
+						'<th class="test-summaryView-passed">Passed</th>',
+						'<th class="test-summaryView-failed">Failed</th>',
+						'<th class="test-summaryView-timedOut">Timed Out</th>',
+						'<th class="test-summaryView-total">Total</th>',
+					'</tr>',
+				'</thead>',
+				'<tbody>',
+					'<tr>',
+						'<td class="test-summaryView-pending">-</td>',
+						'<td class="test-summaryView-inProgress">-</td>',
+						'<td class="test-summaryView-passed">-</td>',
+						'<td class="test-summaryView-failed">-</td>',
+						'<td class="test-summaryView-timedOut">-</td>',
+						'<td class="test-summaryView-total">-</td>',
+					'</tr>',
+					'<tr>',
+						'<td class="test-summaryView-indicatorBox" colspan="6"><div class="test-summaryView-indicator" id="test-summaryView-indicator-' + this.id + '"></div></td>',
+					'</tr>',
+				'</tbody>',
+			'</table>'
 		].join( "" );
-		
-		tbody.innerHTML = [
-			'<tr>',
-				'<td class="test-progressView-pending"></td>',
-				'<td class="test-progressView-inProgress"></td>',
-				'<td class="test-progressView-passed"></td>',
-				'<td class="test-progressView-failed"></td>',
-				'<td class="test-progressView-timedOut"></td>',
-				'<td class="test-progressView-total"></td>',
-			'</tr>',
-			'<tr>',
-				'<td colspan="5"><div class="test-progressView-indicator" id="test-progressView-indicator-' + this.id + '"></div></td>',
-			'</tr>'
-		].join( "" );
-		
-		this.rootNode.createCaption().innerHTML = "Test Progress";
-		this.rootNode.appendChild( thead );
-		this.rootNode.appendChild( tbody );
-		
-		this.indicatorNode = document.getElementById( "test-progressView-indicator-" + this.id );
-		
-		thead = null;
-		tbody = null;
 	},
 	
 	
@@ -137,34 +127,6 @@ TestProgressView.prototype = {
 	
 	
 	/**
-	 * @property {String} The class name assigned to the root node for this view
-	 */
-	rootClassName: "test-progressView",
-	
-	/**
-	 * @property {HTMLTableElement} The root node of this view
-	 */
-	rootNode: null,
-	
-	/**
-	 * Set the rootNode property
-	 *
-	 * @param {HTMLTableElement} rootNode
-	 * @return {Boolean} True if set properly
-	 */
-	setRootNode: function( rootNode ) {
-		if ( rootNode && typeof rootNode.nodeName === "string" && rootNode.nodeName === "TABLE" ) {
-			this.rootNode = rootNode;
-			
-			return true;
-		}
-		
-		return false;
-	},
-	
-	
-	
-	/**
 	 * Render data to the view
 	 *
 	 * @param {Object} data The data to render
@@ -175,7 +137,7 @@ TestProgressView.prototype = {
 			this.indicatorNode.innerHTML = data.percentComplete + "%";
 			
 			if ( data.percentComplete > 99.5 ) {
-				data.percentComplete = 0;
+				data.percentComplete = 100;
 			}
 			else if ( data.percentComplete < 0.5 ) {
 				data.percentComplete = 0;
