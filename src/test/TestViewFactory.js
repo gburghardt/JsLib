@@ -14,7 +14,7 @@ TestViewFactory.prototype = {
 	/**
 	 * @property {Object} A hash object of views indexed by their rootNodeId
 	 */
-	views: null,
+	instances: null,
 	
 	/**
 	 * @constructs
@@ -23,21 +23,31 @@ TestViewFactory.prototype = {
 	 * @return {void}
 	 */
 	constructor: function() {
-		this.views = {};
+		this.instances = {};
 	},
 	
 	/**
 	 * Get a new instance of a test view object
 	 *
+	 * @param {String} type The type of view to instantiate
 	 * @param {String} rootNodeId Id of the root node for the new view
 	 * @return {Object} A new test view object
 	 */
-	getInstance: function( rootNodeId ) {
-		if ( !this.views[ rootNodeId ] ) {
-			this.views[ rootNodeId ] = new TestView( rootNodeId );
+	getInstance: function( type, rootNodeId ) {
+		if ( !this.instances[ rootNodeId ] ) {
+			if ( "progress" === type ) {
+				this.instances[ rootNodeId ] = new TestProgressView( rootNodeId );
+			}
+			else if ( "summary" === type ) {
+				this.instances[ rootNodeId ] = new TestSummaryView( rootNodeId );
+			}
+			else {
+				this.instances[ rootNodeId ] = null;
+				throw new Error( "An invalid view type was specified in TestViewFactory.getInstance(). " + type + " given." );
+			}
 		}
 		
-		return this.views[ rootNodeId ];
+		return this.instances[ rootNodeId ];
 	}
 	
 };
