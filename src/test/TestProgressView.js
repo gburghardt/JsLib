@@ -3,12 +3,12 @@
  *
  * @extends Object
  */
-function TestView( id ) {
+function TestProgressView( id ) {
 	this.constructor( id );
 }
 
-/** @lends TestView */
-TestView.prototype = {
+/** @lends TestProgressView */
+TestProgressView.prototype = {
 	
 	/**
 	 * @constructs
@@ -18,7 +18,7 @@ TestView.prototype = {
 	 */
 	constructor: function( id ) {
 		if ( !this.setId( id ) ) {
-			throw new Error( "TestView.prototype.constructor: Argument 1 is not a valid HTML tag Id - " + id + " given." );
+			throw new Error( "TestProgressView.prototype.constructor: Argument 1 is not a valid HTML tag Id - " + id + " given." );
 		}
 	},
 	
