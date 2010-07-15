@@ -16,6 +16,11 @@ TestSummaryView.prototype = {
 	indicatorNode: null,
 	
 	/**
+	 * @property {HTMLDivElement} The node that displays the percentage complete
+	 */
+	indicatorTextNode: null,
+	
+	/**
 	 * @property {String} The class name assigned to the root node for this view
 	 */
 	rootClassName: "test-summaryView",
@@ -52,6 +57,7 @@ TestSummaryView.prototype = {
 		
 		this.rootNode = document.getElementById( "test-summaryView-" + this.id );
 		this.indicatorNode = document.getElementById( "test-summaryView-indicator-" + this.id );
+		this.indicatorTextNode = document.getElementById( "test-summaryView-indicatorText-" + this.id );
 	},
 	
 	/**
@@ -84,7 +90,11 @@ TestSummaryView.prototype = {
 						'<td class="test-summaryView-total">-</td>',
 					'</tr>',
 					'<tr>',
-						'<td class="test-summaryView-indicatorBox" colspan="6"><div class="test-summaryView-indicator" id="test-summaryView-indicator-' + this.id + '"></div></td>',
+						'<td class="test-summaryView-indicatorBox" colspan="6">',
+							'<div class="test-summaryView-indicator" id="test-summaryView-indicator-' + this.id + '">',
+								'<div class="test-summaryView-indicator2" id="test-summaryView-indicatorText-' + this.id + '"></div>',
+							'</div>',
+						'</td>',
 					'</tr>',
 				'</tbody>',
 			'</table>'
@@ -134,7 +144,7 @@ TestSummaryView.prototype = {
 	 */
 	render: function( data ) {
 		if ( typeof data.percentComplete === "number" ) {
-			this.indicatorNode.innerHTML = data.percentComplete + "%";
+			this.indicatorTextNode.innerHTML = data.percentComplete + "%";
 			
 			if ( data.percentComplete > 99.5 ) {
 				data.percentComplete = 100;
