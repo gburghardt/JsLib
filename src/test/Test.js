@@ -116,6 +116,10 @@ Test.prototype = {
 	 */
 	STATUS_PASSED: "passed",
 	
+	getStatus: function() {
+		return this.status;
+	},
+	
 	/**
 	 * Checks to see if this test has failed
 	 *
@@ -156,6 +160,14 @@ Test.prototype = {
 	 */
 	inProgress: function() {
 		return ( this.status === this.STATUS_IN_PROGRESS );
+	},
+	
+	isComplete: function() {
+		return (
+			this.status === this.STATUS_TIMED_OUT ||
+			this.status === this.STATUS_PASSED ||
+			this.status === this.STATUS_FAILED
+		);
 	},
 	
 	/**
@@ -276,6 +288,10 @@ Test.prototype = {
 	 * @return {void}
 	 */
 	runTest: function() {
+		if ( this.isComplete() ) {
+			return;
+		}
+		
 		this.startDate = new Date();
 		this.setStatus( this.STATUS_IN_PROGRESS );
 		
@@ -285,9 +301,8 @@ Test.prototype = {
 			var result = this.doTest( this );
 			var type = typeof( result );
 			
-			switch ( type ) {
-				
-				case "boolean":
+			if ( !this.hasFailed() ) {
+				if ( "boolean" === type ) {
 					// pass or fail this test immediately
 					if ( result ) {
 						this.pass();
@@ -295,19 +310,24 @@ Test.prototype = {
 					else {
 						this.fail();
 					}
-				break;
-				
-				case "number":
-					// start a timer so this test doesn't stay in progress forever
-					this.info( "Test returned and is in progress asynchronously. Waiting up to " + result + " milliseconds" );
-					this.startTimeout( result );
-				break;
-				
-				default:
+				}
+				else if ( "number" === type ) {
+					if ( isNaN( result ) ) {
+						throw new Error( "A test function cannot return a NaN value (Not A Number)" );
+					}
+					else if ( result <= 0 ) {
+						throw new Error( "A test function cannot return zero or a negative number" );
+					}
+					else {
+						// start a timer so this test doesn't stay in progress forever
+						this.info( "Test returned and is in progress asynchronously. Waiting up to " + result + " milliseconds" );
+						this.startTimeout( result );
+					}
+				}
+				else {
 					// test can stay in progress forever
 					this.info( "Test returned and is in progress asynchronously" );
-				break;
-				
+				}
 			}
 		}
 		catch ( error ) {
@@ -324,7 +344,7 @@ Test.prototype = {
 	 * assertions and eventually calls pass() or fail().
 	 * 
 	 * @param {Object} test The object representing this test, which is actually
-	 *                      a reference to this test. Use this to refer to this
+	 *                      a reference to this test. Use it to refer to this
 	 *                      test when calling private callback functions defined
 	 *                      inside the doTest() method as a function closure.
 	 * 
@@ -388,6 +408,10 @@ Test.prototype = {
 		}
 	},
 	
+	getAssertionCount: function() {
+		return this.assertions.failed.length + this.assertions.passed.length;
+	},
+	
 	/**
 	 * Get all assertions made in this test
 	 *
@@ -396,6 +420,87 @@ Test.prototype = {
 	 */
 	getAssertions: function() {
 		return this.assertions;
+	},
+	
+	/**
+	 * Get the failed assertions
+	 *
+	 * @param {void}
+	 * @return {Object}
+	 */
+	getFailedAssertions: function() {
+		return this.assertions.failed;
+	},
+	
+	/**
+	 * Get the passed assertions
+	 *
+	 * @param {void}
+	 * @return {Object}
+	 */
+	getPassedAssertions: function() {
+		return this.assertions.passed;
+	},
+	
+	/**
+	 * Get the number of failed assertions
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getFailedAssertionCount: function() {
+		return this.assertions.failed.length;
+	},
+	
+	/**
+	 * Get the number of passed assertions
+	 *
+	 * @param {void}
+	 * @return {Number}
+	 */
+	getPassedAssertionCount: function() {
+		return this.assertions.passed.length;
+	},
+	
+	hasAssertions: function() {
+		return ( this.assertions.failed.length > 0 || this.assertions.passed.length > 0 );
+	},
+	
+	/**
+	 * Determine if any assertions have failed
+	 *
+	 * @param {void}
+	 * @return {Boolean}
+	 */
+	hasFailedAssertions: function() {
+		return ( this.assertions.failed.length > 0 );
+	},
+	
+	/**
+	 * Determine if any assertions have passed
+	 *
+	 * @param {void}
+	 * @return {Boolean}
+	 */
+	hasPassedAssertions: function() {
+		return ( this.assertions.passed.length > 0 );
+	},
+	
+	
+	
+	/**
+	 * @property {String} The message generated at the time of test failure
+	 */
+	failureMessage: "",
+	
+	/**
+	 * Get the failure message for this test
+	 *
+	 * @param {void}
+	 * @return {String}
+	 */
+	getFailureMessage: function() {
+		return this.failureMessage;
 	},
 	
 	
@@ -440,6 +545,23 @@ Test.prototype = {
 		
 		clearTimeout( this.timeoutId );
 		this.timeoutId = null;
+	},
+	
+	
+	
+	/**
+	 * @property {String} The message when this test times out
+	 */
+	timeoutMessage: "",
+	
+	/**
+	 * Get the timeout message
+	 *
+	 * @param {void}
+	 * @return {String}
+	 */
+	getTimeoutMessage: function() {
+		return this.timeoutMessage;
 	},
 	
 	
@@ -562,22 +684,33 @@ Test.prototype = {
 	 * @return {Boolean}
 	 */
 	assertNumber: function( message, testValue ) {
-		return this.assert( typeof testValue === "number", message, "number" );
+		return this.assert( typeof testValue === "number" && !isNaN( testValue ), message, "number" );
 	},
 	
 	/**
-	 * Assert that the test value is an Object object
+	 * Assert that the test value is an object
 	 * 
 	 * @param {String} message The failure message
 	 * @param {Mixed} testValue The value to test
 	 * @return {Boolean}
 	 */
 	assertObject: function( message, testValue ) {
-		return this.assert( Object.prototype.toString.call( testValue ) === "[object Object]", message, "object" );
+		return this.assert( typeof testValue === "object" && testValue !== null, message, "object" );
 	},
 	
 	/**
-	 * Assert that the test value is an Object object
+	 * Assert that the test value is not object
+	 * 
+	 * @param {String} message The failure message
+	 * @param {Mixed} testValue The value to test
+	 * @return {Boolean}
+	 */
+	assertNotObject: function( message, testValue ) {
+		return this.assert( typeof testValue !== "object" || testValue === null, message, "object" );
+	},
+	
+	/**
+	 * Assert that the test value matches a regular expression
 	 * 
 	 * @param {String} message The failure message
 	 * @param {RegExp} regex A regular expression
@@ -586,6 +719,18 @@ Test.prototype = {
 	 */
 	assertRegexMatches: function( message, regex, testValue ) {
 		return this.assert( regex.test( testValue ), message, "regex" );
+	},
+	
+	/**
+	 * Assert that the test value does not match a regular expression
+	 * 
+	 * @param {String} message The failure message
+	 * @param {RegExp} regex A regular expression
+	 * @param {String} testValue The string value that should match the regex
+	 * @return {Boolean}
+	 */
+	assertRegexNotMatches: function( message, regex, testValue ) {
+		return this.assert( !regex.test( testValue ), message, "regex" );
 	},
 	
 	/**
@@ -613,17 +758,16 @@ Test.prototype = {
 	
 	
 	/**
-	 * @property {String} The message generated at the time of test failure
-	 */
-	failureMessage: "",
-	
-	/**
 	 * Mark this test as failed
 	 *
 	 * @param {String} message The optional failure message
 	 * @return {void}
 	 */
 	fail: function( message ) {
+		if ( this.isComplete() ) {
+			return;
+		}
+		
 		var type = typeof( message );
 		var error = null;
 		
@@ -640,9 +784,14 @@ Test.prototype = {
 			}
 		}
 		
-		if ( type === "string" ) {
-			this.failureMessage = message;
+		if ( type === "undefined" ) {
+			message = "Failed";
 		}
+		else if ( type === "string" ) {
+			message = "Failed with message: " + message;
+		}
+		
+		this.failureMessage = String( message );
 		
 		this.stopTimeout();
 		this.endDate = new Date();
@@ -668,6 +817,10 @@ Test.prototype = {
 	 * @return {void}
 	 */
 	pass: function() {
+		if ( this.isComplete() ) {
+			return;
+		}
+		
 		this.stopTimeout();
 		this.endDate = new Date();
 		this.setStatus( this.STATUS_PASSED );
@@ -681,7 +834,20 @@ Test.prototype = {
 	 * @param {void}
 	 * @return {void}
 	 */
-	timeout: function() {
+	timeout: function( message ) {
+		if ( this.isComplete() ) {
+			return;
+		}
+		
+		if ( typeof message === "string" ) {
+			message = "Timed out with message: " + message;
+		}
+		else {
+			message = "Timed out";
+		}
+		
+		this.timeoutMessage = message;
+		
 		this.stopTimeout();
 		this.endDate = new Date();
 		this.setStatus( this.STATUS_TIMED_OUT );
@@ -714,4 +880,3 @@ Test.prototype = {
 	}
 	
 };
-
