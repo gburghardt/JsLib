@@ -287,7 +287,7 @@ ConsoleLogger.prototype = {
 			message += " " + source;
 		}
 		
-		if ( text !== undef && text !== null ) {
+		if ( text ) {
 			message += " " + String.fromCharCode( 8212 ) + " " + text;
 		}
 		
