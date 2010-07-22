@@ -12,16 +12,6 @@ function Test( suiteId, testController, id ) {
 Test.prototype = {
 	
 	/**
-	 * @property {Date} The end date of the test
-	 */
-	endDate: null,
-	
-	/**
-	 * @property {Date} The start date of the test
-	 */
-	startDate: null,
-	
-	/**
 	 * @constructs
 	 *
 	 * @param {String} suiteId The test suite Id to which this test belongs
@@ -48,6 +38,37 @@ Test.prototype = {
 		};
 		
 		this.setStatus( this.STATUS_PENDING );
+	},
+	
+	
+	
+	/**
+	 * @property {Date} The end date of the test
+	 */
+	endDate: null,
+	
+	getEndDate: function() {
+		return this.endDate;
+	},
+	
+	
+	
+	/**
+	 * @property {Date} The start date of the test
+	 */
+	startDate: null,
+	
+	getStartDate: function() {
+		return this.startDate;
+	},
+	
+	getElapsedTime: function() {
+		if ( this.startDate && this.endDate ) {
+			return this.endDate.getTime() - this.startDate.getTime();
+		}
+		else {
+			return -1;
+		}
 	},
 	
 	
