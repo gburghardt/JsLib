@@ -11,6 +11,16 @@ function TestProgressView( id ) {
 TestProgressView.prototype = {
 	
 	/**
+	 * @property {String} The class name assigned to the root node for this view
+	 */
+	rootClassName: "test-view",
+	
+	/**
+	 * @property {HTMLTableElement} The root node of this view
+	 */
+	rootNode: null,
+	
+	/**
 	 * @constructs
 	 *
 	 * @param {String} id The Id of an HTML table element
@@ -20,6 +30,8 @@ TestProgressView.prototype = {
 		if ( !this.setId( id ) ) {
 			throw new Error( "TestProgressView.prototype.constructor: Argument 1 is not a valid HTML tag Id - " + id + " given." );
 		}
+		
+		this.rows = {};
 	},
 	
 	/**
@@ -31,77 +43,54 @@ TestProgressView.prototype = {
 	 */
 	init: function() {
 		var rootNode = document.getElementById( this.id );
+		var template = this.getTemplateSource();
 		
-		if ( !this.setRootNode( rootNode ) ) {
-			if ( rootNode ) {
-				rootNode.parentNode.removeChild( rootNode );
-				rootNode = null;
-			}
-			
-			rootNode = document.createElement( "table" );
-			rootNode.setAttribute( "id", this.id );
-			
-			document.getElementsByTagName( "body" )[ 0 ].appendChild( rootNode );
-		}
+		rootNode.className = this.rootClassName;
+		rootNode.innerHTML = template;
 		
-		if ( !rootNode.getAttribute( "class" ) ) {
-			rootNode.setAttribute( "class", this.rootClassName );
-		}
-		
-		this.setRootNode( rootNode );
-		this.initTable();
+		this.rootNode = document.getElementById( "test-progressView-tbody-" + this.id );
 	},
 	
-	/**
-	 * Generate a brand new table for this view if one doesn't already exist.
-	 *
-	 * @param {void}
-	 * @return {void}
-	 */
-	initTable: function() {
-		var thead = document.createElement( "thead" );
-		var tfoot = document.createElement( "tfoot" );
-		var tbody = document.createElement( "tbody" );
-		
-		thead.innerHTML = [
-			'<tr>',
-				'<td class="test-assertions" colspan="2">Assertions</td>',
-			'</tr>',
-			'<tr>',
-				'<th class="test-status" rowspan="2">Status</th>',
-				'<th class="test-id" rowspan="2">Test Id</th>',
-				'<th class="test-assertions-passed">Passed</th>',
-				'<th class="test-assertions-failed">Failed</th>',
-				'<th class="test-dateStarted" rowspan="2">Started</th>',
-				'<th class="test-dateEnded" rowspan="2">Finshed</th>',
-				'<th class="test-elapsedTime" rowspan="2">Elapsed Time</th>',
-				'<th class="test-suiteId" rowspan="2">Suite Id</th>',
-			'</tr>'
+	getTemplateSource: function() {
+		return [
+			'<table cellpadding="3" cellspacing="0" border="0" class="test-progressView" id="test-progressView-' + this.id + '">',
+				'<caption>Test Progress</caption>',
+				'<thead>',
+					'<tr>',
+						'<th rowspan="2" class="test-progressView-status">Status</th>',
+						'<th rowspan="2" class="test-progressView-testId">Id</th>',
+						'<th rowspan="2" class="test-progressView-suiteId">Suite</th>',
+						'<th colspan="3" class="test-progressView-assertions">Assertions</th>',
+						'<th rowspan="2" class="test-progressView-dateStarted">Started</th>',
+						'<th rowspan="2" class="test-progressView-dateEnded">Ended</th>',
+						'<th rowspan="2" class="test-progressView-elapsedTime">Time (ms)</th>',
+					'</tr>',
+					'<tr>',
+						'<th class="test-progressView-passedAssertions">Passed</th>',
+						'<th class="test-progressView-failedAssertions">Failed</th>',
+						'<th class="test-progressView-totalAssertions">Total</th>',
+					'</tr>',
+				'</thead>',
+				'<tfoot>',
+					'<tr>',
+						'<th rowspan="2" class="test-progressView-status">Status</th>',
+						'<th rowspan="2" class="test-progressView-testId">Id</th>',
+						'<th rowspan="2" class="test-progressView-suiteId">Suite</th>',
+						'<th class="test-progressView-passedAssertions">Passed</th>',
+						'<th class="test-progressView-failedAssertions">Failed</th>',
+						'<th class="test-progressView-totalAssertions">Total</th>',
+						'<th rowspan="2" class="test-progressView-dateStarted">Started</th>',
+						'<th rowspan="2" class="test-progressView-dateEnded">Ended</th>',
+						'<th rowspan="2" class="test-progressView-elapsedTime">Time (ms)</th>',
+					'</tr>',
+					'<tr>',
+						'<th colspan="3" class="test-progressView-assertions">Assertions</th>',
+					'</tr>',
+				'</tfoot>',
+				'<tbody id="test-progressView-tbody-' + this.id + '">',
+				'</tbody>',
+			'</table>'
 		].join( "" );
-		
-		tfoot.innerHTML = [
-			'<tr>',
-				'<th class="test-status" rowspan="2">Status</th>',
-				'<th class="test-id" rowspan="2">Test Id</th>',
-				'<th class="test-assertions-passed">Passed</th>',
-				'<th class="test-assertions-failed">Failed</th>',
-				'<th class="test-dateStarted" rowspan="2">Started</th>',
-				'<th class="test-dateEnded" rowspan="2">Finshed</th>',
-				'<th class="test-elapsedTime" rowspan="2">Elapsed Time</th>',
-				'<th class="test-suiteId" rowspan="2">Suite Id</th>',
-			'</tr>',
-			'<tr>',
-				'<td class="test-assertions" colspan="2">Assertions</td>',
-			'</tr>'
-		].join( "" );
-		
-		this.rootNode.appendChild( thead );
-		this.rootNode.appendChild( tfoot );
-		this.rootNode.appendChild( tbody );
-		
-		thead = null;
-		tfoot = null;
-		tbody = null;
 	},
 	
 	
@@ -140,64 +129,18 @@ TestProgressView.prototype = {
 	
 	
 	/**
-	 * @property {String} The class name assigned to the root node for this view
-	 */
-	rootClassName: "test-view",
-	
-	/**
-	 * @property {HTMLTableElement} The root node of this view
-	 */
-	rootNode: null,
-	
-	/**
-	 * Set the rootNode property
-	 *
-	 * @param {HTMLTableElement} rootNode
-	 * @return {Boolean} True if set properly
-	 */
-	setRootNode: function( rootNode ) {
-		if ( rootNode && typeof rootNode.nodeName === "string" && rootNode.nodeName === "TABLE" ) {
-			this.rootNode = rootNode;
-			
-			return true;
-		}
-		
-		return false;
-	},
-	
-	
-	
-	/**
 	 * Render data to the view
 	 *
 	 * @param {Object} data The data to render
 	 * @return {void}
 	 */
 	render: function( data ) {
-		if ( data.progress ) {
-			this.renderProgress( data.progress );
-		}
-		
 		if ( data.testSuite ) {
 			this.renderTestSuite( data.testSuite );
 		}
 		else if ( data.test ) {
 			this.renderTest( data.test );
 		}
-	},
-	
-	/**
-	 * Render the test progress view
-	 * 
-	 * @param {Object} progress Information on the test progress
-	 * @return {void}
-	 */
-	renderProgress: function( progress ) {
-		if ( this.progressView ) {
-			this.progressView.render( progress );
-		}
-		
-		progress = null;
 	},
 	
 	/**
@@ -221,30 +164,34 @@ TestProgressView.prototype = {
 	 * @return {void}
 	 */
 	renderTest: function( test ) {
-		var rowId = "test=" + test.getSuiteId() + "-" + test.getId();
-		var row = document.getElementById( rowId );
+		var rowId = "test-progressView-" + test.getSuiteId() + "-" + test.getId();
+		var row = this.getRow( rowId );
+		var elapsedTime = test.getElapsedTime();
 		
-		if ( !row ) {
-			row = this.createRow( rowId );
+		if ( elapsedTime < 0 ) {
+			elapsedTime = "--";
 		}
 		
-		var assertions = test.getAssertions();
+		row.className = this.getStatusClass( test );
 		
-		row.className = this.getStatusClass( test.getStatus() );
-		
-		row.cells[ 0 ].innerHTML = this.getStatusText( test.getStatus() );
+		row.cells[ 0 ].innerHTML = this.getStatusText( test );
 		row.cells[ 1 ].innerHTML = test.getId();
-		row.cells[ 2 ].innerHTML = assertions.passed.length;
-		row.cells[ 3 ].innerHTML = assertions.failed.length;
-		row.cells[ 4 ].innerHTML = this.formatDate( test.getStartDate() );
-		row.cells[ 5 ].innerHTML = this.formatDate( test.getEndDate() );
-		row.cells[ 6 ].innerHTML = test.getElapsedTime();
-		row.cells[ 7 ].innerHTML = test.getSuiteId();
+		row.cells[ 2 ].innerHTML = test.getSuiteId();
+		row.cells[ 3 ].innerHTML = test.getPassedAssertionCount();
+		row.cells[ 4 ].innerHTML = test.getFailedAssertionCount();
+		row.cells[ 5 ].innerHTML = test.getAssertionCount();
+		row.cells[ 6 ].innerHTML = this.formatDate( test.getStartDate(), "--" );
+		row.cells[ 7 ].innerHTML = this.formatDate( test.getEndDate(), "--" );
+		row.cells[ 8 ].innerHTML = elapsedTime;
 		
 		assertions = null;
 		test = null;
 		row = null;
 	},
+	
+	
+	
+	rows: null,
 	
 	/**
 	 * Create the DOM nodes required for one row in the test view
@@ -254,27 +201,59 @@ TestProgressView.prototype = {
 	 */
 	createRow: function( rowId ) {
 		var row = document.createElement( "tr" );
+		var cell = null;
 		
-		row.setAttribute( "id", rowId );
+		row.id = rowId;
 		
-		row.innerHTML = [
-			'<td class="test-status"></td>',
-			'<td class="test-id"></td>',
-			'<td class="test-assertions-passed"></td>',
-			'<td class="test-assertions-failed"></td>',
-			'<td class="test-dateStarted"></td>',
-			'<td class="test-dateEnded"></td>',
-			'<td class="test-elapsedTime"></td>',
-			'<td class="test-suiteId"></td>'
-		].join( "" );
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-status";
+		row.appendChild( cell );
 		
-		var tbody = this.rootNode.getElementsByTagName( "tbody" )[ 0 ];
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-testId";
+		row.appendChild( cell );
 		
-		tbody.appendChild( row );
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-suiteId";
+		row.appendChild( cell );
 		
-		tbody = null;
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-passedAssertions";
+		row.appendChild( cell );
+		
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-failedAssertions";
+		row.appendChild( cell );
+		
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-totalAssertions";
+		row.appendChild( cell );
+		
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-dateStarted";
+		row.appendChild( cell );
+		
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-dateEnded";
+		row.appendChild( cell );
+		
+		cell = document.createElement( "td" );
+		cell.className = "test-progressView-elapsedTime";
+		row.appendChild( cell );
+		
+		this.rootNode.appendChild( row );
+		
+		cell = null;
 		
 		return row;
+	},
+	
+	getRow: function( rowId ) {
+		if ( !this.rows[ rowId ] ) {
+			this.rows[ rowId ] = this.createRow( rowId );
+		}
+		
+		return this.rows[ rowId ];
 	},
 	
 	
@@ -297,6 +276,20 @@ TestProgressView.prototype = {
 		}
 		
 		node = null;
+	},
+	
+	formatDate: function( date, defaultDate ) {
+		if ( typeof defaultDate === "undefined" ) {
+			defaultDate = "";
+		}
+		
+		if ( date ) {
+			return date.getFullYear() + "/" + date.getMonth() + "/" + date.getDate() +
+				" " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "." + date.getMilliseconds();
+		}
+		else {
+			return defaultDate;
+		}
 	},
 	
 	/**
@@ -338,13 +331,14 @@ TestProgressView.prototype = {
 	/**
 	 * Get an HTML tag class name from the test status
 	 *
-	 * @param {Object} test A test object
+	 * @param {String} status
 	 * @return {String} An HTML tag class name
 	 */
 	getStatusClass: function( test ) {
 		var statusClass = "";
+		var status = test.getStatus();
 		
-		switch ( test.getStatus() ) {
+		switch ( status ) {
 			
 			case test.STATUS_IN_PROGRESS:
 				statusClass = "test-status-inProgress";
@@ -378,16 +372,17 @@ TestProgressView.prototype = {
 	/**
 	 * Get text visible to the user for the current status of a test
 	 *
-	 * @param {Object} test A test object
+	 * @param {String} status
 	 * @return {String} Text dislayed to the user
 	 */
 	getStatusText: function( test ) {
 		var statusText = "";
+		var status = test.getStatus();
 		
-		switch ( test.getStatus() ) {
+		switch ( status ) {
 			
 			case test.STATUS_IN_PROGRESS:
-				statusText = "In Progress";
+				statusText = "Running";
 			break;
 			
 			case test.STATUS_TIMED_OUT:
@@ -403,7 +398,7 @@ TestProgressView.prototype = {
 			break;
 			
 			case test.STATUS_PENDING:
-				statusText = "Pending";
+				statusText = "Ready";
 			break;
 			
 			default:

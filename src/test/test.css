@@ -1,7 +1,11 @@
+.test-progressView,
 .test-summaryView table {
 	border-collapse: collapse;
+	font-family: Arial, Helvetics, sans-serif;
+	font-size: 80%;
 }
 
+.test-progressView caption,
 .test-summaryView caption {
 	font-size: 1.25em;
 	font-weight: bold;
@@ -10,20 +14,91 @@
 	text-align: left;
 }
 
+.test-progressView td,
+.test-progressView th,
 .test-summaryView td,
 .test-summaryView th {
 	border: 1px solid #999;
 	padding: 3px;
 }
 
+.test-progressView .test-progressView-status {
+	width: 5.5em;
+}
+
+.test-progressView td.test-progressView-status {
+	white-space: nowrap;
+}
+
+.test-progressView td.test-progressView-elapsedTime,
+.test-progressView td.test-progressView-failedAssertions,
+.test-progressView td.test-progressView-passedAssertions,
+.test-progressView td.test-progressView-totalAssertions,
+.test-progressView tfoot th.test-progressView-elapsedTime,
+.test-progressView tfoot th.test-progressView-failedAssertions,
+.test-progressView tfoot th.test-progressView-passedAssertions,
+.test-progressView tfoot th.test-progressView-totalAssertions,
+.test-progressView thead th.test-progressView-elapsedTime,
+.test-progressView thead th.test-progressView-failedAssertions,
+.test-progressView thead th.test-progressView-passedAssertions,
+.test-progressView thead th.test-progressView-totalAssertions {
+	text-align: right;
+}
+
+.test-progressView tr.test-status-failed td {
+	background-color: #fee;
+	border-color: #f00;
+	color: #f00;
+	font-weight: bold;
+}
+
+.test-progressView tr.test-status-inProgress td {
+	background-color: #eef;
+	border-color: #009;
+	color: #009;
+}
+
+.test-progressView tr.test-status-passed td {
+	background-color: #efe;
+	border-color: #090;
+	color: #090;
+}
+
+.test-progressView tr.test-status-pending td {
+	color: #777;
+}
+
+.test-progressView tr.test-status-timedOut td {
+	background-color: #ffc;
+	border-color: #960;
+	color: #960;
+	font-weight: bold;
+}
+
+.test-progressView thead th,
+.test-summaryView thead th {
+	background-color: #efefef;
+	font-weight: bold;
+	text-align: left;
+	vertical-align: bottom;
+	white-space: nowrap;
+}
+
+.test-progressView tfoot th {
+	background-color: #efefef;
+	font-weight: bold;
+	text-align: left;
+	vertical-align: top;
+}
+
+.test-progressView tfoot th.test-progressView-assertions,
+.test-progressView thead th.test-progressView-assertions {
+	text-align: center;
+}
+
 .test-summaryView td.test-summaryView-indicatorBox {
 	background-color: #f0f0f0;
 	padding: 0;
-}
-
-.test-summaryView th {
-	font-weight: bold;
-	text-align: left;
 }
 
 .test-summaryView-indicator {
