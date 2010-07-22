@@ -68,7 +68,7 @@ TestSummaryView.prototype = {
 	 */
 	getTemplateSource: function() {
 		return [
-			'<table cellpadding="0" cellspacing="0" border="0" id="test-summaryView-' + this.id + '">',
+			'<table cellpadding="0" cellspacing="0" border="0" class="test-summaryView" id="test-summaryView-' + this.id + '">',
 				'<caption>Test Summary</caption>',
 				'<thead>',
 					'<tr>',
