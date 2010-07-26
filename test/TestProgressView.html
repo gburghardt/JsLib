@@ -11,7 +11,7 @@
 		<link rel="stylesheet" type="text/css" media="all" href="../src/test/test.css">
 		<script>
 			var log = new ConsoleLogger( JSON );
-			var view = new TestProgressView( "test-progressViewWrapper" );
+			var view = new TestProgressView( "test-view-progressWrapper" );
 			var testController = {
 				info: function( message, test ) {
 					log.info( message, test.getSuiteId() + "." + test.getId() );
@@ -78,6 +78,6 @@
 	</head>
 	<body>
 		<h1>Testing TestProgressView</h1>
-		<div id="test-progressViewWrapper"></div>
+		<div id="test-view-progressWrapper"></div>
 	</body>
 </html>

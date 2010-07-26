@@ -173,6 +173,59 @@ TestSuite.prototype = {
 	
 	
 	/**
+	 * Get the summary of this test suite
+	 *
+	 * @param {void}
+	 * @return {Object}
+	 */
+	getSummary: function() {
+		var data = {
+			pending: 0,
+			inProgress: 0,
+			passed: 0,
+			failed: 0,
+			timedOut: 0,
+			total: this.tests.length,
+			complete: 0,
+			percentComplete: 0
+		};
+		
+		var test = null;
+		
+		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			test = this.tests[ i ];
+			
+			if ( test.isPending() ) {
+				data.pending++;
+			}
+			else if ( test.inProgress() ) {
+				data.inProgress++;
+			}
+			else if ( test.hasPassed() ) {
+				data.passed++;
+			}
+			else if ( test.hasFailed() ) {
+				data.failed++;
+			}
+			else if ( test.hasTimedOut() ) {
+				data.timedOut++;
+			}
+			
+			if ( test.isComplete() ) {
+				data.complete++;
+			}
+		}
+		
+		data.percentComplete = data.complete / data.total * 100;
+		
+		test = null;
+		
+		return data;
+	},
+	
+	
+	
+	/**
 	 * Get the number of failed tests.
 	 *
 	 * @param {void}

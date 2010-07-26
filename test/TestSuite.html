@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Testing TestSuite</title>
+		<script src="../external/json2.js"></script>
+		<script src="../src/logging/ConsoleLogger.js"></script>
+		<script src="../src/test/TestSummaryView.js"></script>
+		<script src="../src/test/TestProgressView.js"></script>
+		<script src="../src/test/TestSuite.js"></script>
+		<script src="../src/test/Test.js"></script>
+		<script src="../src/test/TestFactory.js"></script>
+		<link rel="stylesheet" type="text/css" media="all" href="../src/test/test.css">
+		<script>
+			var log = new ConsoleLogger( JSON );
+			var summaryView = new TestSummaryView( "test-view-summaryWrapper" );
+			var progressView = new TestProgressView( "test-view-progressWrapper" );
+			
+			var testFactory = TestFactory.getInstance();
+			
+			var testController = {
+				info: function( message, test ) {
+					log.info( message, test.getSuiteId() + "." + test.getId() );
+					summaryView.render( suite1.getSummary() );
+					progressView.renderTest( test );
+				},
+				notifyAssertFailed: function( test, message, type ) {
+					log.warn( message, test.getSuiteId() + "." + test.getId() );
+					summaryView.render( suite1.getSummary() );
+					progressView.renderTest( test );
+				},
+				notifyTestFailed: function( test ) {
+					log.error( test.getFailureMessage(), test.getSuiteId() + "." + test.getId() );
+					summaryView.render( suite1.getSummary() );
+					progressView.renderTest( test );
+				},
+				notifyTestPassed: function( test ) {
+					log.info( "Passed", test.getSuiteId() + "." + test.getId() );
+					summaryView.render( suite1.getSummary() );
+					progressView.renderTest( test );
+				},
+				notifyTestTimedOut: function( test ) {
+					log.error( test.getTimeoutMessage(), test.getSuiteId() + "." + test.getId() );
+					summaryView.render( suite1.getSummary() );
+					progressView.renderTest( test );
+				}
+			};
+			
+			var suite1 = null;
+			
+			window.onload = function() {
+				suite1 = new TestSuite( testController, testFactory, "suite1" );
+				
+				summaryView.init();
+				progressView.init();
+				
+				suite1.createTest( "passedTest", function( test ) {
+					return true;
+				} );
+				
+				suite1.createTest( "failedTest", function( test ) {
+					return false;
+				} );
+				
+				suite1.createTest( "inProgressTest", function( test ) {
+					return;
+				} );
+				
+				suite1.createTest( "timedOutTest", function( test ) {
+					return 3000;
+				} );
+				
+				summaryView.render( suite1.getSummary() );
+				
+				progressView.render( {
+					testSuite: suite1
+				} );
+			};
+			
+			var runTests = function() {
+				suite1.runTests();
+				
+				summaryView.render( suite1.getSummary() );
+				
+				progressView.render( {
+					testSuite: suite1
+				} );
+			};
+		</script>
+	</head>
+	<body>
+		<h1>Testing TestSuite</h1>
+		<button onclick="runTests()">Run tests</button>
+		<div id="test-view-summaryWrapper"></div>
+		<div id="test-view-progressWrapper"></div>
+	</body>
+</html>

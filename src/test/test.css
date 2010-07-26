@@ -1,12 +1,21 @@
-.test-progressView,
-.test-summaryView table {
-	border-collapse: collapse;
+.test-view {
 	font-family: Arial, Helvetics, sans-serif;
 	font-size: 80%;
+	margin: 1em 0;
 }
 
-.test-progressView caption,
-.test-summaryView caption {
+.test-view-progress table,
+.test-view-summary table {
+	border-collapse: collapse;
+	font-size: 1em;
+}
+
+.test-view-progress table {
+	width: 100%;
+}
+
+.test-view-progress caption,
+.test-view-summary caption {
 	font-size: 1.25em;
 	font-weight: bold;
 	margin: 0;
@@ -14,69 +23,74 @@
 	text-align: left;
 }
 
-.test-progressView td,
-.test-progressView th,
-.test-summaryView td,
-.test-summaryView th {
+.test-view-progress td,
+.test-view-progress th,
+.test-view-summary td,
+.test-view-summary th {
 	border: 1px solid #999;
 	padding: 3px;
+	vertical-align: top;
 }
 
-.test-progressView .test-progressView-status {
+.test-view-progress .test-view-progress-status {
 	width: 5.5em;
 }
 
-.test-progressView td.test-progressView-status {
+.test-view-progress td.test-view-progress-status {
 	white-space: nowrap;
 }
 
-.test-progressView td.test-progressView-elapsedTime,
-.test-progressView td.test-progressView-failedAssertions,
-.test-progressView td.test-progressView-passedAssertions,
-.test-progressView td.test-progressView-totalAssertions,
-.test-progressView tfoot th.test-progressView-elapsedTime,
-.test-progressView tfoot th.test-progressView-failedAssertions,
-.test-progressView tfoot th.test-progressView-passedAssertions,
-.test-progressView tfoot th.test-progressView-totalAssertions,
-.test-progressView thead th.test-progressView-elapsedTime,
-.test-progressView thead th.test-progressView-failedAssertions,
-.test-progressView thead th.test-progressView-passedAssertions,
-.test-progressView thead th.test-progressView-totalAssertions {
+.test-view-progress td.test-view-progress-elapsedTime,
+.test-view-progress td.test-view-progress-failedAssertions,
+.test-view-progress td.test-view-progress-passedAssertions,
+.test-view-progress td.test-view-progress-totalAssertions,
+.test-view-progress tfoot th.test-view-progress-elapsedTime,
+.test-view-progress tfoot th.test-view-progress-failedAssertions,
+.test-view-progress tfoot th.test-view-progress-passedAssertions,
+.test-view-progress tfoot th.test-view-progress-totalAssertions,
+.test-view-progress thead th.test-view-progress-elapsedTime,
+.test-view-progress thead th.test-view-progress-failedAssertions,
+.test-view-progress thead th.test-view-progress-passedAssertions,
+.test-view-progress thead th.test-view-progress-totalAssertions {
 	text-align: right;
 }
 
-.test-progressView tr.test-status-failed td {
+.test-view-progress tr.test-status-failed td {
 	background-color: #fee;
 	border-color: #f00;
 	color: #f00;
 	font-weight: bold;
 }
 
-.test-progressView tr.test-status-inProgress td {
+.test-view-progress td.test-view-progress-failureMessage {
+	font-family: Monaco, Consolas, Mono, "Courier New", Courier, monospace;
+}
+
+.test-view-progress tr.test-status-inProgress td {
 	background-color: #eef;
 	border-color: #009;
 	color: #009;
 }
 
-.test-progressView tr.test-status-passed td {
+.test-view-progress tr.test-status-passed td {
 	background-color: #efe;
 	border-color: #090;
 	color: #090;
 }
 
-.test-progressView tr.test-status-pending td {
+.test-view-progress tr.test-status-pending td {
 	color: #777;
 }
 
-.test-progressView tr.test-status-timedOut td {
+.test-view-progress tr.test-status-timedOut td {
 	background-color: #ffc;
 	border-color: #960;
 	color: #960;
 	font-weight: bold;
 }
 
-.test-progressView thead th,
-.test-summaryView thead th {
+.test-view-progress thead th,
+.test-view-summary thead th {
 	background-color: #efefef;
 	font-weight: bold;
 	text-align: left;
@@ -84,27 +98,38 @@
 	white-space: nowrap;
 }
 
-.test-progressView tfoot th {
+.test-view-progress tfoot th {
 	background-color: #efefef;
 	font-weight: bold;
 	text-align: left;
 	vertical-align: top;
 }
 
-.test-progressView tfoot th.test-progressView-assertions,
-.test-progressView thead th.test-progressView-assertions {
+.test-view-progress tfoot th.test-view-progress-assertions,
+.test-view-progress thead th.test-view-progress-assertions {
 	text-align: center;
 }
 
-.test-summaryView td.test-summaryView-indicatorBox {
-	background-color: #f0f0f0;
+.test-view-summary .test-view-summary-indicator {
+	background: #036 url( images/test-summary-bar-top.png ) repeat-x scroll 0 0;
+}
+
+.test-view-summary .test-view-summary-indicator2 {
+	background: transparent url( images/test-summary-bar-bottom.png ) repeat-x scroll 0 100%;
+}
+
+.test-view-summary td.test-view-summary-indicatorBox {
+	background-color: #036;
+	color: #fff;
 	padding: 0;
 }
 
-.test-summaryView-indicator {
+.test-view-summary-indicator {
 	background-color: #ccc;
 }
 
-.test-summaryView-indicator2 {
-	padding: 3px;
+.test-view-summary-indicator2 {
+	line-height: 22px;
+	text-indent: 3px;
 }
+

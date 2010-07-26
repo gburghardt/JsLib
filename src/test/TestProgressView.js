@@ -13,7 +13,7 @@ TestProgressView.prototype = {
 	/**
 	 * @property {String} The class name assigned to the root node for this view
 	 */
-	rootClassName: "test-view",
+	rootClassName: "test-view test-view-progress",
 	
 	/**
 	 * @property {HTMLTableElement} The root node of this view
@@ -48,46 +48,48 @@ TestProgressView.prototype = {
 		rootNode.className = this.rootClassName;
 		rootNode.innerHTML = template;
 		
-		this.rootNode = document.getElementById( "test-progressView-tbody-" + this.id );
+		this.rootNode = document.getElementById( "test-view-progress-tbody-" + this.id );
 	},
 	
 	getTemplateSource: function() {
 		return [
-			'<table cellpadding="3" cellspacing="0" border="0" class="test-progressView" id="test-progressView-' + this.id + '">',
+			'<table cellpadding="3" cellspacing="0" border="0" class="test-view-progress" id="test-view-progress-' + this.id + '">',
 				'<caption>Test Progress</caption>',
 				'<thead>',
 					'<tr>',
-						'<th rowspan="2" class="test-progressView-status">Status</th>',
-						'<th rowspan="2" class="test-progressView-testId">Id</th>',
-						'<th rowspan="2" class="test-progressView-suiteId">Suite</th>',
-						'<th colspan="3" class="test-progressView-assertions">Assertions</th>',
-						'<th rowspan="2" class="test-progressView-dateStarted">Started</th>',
-						'<th rowspan="2" class="test-progressView-dateEnded">Ended</th>',
-						'<th rowspan="2" class="test-progressView-elapsedTime">Time (ms)</th>',
+						'<th rowspan="2" class="test-view-progress-status">Status</th>',
+						'<th rowspan="2" class="test-view-progress-testId">Id</th>',
+						'<th rowspan="2" class="test-view-progress-suiteId">Suite</th>',
+						'<th colspan="3" class="test-view-progress-assertions">Assertions</th>',
+						'<th rowspan="2" class="test-view-progress-dateStarted">Started</th>',
+						'<th rowspan="2" class="test-view-progress-dateEnded">Ended</th>',
+						'<th rowspan="2" class="test-view-progress-elapsedTime">Time (ms)</th>',
+						'<th rowspan="2" class="test-view-progress-failureMessage">Failure Message</th>',
 					'</tr>',
 					'<tr>',
-						'<th class="test-progressView-passedAssertions">Passed</th>',
-						'<th class="test-progressView-failedAssertions">Failed</th>',
-						'<th class="test-progressView-totalAssertions">Total</th>',
+						'<th class="test-view-progress-passedAssertions">Passed</th>',
+						'<th class="test-view-progress-failedAssertions">Failed</th>',
+						'<th class="test-view-progress-totalAssertions">Total</th>',
 					'</tr>',
 				'</thead>',
 				'<tfoot>',
 					'<tr>',
-						'<th rowspan="2" class="test-progressView-status">Status</th>',
-						'<th rowspan="2" class="test-progressView-testId">Id</th>',
-						'<th rowspan="2" class="test-progressView-suiteId">Suite</th>',
-						'<th class="test-progressView-passedAssertions">Passed</th>',
-						'<th class="test-progressView-failedAssertions">Failed</th>',
-						'<th class="test-progressView-totalAssertions">Total</th>',
-						'<th rowspan="2" class="test-progressView-dateStarted">Started</th>',
-						'<th rowspan="2" class="test-progressView-dateEnded">Ended</th>',
-						'<th rowspan="2" class="test-progressView-elapsedTime">Time (ms)</th>',
+						'<th rowspan="2" class="test-view-progress-status">Status</th>',
+						'<th rowspan="2" class="test-view-progress-testId">Id</th>',
+						'<th rowspan="2" class="test-view-progress-suiteId">Suite</th>',
+						'<th class="test-view-progress-passedAssertions">Passed</th>',
+						'<th class="test-view-progress-failedAssertions">Failed</th>',
+						'<th class="test-view-progress-totalAssertions">Total</th>',
+						'<th rowspan="2" class="test-view-progress-dateStarted">Started</th>',
+						'<th rowspan="2" class="test-view-progress-dateEnded">Ended</th>',
+						'<th rowspan="2" class="test-view-progress-elapsedTime">Time (ms)</th>',
+						'<th rowspan="2" class="test-view-progress-failureMessage">Failure Message</th>',
 					'</tr>',
 					'<tr>',
-						'<th colspan="3" class="test-progressView-assertions">Assertions</th>',
+						'<th colspan="3" class="test-view-progress-assertions">Assertions</th>',
 					'</tr>',
 				'</tfoot>',
-				'<tbody id="test-progressView-tbody-' + this.id + '">',
+				'<tbody id="test-view-progress-tbody-' + this.id + '">',
 				'</tbody>',
 			'</table>'
 		].join( "" );
@@ -164,7 +166,7 @@ TestProgressView.prototype = {
 	 * @return {void}
 	 */
 	renderTest: function( test ) {
-		var rowId = "test-progressView-" + test.getSuiteId() + "-" + test.getId();
+		var rowId = "test-view-progress-" + test.getSuiteId() + "-" + test.getId();
 		var row = this.getRow( rowId );
 		var elapsedTime = test.getElapsedTime();
 		
@@ -183,6 +185,7 @@ TestProgressView.prototype = {
 		row.cells[ 6 ].innerHTML = this.formatDate( test.getStartDate(), "--" );
 		row.cells[ 7 ].innerHTML = this.formatDate( test.getEndDate(), "--" );
 		row.cells[ 8 ].innerHTML = elapsedTime;
+		row.cells[ 9 ].innerHTML = this.escapeHTML( test.getFailureMessage() );
 		
 		assertions = null;
 		test = null;
@@ -206,39 +209,43 @@ TestProgressView.prototype = {
 		row.id = rowId;
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-status";
+		cell.className = "test-view-progress-status";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-testId";
+		cell.className = "test-view-progress-testId";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-suiteId";
+		cell.className = "test-view-progress-suiteId";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-passedAssertions";
+		cell.className = "test-view-progress-passedAssertions";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-failedAssertions";
+		cell.className = "test-view-progress-failedAssertions";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-totalAssertions";
+		cell.className = "test-view-progress-totalAssertions";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-dateStarted";
+		cell.className = "test-view-progress-dateStarted";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-dateEnded";
+		cell.className = "test-view-progress-dateEnded";
 		row.appendChild( cell );
 		
 		cell = document.createElement( "td" );
-		cell.className = "test-progressView-elapsedTime";
+		cell.className = "test-view-progress-elapsedTime";
+		row.appendChild( cell );
+		
+		cell = document.createElement( "td" );
+		cell.className = "test-view-progress-failureMessage";
 		row.appendChild( cell );
 		
 		this.rootNode.appendChild( row );
@@ -276,6 +283,14 @@ TestProgressView.prototype = {
 		}
 		
 		node = null;
+	},
+	
+	escapeHTML: function( str ) {
+		return str.replace( /&/g, "&gt;" )
+		          .replace( />/g, "&gt;" )
+		          .replace( /</g, "&lt;" )
+		          .replace( /\n/g, "<br>" )
+		       ;
 	},
 	
 	formatDate: function( date, defaultDate ) {

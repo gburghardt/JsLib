@@ -23,7 +23,7 @@ TestSummaryView.prototype = {
 	/**
 	 * @property {String} The class name assigned to the root node for this view
 	 */
-	rootClassName: "test-summaryView",
+	rootClassName: "test-view test-view-summary",
 	
 	/**
 	 * @property {HTMLTableElement} The root node of this view
@@ -55,9 +55,9 @@ TestSummaryView.prototype = {
 		rootNode.className = this.rootClassName;
 		rootNode.innerHTML = template;
 		
-		this.rootNode = document.getElementById( "test-summaryView-" + this.id );
-		this.indicatorNode = document.getElementById( "test-summaryView-indicator-" + this.id );
-		this.indicatorTextNode = document.getElementById( "test-summaryView-indicatorText-" + this.id );
+		this.rootNode = document.getElementById( "test-view-summary-" + this.id );
+		this.indicatorNode = document.getElementById( "test-view-summary-indicator-" + this.id );
+		this.indicatorTextNode = document.getElementById( "test-view-summary-indicatorText-" + this.id );
 	},
 	
 	/**
@@ -68,31 +68,31 @@ TestSummaryView.prototype = {
 	 */
 	getTemplateSource: function() {
 		return [
-			'<table cellpadding="0" cellspacing="0" border="0" class="test-summaryView" id="test-summaryView-' + this.id + '">',
+			'<table cellpadding="0" cellspacing="0" border="0" class="test-view-summary" id="test-view-summary-' + this.id + '">',
 				'<caption>Test Summary</caption>',
 				'<thead>',
 					'<tr>',
-						'<th class="test-summaryView-pending">Pending</th>',
-						'<th class="test-summaryView-inProgress">In Progress</th>',
-						'<th class="test-summaryView-passed">Passed</th>',
-						'<th class="test-summaryView-failed">Failed</th>',
-						'<th class="test-summaryView-timedOut">Timed Out</th>',
-						'<th class="test-summaryView-total">Total</th>',
+						'<th class="test-view-summary-pending">Pending</th>',
+						'<th class="test-view-summary-inProgress">In Progress</th>',
+						'<th class="test-view-summary-passed">Passed</th>',
+						'<th class="test-view-summary-failed">Failed</th>',
+						'<th class="test-view-summary-timedOut">Timed Out</th>',
+						'<th class="test-view-summary-total">Total</th>',
 					'</tr>',
 				'</thead>',
 				'<tbody>',
 					'<tr>',
-						'<td class="test-summaryView-pending">-</td>',
-						'<td class="test-summaryView-inProgress">-</td>',
-						'<td class="test-summaryView-passed">-</td>',
-						'<td class="test-summaryView-failed">-</td>',
-						'<td class="test-summaryView-timedOut">-</td>',
-						'<td class="test-summaryView-total">-</td>',
+						'<td class="test-view-summary-pending">-</td>',
+						'<td class="test-view-summary-inProgress">-</td>',
+						'<td class="test-view-summary-passed">-</td>',
+						'<td class="test-view-summary-failed">-</td>',
+						'<td class="test-view-summary-timedOut">-</td>',
+						'<td class="test-view-summary-total">-</td>',
 					'</tr>',
 					'<tr>',
-						'<td class="test-summaryView-indicatorBox" colspan="6">',
-							'<div class="test-summaryView-indicator" id="test-summaryView-indicator-' + this.id + '">',
-								'<div class="test-summaryView-indicator2" id="test-summaryView-indicatorText-' + this.id + '"></div>',
+						'<td class="test-view-summary-indicatorBox" colspan="6">',
+							'<div class="test-view-summary-indicator" id="test-view-summary-indicator-' + this.id + '">',
+								'<div class="test-view-summary-indicator2" id="test-view-summary-indicatorText-' + this.id + '"></div>',
 							'</div>',
 						'</td>',
 					'</tr>',

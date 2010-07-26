@@ -18,6 +18,10 @@ function TestController( factoryGenerator, log, id ) {
 /** @lends TestController */
 TestController.prototype = {
 	
+	summaryView: null,
+	
+	progressView: null,
+	
 	/**
 	 * @constructs
 	 *
@@ -41,11 +45,9 @@ TestController.prototype = {
 		}
 		
 		var viewFactory = this.factoryGenerator.getViewFactory();
-		var viewId = "testController_" + this.id;
 		
-		if ( !this.setView( viewFactory.getInstance( viewId ) ) ) {
-			throw new Error( "No view object was returned from the view factory." );
-		}
+		this.summaryView = viewFactory.getInstance( "summary", "test-view-summary-" + this.id );
+		this.progressView = viewFactory.getInstance( "progress", "test-view-progress-" + this.id );
 		
 		this.testSuites = [];
 		
@@ -59,20 +61,14 @@ TestController.prototype = {
 	 * @return {void}
 	 */
 	init: function() {
-		var data = null;
+		this.summaryView.init();
+		this.progressView.init();
 		
 		for ( var i = 0, length = this.testSuites.length; i < length; i++ ) {
-			data = {
-				testSuite: this.testSuites[ i ]
-			};
-			
-			if ( i === this.length - 1 ) {
-				// render the test progress on the last iteration
-				data.progress = this.getProgress();
-			}
-			
-			this.view.render( data );
+			this.progressView.renderTestSuite( this.testSuites[ i ] );
 		}
+		
+		this.summaryView.render( this.getSummary() );
 	},
 	
 	
@@ -216,65 +212,40 @@ TestController.prototype = {
 	
 	
 	/**
-	 *  @property {Object} The object responsible for updating the view
-	 */
-	view: null,
-	
-	/**
-	 * Set the view property
-	 *
-	 * @param {Object} view The new view property
-	 * @return {Boolean} True if set successfully
-	 */
-	setView: function( view ) {
-		if ( view && typeof view === "object" ) {
-			this.view = view;
-			
-			return true;
-		}
-		
-		return false;
-	},
-	
-	
-	
-	/**
 	 * Get information on the progress of all tests
 	 *
 	 * @param {void}
 	 * @return {Object}
 	 */
-	getProgress: function() {
-		var total = 0,
-		    passed = 0,
-		    failed = 0,
-		    pending = 0,
-		    timedOut = 0,
-		    inProgress = 0,
-		    percentComplete = 0
-		;
+	getSummary: function() {
+		var summary = {
+			passed: 0,
+			failed: 0,
+			pending: 0,
+			timedOut: 0,
+			inProgress: 0,
+			complete: 0,
+			total: 0,
+			percentComplete: 0
+		};
+		
+		var data = null;
 		
 		for ( var i = 0, length = this.testSuites.length; i < length; i++ ) {
-			passed += this.testSuites[ i ].getPassedCount();
-			failed += this.testSuites[ i ].getFailedCount();
-			pending += this.testSuites[ i ].getPendingCount();
-			timedOut += this.testSuites[ i ].getTimedOutCount();
-			inProgress += this.testSuites[ i ].getInProgressCount();
+			data = this.testSuites[ i ].getSummary();
+			
+			summary.passed += data.passed;
+			summary.failed += data.failed;
+			summary.pending += data.pending;
+			summary.timedOut += data.timedOut;
+			summary.inProgress += data.inProgress;
+			summary.total += data.total;
+			summary.complete += data.complete;
 		}
 		
-		total = passed + failed + pending + timedOut + inProgress;
+		summary.percentComplete = Math.round( summary.complete / summary.total * 100 );
 		
-		percentComplete = Math.round( ( passed + failed + timedOut ) / total * 100 );
-		
-		return {
-			total: total,
-			passed: passed,
-			failed: failed,
-			pending: pending,
-			timedOut: timedOut,
-			inProgress: inProgress,
-			percentComplete: percentComplete
-		};
+		return summary;
 	},
 	
 	/**
@@ -298,7 +269,9 @@ TestController.prototype = {
 	 */
 	notifyAssertFailed: function( test, message, type ) {
 		this.log.error( message, test.getId() );
-		this.view.render( test );
+		
+		this.summaryView.render( this.getSummary() );
+		this.progressView.renderTest( test );
 	},
 	
 	/**
@@ -308,22 +281,13 @@ TestController.prototype = {
 	 * @param {String} message An optional failure message
 	 * @return {void}
 	 */
-	notifyTestFailed: function( test, message ) {
-		if ( typeof message === "string" ) {
-			message = "Failed with message: " + message;
-		}
-		else {
-			message = "Failed";
-		}
+	notifyTestFailed: function( test ) {
+		var message = test.getFailureMessage();
 		
 		this.log.error( message, test.getId() );
 		
-		var data = {
-			test: test,
-			progress: this.getProgress()
-		};
-		
-		this.view.render( data );
+		this.summaryView.render( this.getSummary() );
+		this.progressView.renderTest( test );
 	},
 	
 	/**
@@ -335,12 +299,8 @@ TestController.prototype = {
 	notifyTestPassed: function( test ) {
 		this.log.info( "Passed", test.getId() );
 		
-		var data = {
-			test: test,
-			progress: this.getProgress()
-		};
-		
-		this.view.render( data );
+		this.summaryView.render( this.getSummary() );
+		this.progressView.renderTest( test );
 	},
 	
 	/**
@@ -352,12 +312,8 @@ TestController.prototype = {
 	notifyTestTimedOut: function( test ) {
 		this.log.error( "Timed out", test.getId() );
 		
-		var data = {
-			test: test,
-			progress: this.getProgress()
-		};
-		
-		this.view.render( data );
+		this.summaryView.render( this.getSummary() );
+		this.progressView.renderTest( test );
 	},
 	
 	/**
@@ -373,6 +329,8 @@ TestController.prototype = {
 		
 		for ( var i = 0, length = this.testSuites.length; i < length; i++ ) {
 			this.testSuites[ i ].runTests();
+			this.summaryView.render( this.getSummary() );
+			this.progressView.renderTestSuite( this.testSuites[ i ] );
 		}
 	}
 	
