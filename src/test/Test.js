@@ -345,7 +345,7 @@ Test.prototype = {
 						this.startTimeout( result );
 					}
 				}
-				else {
+				else if ( !this.isComplete() ) {
 					// test can stay in progress forever
 					this.info( "Test returned and is in progress asynchronously" );
 				}
@@ -651,6 +651,17 @@ Test.prototype = {
 	},
 	
 	/**
+	 * Assert that the test value is a function
+	 * 
+	 * @param {String} message The failure message
+	 * @param {Mixed} testValue The value to test
+	 * @return {Boolean}
+	 */
+	assertFunction: function( message, testValue ) {
+		return this.assert( Object.prototype.toString.call( testValue ) === "[object Function]", message, "function" );
+	},
+	
+	/**
 	 * Assert that the test value is an instance of a certain class
 	 * 
 	 * @param {String} message The failure message
@@ -727,7 +738,7 @@ Test.prototype = {
 	 * @return {Boolean}
 	 */
 	assertNotObject: function( message, testValue ) {
-		return this.assert( typeof testValue !== "object" || testValue === null, message, "object" );
+		return this.assert( typeof testValue === "object" && testValue !== null, message, "object" );
 	},
 	
 	/**
@@ -807,9 +818,6 @@ Test.prototype = {
 		
 		if ( type === "undefined" ) {
 			message = "Failed";
-		}
-		else if ( type === "string" ) {
-			message = "Failed with message: " + message;
 		}
 		
 		this.failureMessage = String( message );
