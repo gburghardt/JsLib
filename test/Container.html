@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Testing Container</title>
+		<link rel="stylesheet" type="text/css" media="all" href="../src/test/test.css">
+		<script src="../external/json2.js"></script>
+		<script src="../src/logging/ConsoleLogger.js"></script>
+		
+		<script src="../src/test/TestViewFactory.js"></script>
+		<script src="../src/test/TestFactory.js"></script>
+		<script src="../src/test/TestSuiteFactory.js"></script>
+		<script src="../src/test/TestFactoryGenerator.js"></script>
+		
+		<script src="../src/test/TestSummaryView.js"></script>
+		<script src="../src/test/TestProgressView.js"></script>
+		
+		<script src="../src/test/TestSuite.js"></script>
+		
+		<script src="../src/test/Test.js"></script>
+		
+		<script src="../src/test/TestController.js"></script>
+		
+		<script>
+			var log = new ConsoleLogger( JSON );
+			TestController.createInstance( TestFactoryGenerator.getInstance(), log, "tester" );
+			
+			window.onload = function() {
+				var testController = TestController.getInstance();
+				
+				testController.init();
+				testController.runTests();
+				
+				testController = null;
+			};
+		</script>
+		
+		<script src="../src/Container.js"></script>
+		<script src="./Container.tests.js"></script>
+		
+	</head>
+	<body>
+		<h1>Testing Container</h1>
+		<div class="test-view test-view-summary" id="test-view-summary-tester"></div>
+		<div class="test-view test-view-progress" id="test-view-progress-tester"></div>
+	</body>
+</html>
