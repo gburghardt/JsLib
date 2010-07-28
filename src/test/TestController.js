@@ -335,3 +335,13 @@ TestController.prototype = {
 	}
 	
 };
+
+TestController.instance = null;
+
+TestController.createInstance = function( factoryGenerator, logger, id ) {
+	this.instance = new TestController( factoryGenerator, logger, id );
+};
+
+TestController.getInstance = function() {
+	return this.instance;
+};
