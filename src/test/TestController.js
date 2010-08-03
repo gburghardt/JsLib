@@ -268,7 +268,7 @@ TestController.prototype = {
 	 * @return {void}
 	 */
 	notifyAssertFailed: function( test, message, type ) {
-		this.log.error( message, test.getId() );
+		this.log.error( message, test.getSuiteId() + "." + test.getId() );
 		
 		this.summaryView.render( this.getSummary() );
 		this.progressView.renderTest( test );
@@ -284,7 +284,7 @@ TestController.prototype = {
 	notifyTestFailed: function( test ) {
 		var message = test.getFailureMessage();
 		
-		this.log.error( message, test.getId() );
+		this.log.error( message, test.getSuiteId() + "." + test.getId() );
 		
 		this.summaryView.render( this.getSummary() );
 		this.progressView.renderTest( test );
@@ -297,7 +297,7 @@ TestController.prototype = {
 	 * @return {void}
 	 */
 	notifyTestPassed: function( test ) {
-		this.log.info( "Passed", test.getId() );
+		this.log.info( "Passed", test.getSuiteId() + "." + test.getId() );
 		
 		this.summaryView.render( this.getSummary() );
 		this.progressView.renderTest( test );
@@ -310,7 +310,7 @@ TestController.prototype = {
 	 * @return {void}
 	 */
 	notifyTestTimedOut: function( test ) {
-		this.log.error( "Timed out", test.getId() );
+		this.log.error( "Timed out", test.getSuiteId() + "." + test.getId() );
 		
 		this.summaryView.render( this.getSummary() );
 		this.progressView.renderTest( test );
