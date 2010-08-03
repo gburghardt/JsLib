@@ -7,3 +7,28 @@ the LGPL license.
 
 Author: Greg Burghardt
 Email: greg [underscore] burghardt [at] yahoo [dot] com
+
+FUTURE DEVELOPMENT
+
+  * EventPublisher - A class allowing objects to publish events on topics to
+    one or more listeners
+    
+  * Event - A class providing the basic foundation for messaging between
+    objects, used by EventPublisher's
+    
+  * DOMEventRouter - A class the associates controllers with special anchor URLs
+    in <a> tags
+    
+  * ConnectionPool - A class allowing AJAX objects to be reused, utilizing the
+    Delegate pattern
+  
+  * FormController - A controller class providing a base class for any
+    controller that must process a form
+    
+  * MultiViewFormController - A controller class that must coordinate multiple
+    FormController's
+    
+  * Service - A base class for any data that needs to be automatically updated.
+    This will extend from the EventPublisher class.
+      * StreamingService - Data is streamed to the client, maybe via Strophe?
+      * PollingService - Data is polled for by the client
