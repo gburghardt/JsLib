@@ -310,6 +310,15 @@
 						);
 					}
 				},{
+					name: "assertError",
+					func: function( test ) {
+						var error = new Error( "Message goes here" );
+						
+						return (
+							test.assertError( "The error variable should be an error.", error )
+						);
+					}
+				},{
 					name: "assertEquals",
 					func: function( test ) {
 						var undef1;

@@ -613,7 +613,7 @@ Test.prototype = {
 	 * @return {Boolean}
 	 */
 	assertArray: function( message, testValue ) {
-		return this.assert( typeof testValue === "object" && testValue !== null && testValue.constructor && testValue.constructor === Array, message, "array" );
+		return this.assert( this.isObject( testValue ) && testValue.constructor && testValue.constructor === Array, message, "array" );
 	},
 	
 	/**
@@ -637,6 +637,10 @@ Test.prototype = {
 	 */
 	assertEquals: function( message, testValue, actualValue ) {
 		return this.assert( testValue === actualValue, message, "equals" );
+	},
+	
+	assertError: function( message, testValue ) {
+		return this.assert( this.isObject( testValue ) && testValue instanceof Error, message, "error" );
 	},
 	
 	/**
@@ -727,7 +731,7 @@ Test.prototype = {
 	 * @return {Boolean}
 	 */
 	assertObject: function( message, testValue ) {
-		return this.assert( typeof testValue === "object" && testValue !== null, message, "object" );
+		return this.assert( this.isObject( testValue ), message, "object" );
 	},
 	
 	/**
@@ -738,7 +742,7 @@ Test.prototype = {
 	 * @return {Boolean}
 	 */
 	assertNotObject: function( message, testValue ) {
-		return this.assert( typeof testValue === "object" && testValue !== null, message, "object" );
+		return this.assert( this.isObject( testValue ), message, "object" );
 	},
 	
 	/**
@@ -887,6 +891,10 @@ Test.prototype = {
 	
 	
 	// utility methods
+	
+	isObject: function( x ) {
+		return ( typeof x === "object" && x !== null );
+	},
 	
 	/**
 	 * Wrap a callback function in a try catch block so errors thrown in a
