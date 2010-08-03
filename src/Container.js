@@ -23,11 +23,6 @@ Container.prototype = {
 	 * @return {void}
 	 */
 	constructor: function( initialConfigs ) {
-		this.configs = {};
-		this.singletons = {
-			myContainer: this
-		};
-		
 		if ( !this.isObject( initialConfigs ) ) {
 			initialConfigs = {};
 		}
@@ -37,7 +32,11 @@ Container.prototype = {
 			singleton: true
 		};
 		
-		this.addConfigs( initialConfigs );
+		this.configs = initialConfigs;
+		
+		this.singletons = {
+			myContainer: this
+		};
 	},
 	
 	
@@ -59,26 +58,9 @@ Container.prototype = {
 		}
 		
 		this.destructing = true;
-		
-		this.destroyConfigs();
+		this.configs = null;
 		this.destroySingletons();
 		this.classReferenceCache = null;
-	},
-	
-	/**
-	 * Destroy the instance configuration data
-	 *
-	 * @param {void}
-	 * @return {void}
-	 */
-	destroyConfigs: function() {
-		for ( var id in this.configs ) {
-			if ( this.configs.hasOwnProperty( id ) ) {
-				this.configs[ id ] = null;
-			}
-		}
-		
-		this.configs = null;
 	},
 	
 	
@@ -134,7 +116,6 @@ Container.prototype = {
 	
 	
 	
-	
 	/**
 	 * @property {Object} A hash object of configuration data for objects in
 	 *                    this container. Each key is associated with an Id in
@@ -142,24 +123,6 @@ Container.prototype = {
 	 *                    instance.
 	 */
 	configs: null,
-	
-	/**
-	 * Add object configuration data to this container in bulk. Takes as many
-	 * config objects as you can throw at it.
-	 *
-	 * @params {Object} config Object configuration data to add to this
-	 *                         container
-	 * @return {void}
-	 */
-	addConfigs: function( configs ) {
-		for ( var id in configs ) {
-			if ( configs.hasOwnProperty( id ) ) {
-				this.configs[ id ] = configs[ id ];
-			}
-		}
-		
-		configs = null;
-	},
 	
 	/**
 	 * Get configuration data
@@ -190,13 +153,11 @@ Container.prototype = {
 	 */
 	destroySingletons: function() {
 		for ( var id in this.singletons ) {
-			if ( this.singletons.hasOwnProperty( id ) ) {
-				if ( this.isFunction( this.singletons[ id ].destructor ) ) {
-					this.singletons[ id ].destructor();
-				}
-				
-				this.singletons[ id ] = null;
+			if ( !this.singletons.hasOwnProperty( id ) ) {
+				continue;
 			}
+			
+			this.singletons[ id ] = null;
 		}
 		
 		this.singletons = null;
@@ -237,8 +198,12 @@ Container.prototype = {
 		var ClassToInstantiate = this.getClassReference( config.className );
 		var ProxyClass = null;
 		var constructorArgs = null;
+		var parentConf = null;
+		var parentId = "";
 		
 		if ( this.isFunction( ClassToInstantiate ) ) {
+			// instance is to be created from constructor function
+			
 			if ( config.constructorArgs ) {
 				// TODO - test how this handles Base.js classes
 				ProxyClass = function() {};
@@ -253,6 +218,7 @@ Container.prototype = {
 			}
 		}
 		else {
+			// instance is a singleton object
 			instance = ClassToInstantiate;
 		}
 		
@@ -260,9 +226,29 @@ Container.prototype = {
 			this.injectDependencies( instance, config.properties );
 		}
 		
+		if ( config.parent ) {
+			// inject properties from parent configs
+			
+			parentConf = this.getConfig( config.parent );
+			
+			while ( parentConf ) {
+				if ( parentConf.properties ) {
+					this.injectDependencies( instance, parentConf.properties );
+				}
+				
+				if ( parentConf.parent ) {
+					parentConf = this.getConfig( parentConf.parent );
+				}
+				else {
+					parentConf = null;
+				}
+			}
+		}
+		
 		ProxyClass = null;
 		ClassToInstantiate = null;
 		config = null;
+		parentConf = null;
 		
 		return instance;
 	},
@@ -276,7 +262,7 @@ Container.prototype = {
 	 */
 	getInstance: function( id ) {
 		var config = this.getConfig( id );
-		var instance;
+		var instance = null;
 		
 		if ( !config ) {
 			instance = null;
@@ -284,8 +270,11 @@ Container.prototype = {
 		else if ( config.singleton ) {
 			instance = this.getSingletonInstance( id, config );
 		}
-		else {
+		else if ( !config.abstract ) {
 			instance = this.createInstanceFromConfig( id, config );
+		}
+		else {
+			throw new Error( "Cannot instantiate an object from abstract config \"" + id + "\"" );
 		}
 		
 		return instance;
@@ -388,16 +377,20 @@ Container.prototype = {
 	
 	// utility functions
 	
+	capitalize: function( str ) {
+		return str.charAt( 0 ).toUpperCase() + str.substring( 1, str.length )
+	},
+	
+	isArray: function( x ) {
+		return ( this.isObject( x ) && x.constructor === Array );
+	},
+	
 	isFunction: function( x ) {
 		return ( Object.prototype.toString.call( x ) === "[object Function]" );
 	},
 	
 	isObject: function( x ) {
 		return ( typeof x === "object" && x !== null );
-	},
-	
-	capitalize: function( str ) {
-		return str.charAt( 0 ).toUpperCase() + str.substring( 1, str.length )
 	}
 	
 };
