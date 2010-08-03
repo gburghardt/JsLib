@@ -1,0 +1,9 @@
+ABOUT
+
+JsLib is a collection of loosely coupled JavaScript classes programmed to an
+interface not an implementation, providing the foundation for industrial
+strength object oriented thick client web applications. This is released under
+the LGPL license.
+
+Author: Greg Burghardt
+Email: greg [underscore] burghardt [at] yahoo [dot] com
