@@ -665,6 +665,10 @@ Test.prototype = {
 		return this.assert( Object.prototype.toString.call( testValue ) === "[object Function]", message, "function" );
 	},
 	
+	assertGreaterThan: function( message, testValue, actualValue ) {
+		return this.assert( testValue > actualValue, message, "greaterThan" );
+	},
+	
 	/**
 	 * Assert that the test value is an instance of a certain class
 	 * 
@@ -676,6 +680,10 @@ Test.prototype = {
 	 */
 	assertInstanceof: function( message, object, classReference ) {
 		return this.assert( ( object instanceof classReference ), message, "instance" );
+	},
+	
+	assertLessThan: function( message, testValue, actualValue ) {
+		return this.assert( testValue < actualValue, message, "lessThan" );
 	},
 	
 	/**
