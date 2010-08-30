@@ -5,8 +5,8 @@
  *
  * @extends Object
  */
-function ConsoleLogger( jsonService ) {
-	this.constructor( jsonService );
+function ConsoleLogger() {
+	this.constructor.apply( this, arguments );
 }
 
 /** @lends ConsoleLogger */
@@ -15,14 +15,48 @@ ConsoleLogger.prototype = {
 	/**
 	 * @constructs
 	 *
-	 * @param {Object} jsonService An object that can recursively convert other
-	 *                             objects into a JSON string
-	 * @return {void}
+	 * @param {String} logHandle The name of the JavaScript class, function or
+	 *                           file generating log statements
+	 * @param {Number} level The logging level to start out at
+	 * @param {Boolean} debugMode Whether or not to turn all info statements
+	 *                            into debug statements
+	 * @return {Void}
 	 */
-	constructor: function( jsonService ) {
-		this.setJsonService( jsonService );
+	constructor: function( logHandle, level, debugMode ) {
+		this.setLogHandle( logHandle );
+		this.setLevel( level );
+		this.setDebugMode( debugMode );
+		
 		this.cachedMessages = [];
 		this.profiles = {};
+		
+		if ( this.consoleAvailable() ) {
+			if ( !console.info ) {
+				console.info = function( message ) {
+					console.log( ConsoleLogger.pad( "INFO", 7 ) + message );
+				};
+			}
+			
+			if ( !console.debug ) {
+				console.debug = function( message ) {
+					console.log( ConsoleLogger.pad( "DEBUG", 7 ) + message );
+				};
+			}
+			
+			if ( !console.warn ) {
+				console.warn = function( message ) {
+					console.log( ConsoleLogger.pad( "WARN", 7 ) + message );
+				};
+			}
+			
+			if ( !console.error ) {
+				console.error = function( message ) {
+					console.log( ConsoleLogger.pad( "ERROR", 7 ) + message );
+				};
+			}
+		}
+		
+		jsonService = null;
 	},
 	
 	
@@ -45,9 +79,12 @@ ConsoleLogger.prototype = {
 	 * @param {String} message The log message to cache
 	 * @return {void}
 	 */
-	cacheMessage: function( message ) {
+	cacheMessage: function( type, message ) {
 		if ( this.cachedMessages.length < this.maxCachedMessages ) {
-			this.cachedMessages.push( message );
+			this.cachedMessages.push( {
+				type: type,
+				message: message
+			} );
 		}
 	},
 	
@@ -59,8 +96,12 @@ ConsoleLogger.prototype = {
 	 */
 	displayCachedMessages: function() {
 		try {
+			var msg = null;
+			
 			for ( var i = 0, length = this.cachedMessages.length; i < length; i++ ) {
-				console.log( this.cachedMessages[ i ] );
+				msg = this.cachedMessages[ i ];
+				
+				console[ msg.type ]( msg.message );
 			}
 			
 			this.cachedMessages = [];
@@ -70,6 +111,26 @@ ConsoleLogger.prototype = {
 		}
 		
 		return true;
+	},
+	
+	
+	
+	/**
+	 * @property {Boolean} Whether or not all info statements should appear as
+	 *                     debug statements
+	 */
+	debugMode: false,
+	
+	/**
+	 * Sets the debugMode property
+	 * 
+	 * @param {Boolean} mode The new debugMode
+	 * @returns {Void}
+	 */
+	setDebugMode: function( mode ) {
+		if ( typeof mode === "boolean" ) {
+			this.debugMode = mode;
+		}
 	},
 	
 	
@@ -94,6 +155,44 @@ ConsoleLogger.prototype = {
 		}
 		
 		return false;
+	},
+	
+	
+	
+	/**
+	 * @property {Number} The logging level
+	 */
+	level: 0,
+	
+	/**
+	 * Set the level property
+	 * @param {Number} level The new log level
+	 * @return {void}
+	 */
+	setLevel: function( level ) {
+		if ( typeof level === "number" && !isNaN( level ) ) {
+			this.level = level;
+		}
+	},
+	
+	
+	
+	/**
+	 * @property {String} The JavaScript class, object, function or file
+	 *                    generating log statements.
+	 */
+	logHandle: null,
+	
+	/**
+	 * Sets the logHandle property
+	 * 
+	 * @param {String} handle The new log handle
+	 * @returns {Void}
+	 */
+	setLogHandle: function( handle ) {
+		if ( typeof handle === "string" && handle !== "" ) {
+			this.logHandle = handle;
+		}
 	},
 	
 	
@@ -195,21 +294,30 @@ ConsoleLogger.prototype = {
 	 * @return {void}
 	 */
 	report: function( type, text, source, data ) {
+		if ( ( type === "info" || type === "debug" ) && this.level < ConsoleLogger.level ) {
+			return;
+		}
+		
+		if ( type === "info" && this.debugMode ) {
+			type = "debug";
+		}
+
 		var message = this.formatMessage( type, text, source, data );
 		
 		if ( this.consoleAvailable() ) {
 			this.stopTimer();
+			
 			if ( this.displayCachedMessages() ) {
-				console.log( message );
+				console[ type ]( message );
 			}
 			else {
 				this.startTimer();
-				this.cacheMessage( message );
+				this.cacheMessage( type, message );
 			}
 		}
 		else {
 			this.startTimer();
-			this.cacheMessage( message );
+			this.cacheMessage( type, message );
 		}
 	},
 	
@@ -280,19 +388,36 @@ ConsoleLogger.prototype = {
 	 * @return {String}
 	 */
 	formatMessage: function( type, text, source, data ) {
-		var message = this.pad( type.toUpperCase(), 7 );
+		var message = "";
 		var undef;
+		var hasSource = false;
+		
+		if ( this.logHandle ) {
+			message += this.logHandle;
+			hasSource = true;
+		}
 		
 		if ( source !== undef && source !== null ) {
-			message += " " + source;
+			message += "." + source;
+			hasSource = true;
 		}
 		
 		if ( text ) {
-			message += " " + String.fromCharCode( 8212 ) + " " + text;
+			if ( hasSource ) {
+				message += " " + String.fromCharCode( 8212 ) + " " + text;
+			}
+			else {
+				message += " " + text;
+			}
 		}
 		
-		if ( data !== undef && this.jsonService ) {
-			message += "\n" + this.mixedToString( data );
+		if ( data !== undef ) {
+			if ( this.jsonService ) {
+				message += "\n" + this.mixedToString( data );
+			}
+			else {
+				message += "\n" + data;
+			}
 		}
 		
 		return message;
@@ -316,36 +441,56 @@ ConsoleLogger.prototype = {
 		}
 		
 		return str;
-	},
+	}
 	
-	/**
-	 * Pad a string on the left or right so that it takes up at least X spaces
-	 *
-	 * @param {String} str The string to pad
-	 * @param {Number} length Length to pad str to
-	 * @param {String} side Which side the padding should be added to str
-	 * @return {String}
-	 */
-	pad: function( str, length, side ) {
-		var numChars = length - str.length;
-		var padding = "";
-		
-		if ( !side ) {
-			side = "left";
-		}
-		
-		if ( numChars > 0 ) {
-			for ( var i = 0; i < numChars; i++ ) {
-				padding += " ";
-			}
-		}
-		
-		if ( side === "left" ) {
-			return padding + str;
-		}
-		else {
-			return str + padding;
+};
+
+/**
+ * @static {Number} The log level for the console
+ */
+ConsoleLogger.level = 0;
+
+/**
+ * Set the logging level
+ * 
+ * @param {Number} level The log level and above that should be shown
+ * @return {void}
+ */
+ConsoleLogger.setLevel = function( level ) {
+	if ( typeof level === "number" && !isNaN( level ) ) {
+		ConsoleLogger.level = level;
+	}
+};
+
+
+
+
+/**
+ * Pad a string on the left or right so that it takes up at least X spaces
+ *
+ * @param {String} str The string to pad
+ * @param {Number} length Length to pad str to
+ * @param {String} side Which side the padding should be added to str
+ * @return {String}
+ */
+ConsoleLogger.pad = function( str, length, side ) {
+	var numChars = length - str.length;
+	var padding = "";
+	
+	if ( !side ) {
+		side = "left";
+	}
+	
+	if ( numChars > 0 ) {
+		for ( var i = 0; i < numChars; i++ ) {
+			padding += " ";
 		}
 	}
 	
+	if ( side === "left" ) {
+		return padding + str;
+	}
+	else {
+		return str + padding;
+	}
 };

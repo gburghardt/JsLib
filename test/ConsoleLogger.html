@@ -4,10 +4,13 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Testing ConsoleLogger</title>
-		<script src="../external/json2.js"></script>
+		<script src="../external/src/json2.js"></script>
 		<script src="../src/logging/ConsoleLogger.js"></script>
 		<script>
-			var log = new ConsoleLogger( JSON );
+			ConsoleLogger.setLevel( 300 );
+
+			var log = new ConsoleLogger( "ConsoleLogger.html", 500 );
+			log.setJsonService( JSON );
 			
 			var data = {
 				str: "string value",
@@ -49,6 +52,22 @@
 			
 			log.profile( "Info click", "ConsoleLogger.html" );
 			
+			window.onload = function() {
+				var log = new ConsoleLogger( "window.onload", 1000 );
+
+				log.info( "An info log" );
+				log.debug( "A debug log" );
+				log.warn( "A warning" );
+				log.error( "An error got thrown" );
+			};
+
+			setTimeout( function() {
+				var log = new ConsoleLogger( "setTimeoutCallback" );
+				log.info( "This info statement shouldn't show up." );
+				log.debug( "This debug statement shouldn't show up." );
+				log.warn( "This warn statement should show up." );
+				log.error( "This error statement should show up." );
+			}, 3000 );
 		</script>
 	</head>
 	<body>
