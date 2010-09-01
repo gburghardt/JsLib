@@ -28,7 +28,7 @@ ConsoleLogger.prototype.constructor = function( logHandle, level, debugMode ) {
 	this.cachedMessages = [];
 	this.profiles = {};
 	
-	this.console = console || null;
+	this.console = ( typeof console === "object" ) ? console : null;
 	
 	if ( this.consoleAvailable() ) {
 		if ( !this.console.info ) {

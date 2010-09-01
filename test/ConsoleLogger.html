@@ -5,9 +5,10 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Testing ConsoleLogger</title>
 		<script src="../external/src/json2.js"></script>
+		<script src="../src/logging/Logger.js"></script>
 		<script src="../src/logging/ConsoleLogger.js"></script>
 		<script>
-			ConsoleLogger.setLevel( 300 );
+			Logger.setLevel( 300 );
 
 			var log = new ConsoleLogger( "ConsoleLogger.html", 500 );
 			log.setJsonService( JSON );
