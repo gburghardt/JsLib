@@ -10,6 +10,10 @@ function Logger() {
 /** @lends Logger */
 Logger.prototype = {
 	
+	formattedDataPrefix: "\n",
+	
+	formattedDataSuffix: "",
+	
 	/**
 	 * @constructs
 	 *
@@ -416,15 +420,20 @@ Logger.prototype = {
 		}
 		
 		if ( data !== undef ) {
-			if ( this.jsonService ) {
-				message += "\n" + this.mixedToString( data );
-			}
-			else {
-				message += "\n" + data;
-			}
+			message += this.formatMessageData( data );
 		}
 		
 		return message;
+	},
+	
+	/**
+	 * Format the message data
+	 *
+	 * @param {mixed} data The data to convert to a string
+	 * @return {String}
+	 */
+	formatMessageData: function( data ) {
+		return this.formattedDataPrefix + this.mixedToString( data ) + this.formattedDataSuffix;
 	},
 	
 	/**

@@ -19,6 +19,9 @@ BlackbirdLogger.prototype = new BlackbirdLogger.prototype;
 BlackbirdLogger.prototype.constructor = function( logHandle, level, debugMode, enabled ) {
 	BlackbirdLogger.superClass.constructor.call( this, logHandle, level, debugMode, enabled );
 	
+	this.formattedDataPrefix = "<pre>";
+	this.formattedDataSuffix = "</pre>";
+	
 	this.setConsole( window[ BlackbirdLogger.namespace ] );
 };
 

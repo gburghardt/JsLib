@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Testing Logger</title>
+		<script src="../external/src/json2.js"></script>
+		<script src="../external/src/blackbirdjs/blackbird.js"></script>
+		<link rel="stylesheet" type="text/css" media="screen" href="../external/src/blackbirdjs/blackbird.css">
+		<script src="../external/src/json2.js"></script>
+		<script src="../src/logging/Logger.js"></script>
+		<script src="../src/logging/ConsoleLogger.js"></script>
+		<script src="../src/logging/BlackbirdLogger.js"></script>
+		<script>
+			
+			function getQueryParam( name, defaultValue, str ) {
+				str = ( typeof str === "string" ) ? str : window.location.search;
+				str = str.substring( str.indexOf("?") + 1, str.length );
+				
+				var strPieces = str.split("&");
+				var pairs = null;
+				var value = ( typeof defaultValue === "undefined" ) ? "" : defaultValue;
+				
+				for ( var i = 0, length = strPieces.length; i < length; i++ ) {
+					param = strPieces[ i ].split( "=" );
+					
+					if ( name === param[ 0 ] ) {
+						value = param[ 1 ];
+					}
+				}
+				
+				return value;
+			}
+			
+			var loggerType = getQueryParam( "type", "Console" );
+			
+			function getLogger( logHandle, level, debugMode, enabled ) {
+				var logger = null;
+				
+				switch( loggerType ) {
+					case "Console":
+						logger = new ConsoleLogger( logHandle, level, debugMode, enabled );
+					break;
+					
+					case "Blackbird":
+						logger = new BlackbirdLogger( logHandle, level, debugMode, enabled );
+					break;
+					
+					default:
+						throw new Error( "An invalid logger type was specified: " + loggerType );
+					break;
+				}
+				
+				return logger;
+			}
+			
+			Logger.setLevel( 300 );
+
+			var logger = getLogger( "Logger.html", 500 );
+			logger.setJsonService( JSON );
+			
+			var data = {
+				str: "string value",
+				num: 23,
+				obj: {
+					foo: "bar"
+				},
+				arr: [ 1, 4, true, "foo" ]
+			};
+			
+			logger.profile( "loggerMessages" );
+			
+			logger.info( "My message" );
+			logger.debug( "Something else" );
+			logger.warn( "A warning goes here" );
+			logger.error( "Oops! Something went wrong." );
+			
+			logger.info( "My message", "Logger.html" );
+			logger.debug( "Something else", "Logger.html" );
+			logger.warn( "A warning goes here", "Logger.html" );
+			logger.error( "Oops! Something went wrong.", "Logger.html" );
+			
+			logger.info( "My message", "Logger.html", data );
+			logger.debug( "Something else", "Logger.html", data );
+			logger.warn( "A warning goes here", "Logger.html", data );
+			logger.error( "Oops! Something went wrong.", "Logger.html", data );
+			
+			logger.info( "My message", null, data );
+			logger.debug( "Something else", null, data );
+			logger.warn( "A warning goes here", null, data );
+			logger.error( "Oops! Something went wrong.", null, data );
+			
+			logger.info( null, null, data );
+			logger.debug( null, null, data );
+			logger.warn( null, null, data );
+			logger.error( null, null, data );
+			
+			logger.profile( "loggerMessages" );
+			
+			logger.profile( "Info click", "Logger.html" );
+			
+			window.onload = function() {
+				var logger = getLogger( "window.onload", 1000 );
+
+				logger.info( "An info logger" );
+				logger.debug( "A debug logger" );
+				logger.warn( "A warning" );
+				logger.error( "An error got thrown" );
+			};
+
+			setTimeout( function() {
+				var logger = getLogger( "setTimeoutCallback" );
+				logger.info( "This info statement shouldn't show up." );
+				logger.debug( "This debug statement shouldn't show up." );
+				logger.warn( "This warn statement should show up." );
+				logger.error( "This error statement should show up." );
+			}, 3000 );
+		</script>
+	</head>
+	<body>
+		<h1>Testing Logger</h1>
+		<button onclick="logger.profile( 'Info click', 'Logger.html' ); logger.info('foo');">Info</button> &lt;&mdash; Click me to show an info and profile statement!
+	</body>
+</html>
