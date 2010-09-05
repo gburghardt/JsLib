@@ -31,7 +31,7 @@ EventPublisher.prototype = {
 	 * @param void
 	 * @return void
 	 */
-	destroy: function() {
+	destructor: function() {
 		var thisSubscriber = null;
 		
 		for ( var eventName in this.subscriptions ) {
@@ -269,7 +269,7 @@ EventPublisher.prototype = {
 		
 		success = this.notifySubscribers( event, subscribers );
 		
-		event.destroy();
+		event.destructor();
 		
 		event = null;
 		subscribers = null;

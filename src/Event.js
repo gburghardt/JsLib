@@ -62,7 +62,7 @@ Event.prototype = {
 	 * @param void
 	 * @return void
 	 */
-	destroy: function() {
+	destructor: function() {
 		this.target = null;
 		this.currentTarget = null;
 		this.data = null;
