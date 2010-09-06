@@ -7,9 +7,9 @@ function Service() {
 	this.constructor.apply( this, arguments );
 }
 
+Service.superClass = EventPublisher.prototype;
 Service.prototype = function() {};
-Service.superClass = EventPublisher;
-Service.prototype.prototype = EventPublisher.prototype;
+Service.prototype.prototype = Service.superClass;
 Service.prototype = new Service.prototype;
 
 /**
@@ -32,6 +32,7 @@ Service.prototype.constructor = function( eventDispatcher ) {
  */
 Service.prototype.destructor = function() {
 	Service.superClass.destructor.call( this );
+	this.disable();
 	this.eventDispatcher.unsubscribe( "startUpdates", this );
 	this.eventDispatcher.unsubscribe( "stopUpdates", this );
 	this.eventDispatcher = null;
