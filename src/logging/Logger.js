@@ -165,7 +165,7 @@ Logger.prototype = {
 	 */
 	canLog: function( type ) {
 		return ( this.consoleAvailable() && (
-			type === "warn" || type === "error" || this.level > this.getMinLogLevel()
+			type === "warn" || type === "error" || this.level >= this.getMinLogLevel()
 		) );
 	},
 	
