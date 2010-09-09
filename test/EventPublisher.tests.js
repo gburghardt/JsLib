@@ -12,7 +12,7 @@
 	var getSubscriber = function() {
 		return {
 			handleTestEvent: function() {}
-		}
+		};
 	};
 	
 	
