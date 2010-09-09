@@ -34,7 +34,7 @@ PollingService.prototype.constructor = function( eventDispatcher, periodChangedK
 	}
 	
 	this.setPeriod( period );
-	this.handleTimerExpired = this.getFunctionInContext( this.handleTimerExpired, this )
+	this.handleTimerExpired = this.getFunctionInContext( this.handleTimerExpired, this );
 };
 
 /**
@@ -42,8 +42,6 @@ PollingService.prototype.constructor = function( eventDispatcher, periodChangedK
  */
 PollingService.prototype.destructor = function() {
 	PollingService.superClass.destructor.call( this );
-	
-	this.stopTimer();
 	this.handleTimerExpired.cleanup();
 };
 
@@ -85,9 +83,10 @@ PollingService.prototype.enable = function() {
  * @param {Event} event The event object
  * @return {Void}
  */
-PollinService.prototype.handlePollingPeriodChanged = function( event ) {
+PollingService.prototype.handlePollingPeriodChanged = function( event ) {
 	var newPeriod = event.getData( this.periodChangedKey );
 	this.setPeriod( newPeriod );
+	event = null;
 };
 
 /**
@@ -132,7 +131,7 @@ PollingService.prototype.periodChangedKey = null;
  * @param {String} key The new periodChangedKey value
  * @return {Boolean}
  */
-PollingService.prototype.setPeriodChangedKey = ( key ) {
+PollingService.prototype.setPeriodChangedKey = function( key ) {
 	if ( typeof key === "string" && key !== "" ) {
 		this.periodChangedKey = key;
 		return true;
