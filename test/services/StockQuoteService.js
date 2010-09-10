@@ -10,16 +10,23 @@ StockQuoteService.prototype = new StockQuoteService.prototype;
 StockQuoteService.prototype.handleTimerExpired = function() {
 	StockQuoteService.superClass.handleTimerExpired.call( this );
 	
+	var random = function() {
+		return ( Math.random() * 100 ).toFixed( 2 );
+	};
+	
 	var quote = {
 		symbol : "GE",
-		last   : "12.45",
-		bid    : "12.57",
-		ask    : "12.48"
+		last   : random(),
+		bid    : random(),
+		ask    : random()
 	};
 	
 	this.publish( "quoteUpdated", {
 		quote: quote
 	}, "GE" );
+	
+	this.stopTimer();
+	this.startTimer();
 	
 	quote = null;
 };
