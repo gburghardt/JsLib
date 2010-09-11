@@ -23,7 +23,7 @@ StockQuoteView.prototype = {
 	getMarkup: function() {
 		return [
 			'<table cellpadding="3" cellspacing="0" border="1" id="' + this.rootNodeId + '">',
-				'<caption>Stock Quote for <span id="' + this.rootNodeId + '-symbol"></span></caption>',
+				'<caption>Stock Quote for <span id="' + this.rootNodeId + '-symbol">--</span></caption>',
 				'<thead>',
 					'<tr>',
 						'<th>Last</th>',
@@ -33,9 +33,9 @@ StockQuoteView.prototype = {
 				'</thead>',
 				'<tbody>',
 					'<tr>',
-						'<td id="' + this.rootNodeId + '-last"></td>',
-						'<td id="' + this.rootNodeId + '-bid"></td>',
-						'<td id="' + this.rootNodeId + '-ask"></td>',
+						'<td id="' + this.rootNodeId + '-last">--</td>',
+						'<td id="' + this.rootNodeId + '-bid">--</td>',
+						'<td id="' + this.rootNodeId + '-ask">--</td>',
 					'</tr>',
 				'</tbody>',
 			'</table>'
