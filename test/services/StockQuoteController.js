@@ -13,9 +13,9 @@ StockQuoteController.prototype = {
 		this.view = view;
 	},
 	
-	init: function() {
+	init: function( symbol ) {
 		this.view.init();
-		this.quoteService.subscribe( "quoteUpdated", this, "updateQuote", "GE" );
+		this.quoteService.subscribe( "quoteUpdated", this, "updateQuote", symbol );
 	},
 	
 	updateQuote: function( event ) {

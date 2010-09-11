@@ -14,16 +14,24 @@ StockQuoteService.prototype.handleTimerExpired = function() {
 		return ( Math.random() * 100 ).toFixed( 2 );
 	};
 	
-	var quote = {
-		symbol : "GE",
-		last   : random(),
-		bid    : random(),
-		ask    : random()
-	};
+	var quote = null;
 	
-	this.publish( "quoteUpdated", {
-		quote: quote
-	}, "GE" );
+	for ( var symbol in this.subscriptions.quoteUpdated ) {
+		if ( !this.subscriptions.quoteUpdated.hasOwnProperty( symbol ) ) {
+			continue;
+		}
+		
+		quote = {
+			symbol : symbol,
+			last   : random(),
+			bid    : random(),
+			ask    : random()
+		};
+
+		this.publish( "quoteUpdated", {
+			quote: quote
+		}, symbol );
+	}
 	
 	this.stopTimer();
 	this.startTimer();
