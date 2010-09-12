@@ -22,6 +22,9 @@ StockQuoteController.prototype = {
 		var quote = event.getData( "quote" );
 		
 		this.view.render( quote );
+		
+		event = null;
+		quote = null;
 	}
 	
 };
