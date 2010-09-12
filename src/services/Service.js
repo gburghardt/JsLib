@@ -25,6 +25,9 @@ Service.prototype.constructor = function( eventDispatcher ) {
 	if ( !this.setEventDispatcher( eventDispatcher ) ) {
 		throw new Error( "An event dispatcher supporting a publish/subscribe interface must be passed into Service.constructor." );
 	}
+	
+	this.eventDispatcher.subscribe( "startUpdates", this, "enable" );
+	this.eventDispatcher.subscribe( "stopUpdates", this, "disable" );
 };
 
 /**
@@ -42,8 +45,6 @@ Service.prototype.destructor = function() {
  * Initialize this service and ready it for use
  */
 Service.prototype.init = function() {
-	this.eventDispatcher.subscribe( "startUpdates", this, "enable" );
-	this.eventDispatcher.subscribe( "stopUpdates", this, "disable" );
 };
 
 

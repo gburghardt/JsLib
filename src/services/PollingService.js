@@ -35,6 +35,7 @@ PollingService.prototype.constructor = function( eventDispatcher, periodChangedK
 	
 	this.setPeriod( period );
 	this.handleTimerExpired = this.getFunctionInContext( this.handleTimerExpired, this );
+	this.eventDispatcher.subscribe( "pollingPeriodChanged", this, "handlePollingPeriodChanged" );
 };
 
 /**
@@ -51,8 +52,6 @@ PollingService.prototype.destructor = function() {
  */
 PollingService.prototype.init = function() {
 	PollingService.superClass.init.call( this );
-	
-	this.eventDispatcher.subscribe( "pollingPeriodChanged", this, "handlePollingPeriodChanged" );
 	
 	this.startTimer();
 };
