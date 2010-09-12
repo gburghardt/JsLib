@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
+	<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Faux OptionQuoteService Test</title>
+		
+		<!-- Logging -->
+		<script src="../../external/src/json2.js"></script>
+		<script src="../../src/logging/Logger.js"></script>
+		<script src="../../src/logging/ConsoleLogger.js"></script>
+		
+		<script src="./OptionChainDemoApplication.js"></script>
+		
+		<!-- services related -->
+		<script src="../../src/Event.js"></script>
+		<script src="../../src/EventPublisher.js"></script>
+		<script src="../../src/services/Service.js"></script>
+		<script src="../../src/services/PollingService.js"></script>
+		<script src="./OptionQuoteService.js"></script>
+		
+		<script src="./OptionChainController.js"></script>
+		<script src="./OptionChainView.js"></script>
+		
+		<script>
+			var log = new ConsoleLogger( "fauxOptionQuoteService.html" );
+			log.setJsonService( JSON );
+			
+			var app = new OptionChainDemoApplication( new ConsoleLogger("app", JSON) );
+			
+			window.onload = function() {
+				app.init();
+			};
+		</script>
+		
+		<style>
+			body {
+				font-family: Arial, Helvetica, sans-serif;
+				font-size: 80%;
+				margin: 0;
+				padding: 0;
+			}
+
+			.stockQuote {
+				margin-bottom: 1em;
+			}
+
+			.stockQuote table {
+				font-size: 1em;
+			}
+			
+			.stockQuote table td,
+			.stockQuote table th {
+				text-align: right;
+			}
+			
+			.stockQuote table th {
+				vertical-align: bottom;
+			}
+			
+			.stockQuote table tr.callOrPut th {
+				text-align: center;
+			}
+			
+			#topBar {
+				background-color: #e0e0e0;
+				border-bottom: 1px solid #505050;
+				margin-bottom: 1em;
+				padding: 1em 12px;
+			}
+			
+			.topBarContainer {
+				padding-right: 2em;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="topBar">
+			<span class="topBarContainer">
+				<input type="checkbox" id="streaming-toggle"> Streaming
+			</span>
+			
+			<span class="topBarContainer">
+				Refresh rate (ms): <input type="text" value="3000" size="4" id="refreshRates-input">
+				<select id="refreshRates-type">
+					<option value="stock">Stocks</option>
+					<option value="watchlist">Watchlists</option>
+					<option value="chain">Chain</option>
+				</select>
+				<button id="refreshRates-button">Set</button>
+			</span>
+			
+			<span class="topBarContainer">
+				Symbol: <input type="text" size="6" id="current-symbol" value="MSFT">
+				<button id="current-symbol-button">Change</button>
+			</span>
+		</div>
+		
+		<div class="stockQuote" id="chain"></div>
+	</body>
+</html>
