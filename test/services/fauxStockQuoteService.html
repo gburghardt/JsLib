@@ -30,6 +30,12 @@
 			var stockQuote2 = new StockQuoteController( stockQuoteService, new StockQuoteView( "stockQuoteView2" ) );
 			var watchlist = new StockQuoteController( watchlistStockQuoteService, new StockQuoteView( "watchlist" ) );
 			
+			function stockQuoteFactory( quoteService, idSuffix ) {
+				return new StockQuoteController( quoteService, new StockQuoteView( idSuffix ) );
+			}
+			
+			var stockQuotes = [];
+			
 			window.onload = function() {
 				document.getElementById( "streaming-toggle" ).onclick = function() {
 					if ( this.checked ) {
@@ -55,6 +61,18 @@
 						} );
 					}
 				};
+				
+				var div = null;
+				
+				for ( var i = 0, length = 100; i < length; i++ ) {
+					div = document.createElement( "div" );
+					div.className = "stockQuote";
+					div.id = "stockQuote-" + i;
+					document.body.appendChild( div );
+					
+					stockQuotes[ i ] = stockQuoteFactory( stockQuoteService, "stockQuote-" + i );
+					stockQuotes[ i ].init( "MSFT" );
+				}
 				
 				stockQuote.init( "GE" );
 				stockQuote2.init( "GOOG" );
@@ -114,6 +132,5 @@
 		<div class="stockQuote" id="stockQuoteView"></div>
 		<div class="stockQuote" id="stockQuoteView2"></div>
 		<div class="stockQuote" id="watchlist"></div>
-		
 	</body>
 </html>
