@@ -13,7 +13,17 @@ OptionQuoteService.random = function( multiplier, decimals ) {
 	return ( Math.random() * multiplier ).toFixed( decimals );
 };
 
-OptionQuoteService.getChain = function( symbol, callOrPut ) {
+OptionQuoteService.chain = null;
+
+/**
+ * This method leaks about 200k of memory each time it is called in
+ * Firefox.
+ */
+OptionQuoteService.getChain = function( symbol ) {
+	// if ( OptionQuoteService.chain ) {
+	// 	return OptionQuoteService.chain;
+	// }
+	
 	var year = this.currentYear;
 	var yearMax = year + 2;
 	var securityKey = "";
@@ -55,6 +65,8 @@ OptionQuoteService.getChain = function( symbol, callOrPut ) {
 		}
 	}
 	
+	// OptionQuoteService.chain = chain;
+
 	return chain;
 };
 

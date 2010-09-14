@@ -11,11 +11,22 @@ OptionChainController.prototype = {
 	constructor: function( quoteService, view ) {
 		this.quoteService = quoteService;
 		this.view = view;
+		
+		quoteService = null;
+		view = null;
 	},
 	
 	init: function( symbol ) {
 		this.view.init();
 		this.setSymbol( symbol );
+	},
+	
+	destructor: function() {
+		this.quoteService.unsubscribe( "optionQuoteUpdated", this, this.currentSymbol );
+		this.quoteService = null;
+		
+		this.view.destructor();
+		this.view = null;
 	},
 	
 	updateQuote: function( event ) {

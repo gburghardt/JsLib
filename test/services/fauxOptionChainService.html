@@ -30,6 +30,11 @@
 			window.onload = function() {
 				app.init();
 			};
+			
+			window.onunload = function() {
+				app.destructor();
+				app = null;
+			};
 		</script>
 		
 		<style>

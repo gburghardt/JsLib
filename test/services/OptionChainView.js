@@ -21,6 +21,30 @@ OptionChainView.prototype = {
 		this.rootNode.innerHTML = this.getMarkup();
 	},
 	
+	destructor: function() {
+		this.rootNode = null;
+		
+		for ( var key in this.nodes ) {
+			if ( !this.nodes.hasOwnProperty( key ) ) {
+				continue;
+			}
+			
+			this.nodes[ key ] = null;
+		}
+		
+		this.nodes = null;
+		
+		for ( var key in this.rows ) {
+			if ( !this.rows.hasOwnProperty( key ) ) {
+				continue;
+			}
+			
+			this.rows[ key ] = null;
+		}
+		
+		this.rows = null;
+	},
+	
 	getMarkup: function() {
 		return [
 			'<table cellpadding="3" cellspacing="0" border="1" class="chain">',
@@ -64,8 +88,9 @@ OptionChainView.prototype = {
 		var row = null;
 		var call = null;
 		var put = null;
+		var symbol = this.getNode( "symbol" );
 		
-		this.getNode( "symbol" ).innerHTML = chain.symbol;
+		symbol.innerHTML = chain.symbol;
 		
 		for ( var i = 0, length = chain.call.length; i < length; i++ ) {
 			call = chain.call[ i ];
@@ -89,6 +114,9 @@ OptionChainView.prototype = {
 		row = null;
 		chain = null;
 		quote = null;
+		call = null;
+		put = null;
+		symbol = null;
 	},
 	
 	
