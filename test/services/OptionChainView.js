@@ -10,6 +10,8 @@ OptionChainView.prototype = {
 	
 	nodes: null,
 	
+	viewEmpty: true,
+	
 	constructor: function( rootNodeId ) {
 		this.rootNodeId = rootNodeId;
 		this.nodes = {};
@@ -83,12 +85,31 @@ OptionChainView.prototype = {
 	},
 	
 	render: function( chain ) {
+		if ( !chain || !chain.call || !chain.call.length ) {
+			this.renderEmptyChain( chain );
+		}
+		else {
+			this.renderChain( chain );
+		}
+		
+		chain = null;
+	},
+	
+	renderChain: function( chain ) {
+		if ( !chain ) {
+			return;
+		}
+		
 		var key = "";
 		var quote = null;
 		var row = null;
 		var call = null;
 		var put = null;
 		var symbol = this.getNode( "symbol" );
+		
+		if ( this.viewEmpty ) {
+			this.removeRows();
+		}
 		
 		symbol.innerHTML = chain.symbol;
 		
@@ -117,6 +138,38 @@ OptionChainView.prototype = {
 		call = null;
 		put = null;
 		symbol = null;
+		
+		this.viewEmpty = false;
+	},
+	
+	renderEmptyChain: function( chain ) {
+		var tbody = this.getNode( "tbody" );
+		var row = document.createElement( "tr" );
+		var cell = document.createElement( "td" );
+		
+		this.removeRows();
+		
+		if ( typeof chain === "string" ) {
+			cell.innerHTML = chain;
+		}
+		else if ( chain.symbol ) {
+			cell.innerHTML = "No options were found for " + chain.symbol;
+		}
+		else {
+			cell.innerHTML = "No options were found.";
+		}
+		
+		cell.colSpan = 10;
+		cell.className = "empty-list";
+		row.appendChild( cell );
+		tbody.appendChild( row );
+		
+		cell = null;
+		row = null;
+		tbody = null;
+		chain = null;
+		
+		this.viewEmpty = true;
 	},
 	
 	
@@ -141,6 +194,27 @@ OptionChainView.prototype = {
 		}
 		
 		return this.rows[ key ];
+	},
+	
+	removeRows: function() {
+		var tbody = this.getNode( "tbody" );
+		var i = tbody.childNodes.length;
+		
+		while ( i-- ) {
+			tbody.removeChild( tbody.childNodes [ i ] );
+		}
+		
+		for ( var key in this.rows ) {
+			if ( !this.rows.hasOwnProperty( key ) ) {
+				continue;
+			}
+			
+			this.rows[ key ] = null;
+		}
+		
+		this.rows = {};
+		
+		tbody = null;
 	}
 	
 };

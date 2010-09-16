@@ -49,6 +49,7 @@ OptionChainController.prototype = {
 			}
 			
 			this.currentSymbol = symbol;
+			this.view.render( "Please wait..." );
 			this.quoteService.subscribe( "optionQuoteUpdated", this, "updateQuote", this.currentSymbol );
 			
 			return true;
