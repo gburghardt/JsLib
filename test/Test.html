@@ -5,11 +5,13 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Testing Test</title>
 		<script src="../external/json2.js"></script>
+		<script src="../src/logging/Logger.js"></script>
 		<script src="../src/logging/ConsoleLogger.js"></script>
 		<script src="../src/test/Test.js"></script>
 		<link rel="stylesheet" type="text/css" media="all" href="../src/test/test.css">
 		<script>
-			var log = new ConsoleLogger( JSON );
+			var log = new ConsoleLogger();
+			log.setJsonService( JSON );
 			
 			var testController = {
 				info: function( message, test ) {
@@ -19,7 +21,7 @@
 					log.warn( message, test.getSuiteId() + "." + test.getId() );
 				},
 				notifyTestFailed: function( test ) {
-					log.error( test.getFailureMessage(), test.getSuiteId() + "." + test.getId() );
+					log.error( test.getFailureMessages(), test.getSuiteId() + "." + test.getId() );
 				},
 				notifyTestPassed: function( test ) {
 					log.info( "Passed", test.getSuiteId() + "." + test.getId() );

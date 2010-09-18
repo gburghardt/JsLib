@@ -169,6 +169,7 @@ TestProgressView.prototype = {
 		var rowId = "test-view-progress-" + test.getSuiteId() + "-" + test.getId();
 		var row = this.getRow( rowId );
 		var elapsedTime = test.getElapsedTime();
+		var failureMessages = test.getFailureMessages();
 		
 		if ( elapsedTime < 0 ) {
 			elapsedTime = "--";
@@ -185,8 +186,12 @@ TestProgressView.prototype = {
 		row.cells[ 6 ].innerHTML = this.formatDate( test.getStartDate(), "--" );
 		row.cells[ 7 ].innerHTML = this.formatDate( test.getEndDate(), "--" );
 		row.cells[ 8 ].innerHTML = elapsedTime;
-		row.cells[ 9 ].innerHTML = this.escapeHTML( test.getFailureMessage() );
 		
+		if ( failureMessages ) {
+			row.cells[ 9 ].innerHTML = "<ol><li>" + this.escapeHTML( failureMessages ).replace( /\n/g, '</li><li>\n' ) + "</li></ol>";
+		}
+		
+		failureMessages = null;
 		assertions = null;
 		test = null;
 		row = null;
@@ -289,7 +294,6 @@ TestProgressView.prototype = {
 		return str.replace( /&/g, "&gt;" )
 		          .replace( />/g, "&gt;" )
 		          .replace( /</g, "&lt;" )
-		          .replace( /\n/g, "<br>" )
 		       ;
 	},
 	
