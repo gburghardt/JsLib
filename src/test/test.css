@@ -66,6 +66,15 @@
 	font-family: Monaco, Consolas, Mono, "Courier New", Courier, monospace;
 }
 
+.test-view-progress td.test-view-progress-failureMessage ol {
+	margin-bottom: -.5em;
+	margin-top: -.5em;
+}
+
+.test-view-progress td.test-view-progress-failureMessage ol li {
+	margin: .5em 0;
+}
+
 .test-view-progress tr.test-status-inProgress td {
 	background-color: #eef;
 	border-color: #009;

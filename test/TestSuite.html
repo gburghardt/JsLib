@@ -31,7 +31,7 @@
 					progressView.renderTest( test );
 				},
 				notifyTestFailed: function( test ) {
-					log.error( test.getFailureMessage(), test.getSuiteId() + "." + test.getId() );
+					log.error( test.getFailureMessages(), test.getSuiteId() + "." + test.getId() );
 					summaryView.render( suite1.getSummary() );
 					progressView.renderTest( test );
 				},

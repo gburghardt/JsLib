@@ -20,7 +20,7 @@
 					log.warn( message, test.getSuiteId() + "." + test.getId() );
 				},
 				notifyTestFailed: function( test ) {
-					log.error( test.getFailureMessage(), test.getSuiteId() + "." + test.getId() );
+					log.error( test.getFailureMessages(), test.getSuiteId() + "." + test.getId() );
 				},
 				notifyTestPassed: function( test ) {
 					log.info( "Passed", test.getSuiteId() + "." + test.getId() );

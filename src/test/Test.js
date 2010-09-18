@@ -37,6 +37,8 @@ Test.prototype = {
 			passed: []
 		};
 		
+		this.failureMessages = [];
+		
 		this.setStatus( this.STATUS_PENDING );
 	},
 	
@@ -510,9 +512,13 @@ Test.prototype = {
 	
 	
 	/**
-	 * @property {String} The message generated at the time of test failure
+	 * @property {Array} Array of messages generated at the time of test failure
 	 */
-	failureMessage: "",
+	failureMessages: null,
+	
+	addFailureMessage: function( message ) {
+		this.failureMessages.push( message );
+	},
 	
 	/**
 	 * Get the failure message for this test
@@ -520,8 +526,12 @@ Test.prototype = {
 	 * @param {void}
 	 * @return {String}
 	 */
-	getFailureMessage: function() {
-		return this.failureMessage;
+	getFailureMessages: function( separator ) {
+		if ( !separator ) {
+			separator = "\n";
+		}
+		
+		return this.failureMessages.join( separator );
 	},
 	
 	
@@ -597,6 +607,7 @@ Test.prototype = {
 	 */
 	assert: function( condition, message, type ) {
 		if ( !condition ) {
+			this.addFailureMessage( message );
 			this.testController.notifyAssertFailed( this, message, type );
 		}
 		
@@ -828,11 +839,9 @@ Test.prototype = {
 			}
 		}
 		
-		if ( type === "undefined" ) {
-			message = "Failed";
+		if ( type !== "undefined" ) {
+			this.addFailureMessage( message );
 		}
-		
-		this.failureMessage = String( message );
 		
 		this.stopTimeout();
 		this.endDate = new Date();
