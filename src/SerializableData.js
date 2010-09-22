@@ -1,3 +1,8 @@
+/**
+ * @class This class allows you to serialize and deserialize a string of data between a
+ * string and an object. This is useful for converting query strings into useful data,
+ * and converting between CSV and objects.
+ */
 function SerializableData() {
 	this.constructor.apply( this, arguments );
 }
@@ -66,13 +71,15 @@ SerializableData.prototype = {
 		param = null;
 	},
 	
-	serialize: function() {
+	serialize: function( useParamSeparator ) {
 		if ( !this.data ) {
 			return "";
 		}
 		
 		var params = [];
 		var str = "";
+		var value = null;
+		var arrValue = null;
 		
 		for ( var key in this.data ) {
 			if ( !this.data.hasOwnProperty( key ) ) {
@@ -88,31 +95,42 @@ SerializableData.prototype = {
 		return str;
 	},
 	
-	serializeParam: function( key, value, encodedKey ) {
-		var str = "";
-		
+	serializeParam: function( key, value, useParamSeparator ) {
 		if ( this.isArray( value ) ) {
+			return this.serializeArrayParam( key, value, useParamSeparator )
+		}
+		else {
+			return this.serializeStringParam( key, value );
+		}
+	},
+	
+	serializeArrayParam: function( key, values, useParamSeparator ) {
+		str = "";
+		
+		if ( useParamSeparator ) {
 			var params = [];
 			
-			for ( var i = 0, length = value.length; i < length; i++ ) {
-				params.push( this.serializeParam( key, value[ i ], encodeURIComponent( key ) ) );
+			for ( var i = 0, length = values.length; i < length; i++ ) {
+				params.push( this.serializeStringParam( key, values[ i ] ) );
 			}
 			
 			str = params.join( this.paramSeparator );
-			params = null;
 		}
 		else {
-			if ( encodedKey ) {
-				str = encodedKey;
-			}
-			else {
-				str = encodeURIComponent( key );
+			var encodedValues = [];
+			
+			for ( var i = 0, length = values.length; i < length; i++ ) {
+				encodedValues.push( encodeURIComponent( values[ i ] ) );
 			}
 			
-			str += this.valueSeparator + encodeURIComponent( value );
+			str = encodeURIComponent( key ) + this.valueSeparator + encodedValues.join( this.arrayValueSeparator );
 		}
 		
 		return str;
+	},
+	
+	serializeStringParam: function( key, value ) {
+		return encodeURIComponent( key ) + this.valueSeparator + encodeURIComponent( value );
 	},
 	
 	toString: function() {
