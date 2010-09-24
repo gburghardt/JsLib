@@ -33,7 +33,7 @@
 		);
 	} );
 	
-	createTest( "serialze", function( test ) {
+	createTest( "serialize", function( test ) {
 		var origQuery = [
 			"key1=val%201",
 			"key2=1,2,3",
@@ -43,11 +43,8 @@
 		
 		var serializedQuery = [
 			"key1=val%201",
-			"key2=1",
-			"key2=2",
-			"key2=3",
-			"key3=a",
-			"key3=b"
+			"key2=1,2,3",
+			"key3=a,b"
 		].join( "&" );
 		
 		var request = new SerializableData();
@@ -65,7 +62,7 @@
 	
 	createTest( "separators", function( test ) {
 		var query = "key1>val1|key2>val2|key3>a.b.c";
-		var reserializedQueryOrig = "key1>val1|key2>val2|key3>a|key3>b|key3>c";
+		var reserializedQueryOrig = "key1>val1|key2>val2|key3>a.b.c";
 		var paramSeparator = "|";
 		var valueSeparator = ">";
 		var arrayValueSeparator = ".";
@@ -94,6 +91,22 @@
 		
 		return (
 			test.assertEquals( "The serialized data should be the same\n" + reserializedCSV + "\n" + reserializedCSVOrig, reserializedCSV, reserializedCSV )
+		);
+	} );
+	
+	createTest( "oldSchoolURL", function( test ) {
+		var origQuery = "key1=val1&key2=1,2&key3=a&key3=b";
+		var expectedQuery = "key1=val1&key2=1&key2=2&key3=a&key3=b";
+		var paramSeparator = "&";
+		var valueSeparator = "=";
+		var arrayValueSeparator = ",";
+		var request = new SerializableData( paramSeparator, valueSeparator, arrayValueSeparator );
+		request.deserialize( origQuery );
+		
+		var reserializedQuery = request.serialize( true );
+		
+		return (
+			test.assertEquals( "The reserialized and expected queries are not equal", expectedQuery, reserializedQuery )
 		);
 	} );
 	
