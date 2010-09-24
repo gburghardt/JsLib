@@ -647,7 +647,13 @@ Test.prototype = {
 	 * @return {Boolean}
 	 */
 	assertEquals: function( message, testValue, actualValue ) {
-		return this.assert( testValue === actualValue, message, "equals" );
+		var condition = ( testValue === actualValue );
+		
+		if ( !condition ) {
+			this.info( "assertEquals FAILED:\n    Expected : " + testValue + "\n    Actual   : " + actualValue );
+		}
+		
+		return this.assert( condition, message, "equals" );
 	},
 	
 	assertError: function( message, testValue ) {
