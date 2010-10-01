@@ -70,9 +70,11 @@
 		};
 		
 		delegator.addDelegate( action, delegate, method );
-		delegator.delegate( action, data );
+		var delegateFound = delegator.delegate( action, data );
 		
 		return (
+			test.assertBoolean( "The delegate method should have return a boolean value", delegateFound ) &&
+			test.assertTrue( "The delegate method should have returned true", delegateFound ) &&
 			test.assertTrue( "The delegate method should have executed and set delegateSuccess to true", delegateSuccess )
 		);
 	} );
@@ -89,11 +91,13 @@
 		
 		delegator.addDelegate( action, delegate, method );
 		var success = delegator.removeDelegate( action, delegate );
-		delegator.delegate( action );
+		var delegateFound = delegator.delegate( action );
 		
 		return (
 			test.assertBoolean( "The return value of removeDelegate should be a boolean", success ) &&
-			test.assertTrue( "The return value of removeDelegate should be true", success )
+			test.assertTrue( "The return value of removeDelegate should be true", success ) &&
+			test.assertBoolean( "The delegate method should have returned a boolean value", delegateFound ) &&
+			test.assertFalse( "The delegate method should have returned a false value", delegateFound )
 		);
 	} );
 	

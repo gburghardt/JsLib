@@ -43,12 +43,15 @@ Delegator.prototype = {
 	},
 	
 	delegate: function( action, data ) {
+		var delegateFound = false;
+		
 		if ( this.delegates[ action ] ) {
 			var instance = this.delegates[ action ].instance;
 			var method = this.delegates[ action ].method;
 			
 			if ( typeof instance[ method ] === "function" ) {
 				instance[ method ]( data );
+				delegateFound = true;
 			}
 			else {
 				throw new Error( "A method named " + method + " was not found in the delegate for the " + action + " action." );
@@ -57,6 +60,8 @@ Delegator.prototype = {
 		
 		instance = null;
 		data = null;
+		
+		return delegateFound;
 	},
 	
 	removeDelegate: function( action, instance ) {
