@@ -607,8 +607,9 @@ Test.prototype = {
 	 */
 	assert: function( condition, message, type ) {
 		if ( !condition ) {
-			this.addFailureMessage( message );
-			this.testController.notifyAssertFailed( this, message, type );
+			this.fail( message, "assert", {
+				assertType: type
+			} );
 		}
 		
 		this.addAssertion( condition, message, type );
@@ -822,9 +823,12 @@ Test.prototype = {
 	 * Mark this test as failed
 	 *
 	 * @param {String} message The optional failure message
+	 *         {Error} message An error object thrown and caught
+	 * @param {String} failureType Type of failure. Valid values are: "test", "assert"
+	 * @param {Object} failData A hash object of data about the failure
 	 * @return {void}
 	 */
-	fail: function( message ) {
+	fail: function( message, failureType, failData ) {
 		if ( this.isComplete() ) {
 			return;
 		}
@@ -853,7 +857,13 @@ Test.prototype = {
 		this.endDate = new Date();
 		this.setStatus( this.STATUS_FAILED );
 		this.teardown();
-		this.testController.notifyTestFailed( this );
+		
+		if ( failureType === "assert" ) {
+			this.testController.notifyAssertFailed( this, message, failData.assertType );
+		}
+		else {
+			this.testController.notifyTestFailed( this );
+		}
 	},
 	
 	/**
