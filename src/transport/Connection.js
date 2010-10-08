@@ -366,7 +366,6 @@ Connection.prototype.constructor = function( jsonService ) {
 		
 		if ( _xhr.status === 200 ) {
 			// everything went well
-			log.info("Response came back find.");
 			processSuccessfullResponse();
 		}
 		else if ( _xhr.status >= 400 && _xhr.status < 500 ) {
@@ -397,22 +396,18 @@ Connection.prototype.constructor = function( jsonService ) {
 	var processSuccessfullResponse = function() {
 		switch( _this.getDataType() ) {
 			case Connection.DATA_TYPE_JSON:
-				log.info("Process response as " + Connection.DATA_TYPE_JSON);
 				processJSONResponse();
 			break;
 			
 			case Connection.DATA_TYPE_XML:
-				log.info("Process response as " + Connection.DATA_TYPE_XML);
 				processXMLResponse();
 			break;
 			
 			case Connection.DATA_TYPE_HTML:
-				log.info("Process response as " + Connection.DATA_TYPE_HTML);
 				processHTMLResponse();
 			break;
 			
 			default:
-				log.info("Default process response as " + Connection.DATA_TYPE_JSON);
 				processJSONResponse();
 			break;
 		}
@@ -615,7 +610,6 @@ Connection.prototype.constructor = function( jsonService ) {
 		_this.delegate( "timeout", {
 			url          : _this.getUrl(),
 			method       : _this.getMethod(),
-			status       : _xhr.status,
 			readyState   : _xhr.readyState,
 			timeoutCount : _timeoutCount
 		} );
