@@ -1,7 +1,7 @@
 /**
  * @extends Delegator
  */
-function Connnection() {
+function Connection() {
 	this.constructor.apply( this, arguments );
 }
 
@@ -27,8 +27,6 @@ Connection.DATA_TYPE_JSON = "JSON";
 
 Connection.METHOD_DELETE = "DELETE";
 Connection.METHOD_GET = "GET";
-Connection.METHOD_HEAD = "HEAD";
-Connection.METHOD_OPTIONS = "OPTIONS";
 Connection.METHOD_POST = "POST";
 Connection.METHOD_PUT = "PUT";
 
@@ -46,165 +44,137 @@ Connection.prototype.constructor = function( jsonService ) {
 	 */
 	var _this = this;
 	
-	/**
-	 * @property {XMLHttpRequest} The same-domain request object
-	 */
-	var xhr = null;
+	
 	
 	/**
-	 * @property {Object} An options bundle defining common options for this connection
+	 * @property {Boolean} Requests get sent asynchronously or not
 	 */
-	var options = {
-		
-		/**
-		 * @property {String} The URL to send requests to. The params are appended to the
-		 *                    URL when the method is GET.
-		 */
-		url: "",
-		
-		/**
-		 * @property {Boolean} Requests get sent asynchronously or not
-		 */
-		async: true,
-		
-		 /**
-		 * @property {String} The data type to interpret responses as
-		 */
-		dataType: Connection.DATA_TYPE_JSON,
-		
-		/**
-		 * @property {String} The HTTP method to use
-		 */
-		method: Connection.METHOD_POST,
-		
-		/**
-		 * @property {Object} A key-value object of params to pass in the request
-		 * @property {Object} An object of key-value pairs that supports a serialize() method
-		 * @property {String} A pre serialized query string
-		 */
-		params: null,
-		
-		/**
-		 * @property {Number} The number of miliseconds to wait before declaring a
-		 *                    connection timed out.
-		 */
-		timeout: 30000
-		
-	};
-	
-	this.setOptions = function( o ) {
-		_this.abort();
-		
-		if ( typeof o.url === "string" ) {
-			options.url = o.url;
-		}
-		
-		if ( typeof o.async === "boolean" ) {
-			options.async = o.async;
-		}
-		
-		if ( typeof o.dataType === "string" ) {
-			setDataType( o.dataType );
-		}
-		
-		if ( typeof o.method === "string" ) {
-			setMethod( o.method );
-		}
-		
-		if ( typeof o.timeout === "number" && !isNaN( o.timeout ) ) {
-			options.timeout = o.timeout;
-		}
-		
-		o = null;
-	};
+	var _asynch = true;
 	
 	/**
 	 * @access public
 	 *
-	 * Gets the options.async property
+	 * Gets the _asynch property
 	 *
 	 * @return {Boolean}
 	 */
-	this.getAsynch = function() {
-		return options.asynch;
+	this.getAsync = function() {
+		return _asynch;
 	};
+	
+	var setAsynch = function( async ) {
+		if ( typeof asynch === "boolean" ) {
+			_asynch = asynch;
+		}
+	};
+	
+	
+	
+	/**
+	 * @property {String} The data type to interpret responses as
+	 */
+	var _dataType = Connection.DATA_TYPE_JSON;
 	
 	/**
 	 * @access public
 	 *
-	 * Gets the options.dataType property
+	 * Gets the _dataType property
 	 *
 	 * @return {String}
 	 */
 	this.getDataType = function() {
-		return options.dataType;
+		return _dataType;
 	};
 	
-	var setDataType = function( type ) {
-		switch( String( type ).toUpperCase() ) {
+	this.setDataType = function( dataType ) {
+		switch( String( dataType ).toUpperCase() ) {
 			case Connection.DATA_TYPE_JSON:
-				options.dataType = Connection.DATA_TYPE_JSON;
+				_dataType = Connection.DATA_TYPE_JSON;
 			break;
 			
 			case Connection.DATA_TYPE_HTML:
-				options.dataType = Connection.DATA_TYPE_HTML;
+				_dataType = Connection.DATA_TYPE_HTML;
 			break;
 			
 			case Connection.DATA_TYPE_XML:
-				options.dataType = Connection.DATA_TYPE_XML;
+				_dataType = Connection.DATA_TYPE_XML;
 			break;
 			
 			case Connection.DATA_TYPE_JSONP:
-				options.dataType = Connection.DATA_TYPE_JSONP;
+				_dataType = Connection.DATA_TYPE_JSONP;
 			break;
 			
 			default:
-				options.dataType = Connection.DATA_TYPE_JSON;
+				_dataType = Connection.DATA_TYPE_JSON;
 			break;
 		}
 	};
 	
+	
+	
+	/**
+	 * @property {String} The HTTP method to use
+	 */
+	var _method = Connection.METHOD_POST;
+	
 	/**
 	 * @access public
 	 *
-	 * Gets the options.method property
+	 * Gets the _method property
 	 *
 	 * @return {String}
 	 */
 	this.getMethod = function() {
-		return options.method;
+		return _method;
 	};
 	
 	var setMethod = function( str ) {
 		switch( str.toUpperCase() ) {
 			case Connection.METHOD_POST:
-				method = Connection.METHOD_POST;
+				_method = Connection.METHOD_POST;
 			break;
 			
 			case Connection.METHOD_GET:
-				method = Connection.METHOD_GET;
+				_method = Connection.METHOD_GET;
 			break;
 			
 			case Connection.METHOD_PUT:
-				method = Connection.METHOD_PUT;
+				_method = Connection.METHOD_PUT;
 			break;
 			
 			case Connection.METHOD_DELETE:
-				method = Connection.METHOD_DELETE;
+				_method = Connection.METHOD_DELETE;
 			break;
 			
 			case Connection.METHOD_HEAD:
-				method = Connection.METHOD_HEAD;
+				_method = Connection.METHOD_HEAD;
 			break;
 			
 			case Connection.METHOD_OPTIONS:
-				method = Connection.METHOD_OPTIONS;
+				_method = Connection.METHOD_OPTIONS;
 			break;
 		
 			default:
-				method = Connection.METHOD_GET;
+				_method = Connection.METHOD_GET;
 			break;
 		}
+	};
+	
+	
+	
+	/**
+	 * @property {Object} A key-value object of params to pass in the request
+	 * @property {Object} An object of key-value pairs that supports a serialize() method
+	 * @property {String} A pre serialized query string
+	 */
+	var _params = null;
+	
+	var getParams = function() {
+		return _params;
+	};
+	
+	var haveParams = function() {
+		return (_params !== null);
 	};
 	
 	/**
@@ -212,9 +182,9 @@ Connection.prototype.constructor = function( jsonService ) {
 	 *
 	 * Serialize an object of params to be sent in the request
 	 *
-	 * @param {Object} params An object of key-value pairs of parameters, or an object
+	 * @param {Object} p An object of key-value pairs of parameters, or an object
 	 *                        supporting a serialize() method.
-	 *        {String} params A preserialized and URL encoded parameter string
+	 *        {String} p A preserialized and URL encoded parameter string
 	 * @return {String}
 	 */
 	var serializeParams = function( params ) {
@@ -252,41 +222,78 @@ Connection.prototype.constructor = function( jsonService ) {
 		}
 		
 		params = null;
+		tempParams = null;
 		
 		return str;
 	};
 	
+	this.setParams = function( params ) {
+		var type = typeof params;
+		if ( type === "string" || type === "object" ) {
+			_params = params;
+		}
+		
+		params = null;
+	};
+	
+	
+	
+	/**
+	 * @property {String} The URL to send requests to. The params are appended to the
+	 *                    URL when the method is GET.
+	 */
+	var _url = "";
+	
 	/**
 	 * @access public
 	 *
-	 * Gets the options.url property
+	 * Gets the _url property
 	 *
 	 * @return {String}
 	 */
 	this.getUrl = function() {
-		return options.url;
+		var url = _url;
+		
+		if ( Connection.METHOD_GET === this.getMethod() && haveParams() ) {
+			var params = getParams();
+			
+			if ( url.indexOf( "?" ) === -1 ) {
+				url += "?";
+			}
+			
+			url += serializeParams( params );
+		}
+		
+		return url;
 	};
 	
 	var setUrl = function( str ) {
 		if ( typeof str === "string" ) {
-			options.url = str;
+			_url = str;
 		}
 	};
 	
 	
 	
 	/**
+	 * @property {XMLHttpRequest} The same-domain request object
+	 */
+	var _xhr = null;
+	
+	
+	
+	/**
 	 * @property {String} The password sent with the request
 	 */
-	var password = null;
+	var _password = null;
 	
 	var getPassword = function() {
-		return password;
+		return _password;
 	};
 	
 	var setPassword = function( str ) {
 		if ( typeof str === "string" ) {
-			password = str;
+			_password = str;
 		}
 	};
 	
@@ -295,20 +302,20 @@ Connection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {String} The username sent with the request
 	 */
-	var user = null;
+	var _user = null;
 	
 	var getUser = function() {
-		return user;
+		return _user;
 	};
 	
 	var setUser = function( str ) {
 		if ( typeof str === "string" ) {
-			user = str;
+			_user = str;
 		}
 	};
 	
 	var requiresAuthentication = function() {
-		return ( user || password );
+		return ( _user || _password );
 	};
 	
 	
@@ -316,101 +323,96 @@ Connection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {Boolean} Whether or not the connection is currently open
 	 */
-	var opened = false;
+	var _opened = false;
 	
-	var complete = false;
+	var _complete = false;
 	
 	var open = function() {
-		if ( opened ) {
+		if ( _opened ) {
 			return;
 		}
 		
-		if ( xhr === null ) {
-			xhr = new XMLHttpRequest();
+		if ( _xhr === null ) {
+			_xhr = new XMLHttpRequest();
 		}
-		
-		var url = options.url;
 		
 		if ( requiresAuthentication() ) {
-			if ( Connection.METHOD_GET === options.method && options.params ) {
-				if ( url.indexOf( "?" ) === -1 ) {
-					url += "?";
-				}
-				
-				url += serializeParams( options.params );
-			}
-			
-			xhr.open( options.method, url, options.async, getUser(), getPassword() );
+			_xhr.open( _this.getMethod(), _this.getUrl(), _this.getAsync(), getUser(), getPassword() );
 		}
 		else {
-			xhr.open( options.method, url, options.async );
+			_xhr.open( _this.getMethod(), _this.getUrl(), _this.getAsync() );
 		}
 		
-		xhr.setRequestHeader( "X-REQUESTED-WITH", "XMLHttpRequest" );
+		_xhr.setRequestHeader( "X-REQUESTED-WITH", "XMLHttpRequest" );
 		
-		if ( !xhr.onreadystatechange ) {
-			xhr.onreadystatechange = handleReadyStateChanged;
+		if ( !_xhr.onreadystatechange ) {
+			_xhr.onreadystatechange = handleReadyStateChanged;
 		}
 		
-		opened = true;
+		_opened = true;
 	};
 	
 	var handleReadyStateChanged = function() {
-		if ( xhr.readyState !== 4 ) {
+		if ( _xhr.readyState !== 4 ) {
 			return;
 		}
 		
-		if ( timedOut ) {
+		if ( _timedOut ) {
 			return;
 		}
 		
-		timedOut = false;
+		_timedOut = false;
 		stopTimer();
 		
-		if ( xhr.status === 200 ) {
+		if ( _xhr.status === 200 ) {
 			// everything went well
+			log.info("Response came back find.");
 			processSuccessfullResponse();
 		}
-		else if ( xhr.status >= 400 && xhr.status < 500 ) {
+		else if ( _xhr.status >= 400 && _xhr.status < 500 ) {
 			// 400 error. remote resource not found
 			_this.delegate( "4xxResponseStatus", {
 				connection: _this,
-				status: xhr.status
+				status: _xhr.status
 			} );
 		}
-		else if ( xhr.status >= 500 && xhr.status < 600 ) {
+		else if ( _xhr.status >= 500 && _xhr.status < 600 ) {
 			// 500 error. the server blew up
 			_this.delegate( "5xxResponseStatus", {
 				connection: _this,
-				status: xhr.status
+				status: _xhr.status
 			} );
 		}
 		else {
 			// unknown status. delegate to someone else
 			_this.delegate( "unknownResponseStatus", {
 				connection: _this,
-				status: xhr.status
+				status: _xhr.status
 			} );
 		}
 		
-		complete = true;
+		_complete = true;
 	};
 	
 	var processSuccessfullResponse = function() {
-		switch( options.dataType ) {
+		switch( _this.getDataType() ) {
 			case Connection.DATA_TYPE_JSON:
+				log.info("Process response as " + Connection.DATA_TYPE_JSON);
 				processJSONResponse();
 			break;
 			
 			case Connection.DATA_TYPE_XML:
+				log.info("Process response as " + Connection.DATA_TYPE_XML);
 				processXMLResponse();
 			break;
 			
 			case Connection.DATA_TYPE_HTML:
+				log.info("Process response as " + Connection.DATA_TYPE_HTML);
 				processHTMLResponse();
 			break;
 			
 			default:
+				log.info("Default process response as " + Connection.DATA_TYPE_JSON);
 				processJSONResponse();
 			break;
 		}
@@ -420,12 +422,12 @@ Connection.prototype.constructor = function( jsonService ) {
 		var data = null;
 		
 		try {
-			data = jsonService.parse( xhr.responseText );
+			data = jsonService.parse( _xhr.responseText );
 		}
 		catch ( err ) {
 			_this.delegate( "error", {
 				type: "jsonSyntaxError",
-				jsonText: xhr.responseText
+				jsonText: _xhr.responseText
 			} );
 			
 			return;
@@ -437,12 +439,12 @@ Connection.prototype.constructor = function( jsonService ) {
 	};
 	
 	var processXMLResponse = function() {
-		var doc = xhr.responseXML;
+		var doc = _xhr.responseXML;
 		
 		if ( doc === null ) {
 			_this.delegate( "error", {
 				type: "xmlSyntaxError",
-				responseText: xhr.responseText
+				responseText: _xhr.responseText
 			} );
 		}
 		else {
@@ -453,8 +455,8 @@ Connection.prototype.constructor = function( jsonService ) {
 	};
 	
 	var processHTMLResponse = function() {
-		var html = xhr.responseText;
-		var metaText = xhr.getResponseHeader( "X-META-JSON" );
+		var html = _xhr.responseText;
+		var metaText = _xhr.getResponseHeader( "X-META-JSON" );
 		var meta = null;
 		
 		if ( metaText ) {
@@ -483,13 +485,13 @@ Connection.prototype.constructor = function( jsonService ) {
 	 * Aborts a pending request
 	 */
 	this.abort = function() {
-		if ( xhr.readyState === 4 ) {
+		if ( _xhr.readyState === 4 ) {
 			return;
 		}
 		
 		stopTimer();
-		xhr.abort();
-		complete = true;
+		_xhr.abort();
+		_complete = true;
 	};
 	
 	/**
@@ -498,30 +500,67 @@ Connection.prototype.constructor = function( jsonService ) {
 	 * Sends a request to the server
 	 */
 	this.send = function() {
+		_complete = false;
 		open();
-		complete = false;
 		startTimer();
 		
-		switch ( options.method.toUpperCase() ) {
+		switch ( this.getMethod().toUpperCase() ) {
 			case Connection.METHOD_GET:
-				xhr.send( null );
+				_xhr.send( null );
 			break;
-
+			
 			case Connection.METHOD_POST:
 			case Connection.METHOD_PUT:
 			case Connection.METHOD_DELETE:
-				xhr.send( serializeParams( options.params ) );
+				_xhr.send( serializeParams( getParams() ) );
 			break;
 			
 			default:
-				throw new Error( "Cannot send a request whose method is " + options.method + " to URL " + options.url );
+				throw new Error( "Cannot send a request whose method is " + this.getMethod() + " to URL " + this.getUrl() );
 			break;
 		}
 		
-		if ( !this.getAsync() && !complete ) {
+		if ( !this.getAsync() && !_complete ) {
 			// fire readystatechange for Firefox in synchronous requests
 			handleReadyStateChange();
 		}
+	};
+	
+	this.sendWithOptions = function( options ) {
+		this.setOptions( options );
+		this.send();
+		options = null;
+	};
+	
+	this.sendWithParams = function( params ) {
+		this.setParams( params );
+		this.send();
+		params = null;
+	};
+	
+	this.setOptions = function( o ) {
+		setMethod( o.method );
+		this.setParams( o.params );
+		setUrl( o.url );
+		this.setDataType( o.dataType );
+		setUser( o.user );
+		setPassword( o.password );
+		setActions( o.actions );
+		setTimeoutPeriod( o.timeoutPeriod );
+		
+		o = null;
+	};
+	
+	var setActions = function( actions ) {
+		for ( var action in actions ) {
+			if ( !actions.hasOwnProperty( action ) ) {
+				continue;
+			}
+			
+			_this.addDelegate( action, actions[ action ].instance, actions[ action ].method );
+		}
+		
+		actions = null;
 	};
 	
 	
@@ -529,47 +568,59 @@ Connection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {Number} The setTimeout Id so we can detect connection time outs
 	 */
-	var timerId = null;
+	var _timerId = null;
 	
 	/**
 	 * @property {Boolean} Whether or not the last request timed out
 	 */
-	var timedOut = false;
+	var _timedOut = false;
 	
 	/**
 	 * @property {Number} Number of times a connection has timed out
 	 */
-	var timeoutCount = 0;
+	var _timeoutCount = 0;
+	
+	/**
+	 * @property {Number} The number of miliseconds to wait before declaring a
+	 *                    connection timed out.
+	 */
+	var _timeoutPeriod = 30000;
+	
+	var setTimeoutPeriod = function( timeoutPeriod ) {
+		if ( typeof timeoutPeriod === "number" && !isNaN( timeoutPeriod ) && timeoutPeriod > 0 ) {
+			_timeoutPeriod = timeoutPeriod;
+		}
+	};
 	
 	var startTimer = function() {
-		if ( timerId ) {
+		if ( _timerId ) {
 			return;
 		}
 		
-		timerId = setTimeout( handleTimeout, options.timeout );
+		_timerId = setTimeout( handleTimeout, _timeoutPeriod );
 	};
 	
 	var stopTimer = function() {
-		if ( !timerId ) {
+		if ( !_timerId ) {
 			return;
 		}
 		
-		clearTimeout( timerId );
-		timerId = null;
+		clearTimeout( _timerId );
+		_timerId = null;
 	};
 	
 	var handleTimeout = function() {
-		timedOut = true;
-		timeoutCount++;
+		_timedOut = true;
+		_timeoutCount++;
 		_this.delegate( "timeout", {
-			url          : options.url,
-			method       : options.method,
-			status       : xhr.status,
-			readyState   : xhr.readyState,
-			timeoutCount : timeoutCount
+			url          : _this.getUrl(),
+			method       : _this.getMethod(),
+			status       : _xhr.status,
+			readyState   : _xhr.readyState,
+			timeoutCount : _timeoutCount
 		} );
-		xhr.abort();
-		timerId = null;
+		_xhr.abort();
+		_timerId = null;
 	};
 	
 	
@@ -579,23 +630,13 @@ Connection.prototype.constructor = function( jsonService ) {
 	 * @destructs
 	 */
 	this.destructor = function() {
-		if ( !xhr ) {
+		if ( !_xhr ) {
 			return;
 		}
 		
 		_this.abort();
-		xhr.onreadystatechange = null;
-		xhr = null;
-		
-		for ( var key in options ) {
-			if ( !options.hasOwnProperty( key ) ) {
-				continue;
-			}
-			
-			options[ key ] = null;
-		}
-		
-		options = null;
+		_xhr.onreadystatechange = null;
+		_xhr = null;
 		_this = null;
 		
 		Connection.superClass.destructor.call( this );
