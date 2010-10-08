@@ -109,13 +109,13 @@ SerializableData.prototype = {
 	/**
 	 * Serialize the data in this object back into a string
 	 *
-	 * @param {Boolean} useParamSeparator When serializing array values, make each value
-	 *                                    its own parameter instead of mashing them
-	 *                                    together into one value separated by the
-	 *                                    arrayValueSeparator.
+	 * @param {Boolean} useArrayValueSeparator When serializing array values, make each
+	 *                                         value its own parameter instead of mashing
+	 *                                         them together into one value separated by
+	 *                                         the arrayValueSeparator.
 	 * @return {String} The serialized data
 	 */
-	serialize: function( useParamSeparator ) {
+	serialize: function( useArrayValueSeparator ) {
 		if ( !this.data ) {
 			return "";
 		}
@@ -130,7 +130,7 @@ SerializableData.prototype = {
 				continue;
 			}
 			
-			params.push( this.serializeParam( key, this.data[ key ], useParamSeparator ) );
+			params.push( this.serializeParam( key, this.data[ key ], useArrayValueSeparator ) );
 		}
 		
 		str = params.join( this.paramSeparator );
@@ -144,12 +144,12 @@ SerializableData.prototype = {
 	 *
 	 * @param {String} The key to serialize the data as
 	 * @param {String|Array} value The value to serialize
-	 * @param {Boolean} useParamSeparator See serialize()
+	 * @param {Boolean} useArrayValueSeparator See serialize()
 	 * @return {String} The serialized parameter
 	 */
-	serializeParam: function( key, value, useParamSeparator ) {
+	serializeParam: function( key, value, useArrayValueSeparator ) {
 		if ( this.isArray( value ) ) {
-			return this.serializeArrayParam( key, value, useParamSeparator )
+			return this.serializeArrayParam( key, value, useArrayValueSeparator )
 		}
 		else {
 			return this.serializeStringParam( key, value );
@@ -161,22 +161,13 @@ SerializableData.prototype = {
 	 *
 	 * @param {String} The key to serialize the data as
 	 * @param {Array} value The value to serialize
-	 * @param {Boolean} useParamSeparator See serialize()
+	 * @param {Boolean} useArrayValueSeparator See serialize()
 	 * @return {String} The serialized parameter
 	 */
-	serializeArrayParam: function( key, values, useParamSeparator ) {
+	serializeArrayParam: function( key, values, useArrayValueSeparator ) {
 		str = "";
 		
-		if ( useParamSeparator ) {
-			var params = [];
-			
-			for ( var i = 0, length = values.length; i < length; i++ ) {
-				params.push( this.serializeStringParam( key, values[ i ] ) );
-			}
-			
-			str = params.join( this.paramSeparator );
-		}
-		else {
+		if ( useArrayValueSeparator ) {
 			var encodedValues = [];
 			
 			for ( var i = 0, length = values.length; i < length; i++ ) {
@@ -184,6 +175,15 @@ SerializableData.prototype = {
 			}
 			
 			str = encodeURIComponent( key ) + this.valueSeparator + encodedValues.join( this.arrayValueSeparator );
+		}
+		else {
+			var params = [];
+			
+			for ( var i = 0, length = values.length; i < length; i++ ) {
+				params.push( this.serializeStringParam( key, values[ i ] ) );
+			}
+			
+			str = params.join( this.paramSeparator );
 		}
 		
 		return str;

@@ -50,13 +50,13 @@
 		var request = new SerializableData();
 		request.deserialize( origQuery );
 		
-		var query = request.serialize();
+		var query = request.serialize( true );
 		var request2 = new SerializableData();
 		request2.deserialize( origQuery );
 		
 		return (
 			test.assertEquals( "The serialized params are not equal: \n" + query + "\n" + serializedQuery, query, serializedQuery ) &&
-			test.assertEquals( "The two serialized requests should be the same", request.serialize(), request2.serialize() )
+			test.assertEquals( "The two serialized requests should be the same", request.serialize( true ), request2.serialize( true ) )
 		);
 	} );
 	
@@ -70,7 +70,7 @@
 		var request = new SerializableData( paramSeparator, valueSeparator, arrayValueSeparator );
 		request.deserialize( query );
 		
-		var reserializedQuery = request.serialize();
+		var reserializedQuery = request.serialize( true );
 		
 		return (
 			test.assertString( "The key1 key should be a string", request.get( "key1" ) ) &&
@@ -103,7 +103,7 @@
 		var request = new SerializableData( paramSeparator, valueSeparator, arrayValueSeparator );
 		request.deserialize( origQuery );
 		
-		var reserializedQuery = request.serialize( true );
+		var reserializedQuery = request.serialize();
 		
 		return (
 			test.assertEquals( "The reserialized and expected queries are not equal", expectedQuery, reserializedQuery )
