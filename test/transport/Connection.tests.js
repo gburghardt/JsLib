@@ -120,4 +120,41 @@
 		return 20000;
 	} );
 	
+	createTest("synchronousRequest", function( test ) {
+		var connection = new Connection();
+		var successCalled = false;
+		var delegate = {
+			success: function( html, meta ) {
+				successCalled = true;
+			},
+			timeout: function() {
+				test.fail( "The connection timed out" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "/test/transport/dummy.txt",
+			method: Connection.METHOD_GET,
+			async: false,
+			dataType: Connection.DATA_TYPE_HTML,
+			timeoutPeriod: 5000,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				timeout: {
+					instance: delegate,
+					method: "timeout"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return (
+			test.assertTrue( "The success delegate should have been called", successCalled )
+		);
+	} );
+	
 } )( TestController.getInstance() );
