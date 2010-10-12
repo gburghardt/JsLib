@@ -49,7 +49,7 @@ Connection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {Boolean} Requests get sent asynchronously or not
 	 */
-	var _asynch = true;
+	var _async = true;
 	
 	/**
 	 * @access public
@@ -59,12 +59,12 @@ Connection.prototype.constructor = function( jsonService ) {
 	 * @return {Boolean}
 	 */
 	this.getAsync = function() {
-		return _asynch;
+		return _async;
 	};
 	
-	var setAsynch = function( async ) {
-		if ( typeof asynch === "boolean" ) {
-			_asynch = asynch;
+	var setAsync = function( async ) {
+		if ( typeof async === "boolean" ) {
+			_async = async;
 		}
 	};
 	
@@ -517,7 +517,7 @@ Connection.prototype.constructor = function( jsonService ) {
 		
 		if ( !this.getAsync() && !_complete ) {
 			// fire readystatechange for Firefox in synchronous requests
-			handleReadyStateChange();
+			handleReadyStateChanged();
 		}
 	};
 	
@@ -542,6 +542,7 @@ Connection.prototype.constructor = function( jsonService ) {
 		setPassword( o.password );
 		setActions( o.actions );
 		setTimeoutPeriod( o.timeoutPeriod );
+		setAsync( o.async );
 		
 		o = null;
 	};
