@@ -21,9 +21,16 @@ LogFactory.prototype = {
 	getInstance: function( logHandle, level, debugMode, enabled ) {
 		var className = this.capitalize( this.type ) + "Logger";
 		var classReference = window[ className ];
+		var instance = null;
 		
 		if ( typeof classReference === "function" ) {
-			return new classReference( logHandle, level, debugMode, enabled );
+			instance = new classReference( logHandle, level, debugMode, enabled );
+			
+			if ( this.jsonService ) {
+				instance.setJsonService( this.jsonService );
+			}
+			
+			return instance;
 		}
 		else {
 			throw new Error( "No logging object constructor function was found in window." + className + " for type " + this.type );
