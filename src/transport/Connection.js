@@ -37,6 +37,7 @@ Connection.METHOD_PUT = "PUT";
  *                             JSON strings
  */
 Connection.prototype.constructor = function( jsonService ) {
+	var logFactory = new LogFactory("console", jsonService);
 	
 	/**
 	 * @property {Connection} A static reference to this connection used in function
@@ -368,26 +369,31 @@ Connection.prototype.constructor = function( jsonService ) {
 			// everything went well
 			processSuccessfullResponse();
 		}
-		else if ( _xhr.status >= 400 && _xhr.status < 500 ) {
-			// 400 error. remote resource not found
-			_this.delegate( "4xxResponseStatus", {
-				connection: _this,
-				status: _xhr.status
-			} );
-		}
-		else if ( _xhr.status >= 500 && _xhr.status < 600 ) {
-			// 500 error. the server blew up
-			_this.delegate( "5xxResponseStatus", {
-				connection: _this,
-				status: _xhr.status
-			} );
-		}
 		else {
-			// unknown status. delegate to someone else
-			_this.delegate( "unknownResponseStatus", {
-				connection: _this,
-				status: _xhr.status
-			} );
+			var errorDelegateFound = false;
+			
+			// 400 level error. remote resource not found
+			if ( _xhr.status >= 400 && _xhr.status < 500 ) {
+				errorDelegateFound = _this.delegate( "error4xx", {
+					connection: _this,
+					status: _xhr.status
+				} );
+			}
+			
+			// 500 level error. the server blew up
+			if ( !errorDelegateFound && _xhr.status >= 500 && _xhr.status < 600 ) {
+				errorDelegateFound = _this.delegate( "error5xx", {
+					connection: _this,
+					status: _xhr.status
+				} );
+			}
+			
+			if ( !errorDelegateFound ) {
+				_this.delegate( "error", {
+					connection: _this,
+					status: _xhr.status
+				} );
+			}
 		}
 		
 		_complete = true;
