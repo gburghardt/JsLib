@@ -15,7 +15,9 @@
 		var logFactory = new LogFactory( "console", JSON );
 		var log = logFactory.getInstance("testLogger" );
 		
-		log.info("Testing console logger", "getInstanceConsole");
+		log.info("Testing console logger", "getInstanceConsole", {
+			foo: "bar"
+		} );
 		
 		return (
 			test.assertInstanceof( "The log object should be an instance of ConsoleLogger", log, ConsoleLogger )
@@ -26,7 +28,9 @@
 		var logFactory = new LogFactory( "blackbird", JSON );
 		var log = logFactory.getInstance( "testLogger" );
 		
-		log.info("Testing blackbird logger", "getInstanceBlackbird");
+		log.info("Testing blackbird logger", "getInstanceBlackbird", {
+			foo: "bar"
+		} );
 		
 		return (
 			test.assertInstanceof( "The log object should be an instance of BlackbirdLogger", log, BlackbirdLogger )
