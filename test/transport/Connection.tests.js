@@ -436,24 +436,17 @@
 	
 	createTest( "htmlUnhappyMeta", function( test ) {
 		var connection = new Connection( JSON );
-		var successCalled = false;
-		var errorCalled = false;
 		
 		var delegate = {
 			success: function( data ) {
-				successCalled = true;
-				test.assertString( "data.html should be a string", data.html );
-				test.assertNull( "data.meta should be null", data.meta );
-				test.assertTrue( "The error delegate should have been called prior to the success delegate", errorCalled );
-				test.pass();
+				test.fail( "The success delegate should not have been called" );
 			},
 			
 			error: function( data ) {
-				errorCalled = true;
 				test.assertObject( "data should be an object", data );
-				test.assertFalse( "The success delegate should not have been called yet", successCalled );
 				test.assertString( "data.type should be a string", data.type );
 				test.assertEquals( "data.type should be jsonSyntaxError", data.type, "jsonSyntaxError" );
+				test.pass();
 			}
 		};
 		

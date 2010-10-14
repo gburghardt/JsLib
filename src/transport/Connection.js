@@ -459,12 +459,15 @@ Connection.prototype.constructor = function( jsonService ) {
 		var html = _xhr.responseText;
 		var metaText = _xhr.getResponseHeader( "X-META-JSON" );
 		var meta = null;
+		var error = null;
 		
 		if ( metaText ) {
 			try {
 				meta = jsonService.parse( metaText );
 			}
 			catch ( err ) {
+				error = err;
+				
 				_this.delegate( "error", {
 					type: "jsonSyntaxError",
 					jsonText: metaText
@@ -472,11 +475,14 @@ Connection.prototype.constructor = function( jsonService ) {
 			}
 		}
 		
-		_this.delegate( "success", {
-			html: html,
-			meta: meta
-		} );
+		if ( !error ) {
+			_this.delegate( "success", {
+				html: html,
+				meta: meta
+			} );
+		}
 		
+		error = null;
 		meta = null;
 	};
 	
