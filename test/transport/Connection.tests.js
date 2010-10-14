@@ -446,6 +446,8 @@
 				test.assertObject( "data should be an object", data );
 				test.assertString( "data.type should be a string", data.type );
 				test.assertEquals( "data.type should be jsonSyntaxError", data.type, "jsonSyntaxError" );
+				test.assertObject( "data.error should be an object", data.error );
+				test.assertInstanceof( "data.error should be an instance of Error", data.error, Error );
 				test.pass();
 			}
 		};

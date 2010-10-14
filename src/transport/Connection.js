@@ -470,7 +470,8 @@ Connection.prototype.constructor = function( jsonService ) {
 				
 				_this.delegate( "error", {
 					type: "jsonSyntaxError",
-					jsonText: metaText
+					jsonText: metaText,
+					error: err
 				} )
 			}
 		}
