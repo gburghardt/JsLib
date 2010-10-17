@@ -369,7 +369,7 @@ Connection.prototype.constructor = function( jsonService ) {
 			// everything went well
 			processSuccessfullResponse();
 		}
-		else {
+		else if ( _xhr.status !== 0 ) {
 			var errorDelegateFound = false;
 			
 			// 400 level error. remote resource not found
@@ -421,21 +421,38 @@ Connection.prototype.constructor = function( jsonService ) {
 	
 	var processJSONResponse = function() {
 		var data = null;
+		var error = null;
 		
-		try {
-			data = jsonService.parse( _xhr.responseText );
-		}
-		catch ( err ) {
-			_this.delegate( "error", {
-				type: "jsonSyntaxError",
-				jsonText: _xhr.responseText
-			} );
+		if ( !jsonService ) {
+			error = new Error( "No jsonService is available to parse the response text for this Connection (" + _url + ")" );
 			
-			return;
+			_this.delegate( "error", {
+				type: "missingJsonServiceError",
+				responseText: _xhr.responseText,
+				error: error
+			} );
+		}
+		else {
+			try {
+				data = jsonService.parse( _xhr.responseText );
+			}
+			catch ( err ) {
+				error = err;
+			
+				_this.delegate( "error", {
+					type: "jsonSyntaxError",
+					responseText: _xhr.responseText,
+					error: err
+				} );
+			}
 		}
 		
-		_this.delegate( "success", data );
 		
+		if ( !error ) {
+			_this.delegate( "success", data );
+		}
+		
+		error = null;
 		data = null;
 	};
 	
@@ -470,7 +487,8 @@ Connection.prototype.constructor = function( jsonService ) {
 				
 				_this.delegate( "error", {
 					type: "jsonSyntaxError",
-					jsonText: metaText,
+					responseText: html,
+					metaText: metaText,
 					error: err
 				} )
 			}

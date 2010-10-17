@@ -29,7 +29,7 @@
 		};
 		
 		connection.setOptions( {
-			url: "/test/transport/dummy.txt",
+			url: "./dummy.txt",
 			method: Connection.METHOD_GET,
 			dataType: Connection.DATA_TYPE_HTML,
 			user: "foo",
@@ -68,7 +68,7 @@
 		params.set( "arr", 2 );
 		
 		connection.setOptions( {
-			url: "/test/transport/dummy.txt",
+			url: "./dummy.txt",
 			method: Connection.METHOD_GET,
 			dataType: Connection.DATA_TYPE_HTML,
 			params: params,
@@ -100,7 +100,7 @@
 		};
 		
 		connection.setOptions( {
-			url: "/test/transport/sleep.php",
+			url: "./sleep.php",
 			method: Connection.METHOD_GET,
 			dataType: Connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
@@ -115,6 +115,7 @@
 				}
 			}
 		} );
+		
 		connection.send();
 		
 		return 20000;
@@ -133,7 +134,7 @@
 		};
 		
 		connection.setOptions( {
-			url: "/test/transport/dummy.txt",
+			url: "./dummy.txt",
 			method: Connection.METHOD_GET,
 			async: false,
 			dataType: Connection.DATA_TYPE_HTML,
@@ -446,6 +447,7 @@
 				test.assertObject( "data should be an object", data );
 				test.assertString( "data.type should be a string", data.type );
 				test.assertEquals( "data.type should be jsonSyntaxError", data.type, "jsonSyntaxError" );
+				test.assertString( "data.responseText should be a string", data.responseText );
 				test.assertObject( "data.error should be an object", data.error );
 				test.assertInstanceof( "data.error should be an instance of Error", data.error, Error );
 				test.pass();
@@ -472,6 +474,276 @@
 		connection.send();
 		
 		return 5000;
+	} );
+	
+	createTest( "XML Happy", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( xml ) {
+				test.assertObject( "The xml variable should be an object", xml );
+				test.assertObject( "The xml.childNodes variable should be an object", xml.childNodes );
+				test.assertNumber( "The xml.childNodes.length property should be a number", xml.childNodes.length );
+				test.pass();
+			},
+			
+			error: function( data ) {
+				test.fail( "The error delegate should not have been called" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./test.xml",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_XML,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "XML Unhappy", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( xml ) {
+				test.fail( "The success delegate should not have been called" );
+			},
+			
+			error: function( data ) {
+				test.assertObject( "data should be an object", data );
+				test.assertString( "data.type should be a string", data.type );
+				test.assertEquals( "data.type should be equal to xmlSyntaxError", data.type, "xmlSyntaxError" );
+				test.assertString( "data.responseText should be a string", data.responseText );
+				test.pass();
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./dummy.txt",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_XML,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "JSON Happy", function( test ) {
+		var connection = new Connection( JSON );
+		var delegate = {
+			success: function( data ) {
+				test.assertObject( "data should be an object", data );
+				test.assertString( "data.foo should be a string", data.foo );
+				test.pass();
+			},
+			
+			error: function() {
+				test.fail( "The error delegate should not have been called" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./json.txt",
+			method: Connection.METHOD_GET,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "JSON Unhappy - No jsonService", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( data ) {
+				test.fail( "The success delegate should not have been called" );
+			},
+			
+			error: function( data ) {
+				test.assertObject( "data should be an object", data );
+				test.assertString( "data.type should be a string", data.type );
+				test.assertEquals( "data.type should be missingJsonServiceError", data.type, "missingJsonServiceError" );
+				test.assertInstanceof( "data.error should be an instance of Error", data.error, Error );
+				test.assertString( "data.responseText should be a String", data.responseText );
+				test.pass();
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./bad_json.txt",
+			method: Connection.METHOD_GET,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "JSON Unhappy - Syntax error", function( test ) {
+		var connection = new Connection( JSON );
+		var delegate = {
+			success: function( data ) {
+				test.fail( "The success delegate should not have been called with malformed JSON" );
+			},
+			
+			error: function( data ) {
+				test.assertString( "data.type should be a string", data.type );
+				test.assertEquals( "data.type should be jsonSyntaxError", data.type, "jsonSyntaxError" );
+				test.assertString( "data.responseText should be a string", data.responseText );
+				test.assertObject( "data.error should be an object", data.error );
+				test.assertInstanceof( "data.error should be an instance of Error", data.error, Error );
+				test.pass();
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./bad_json.txt",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_JSON,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "abort", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( data ) {
+				test.fail( "The success delegate should not have been called" );
+			},
+			timeout: function( data ) {
+				test.fail( "The timeout delegate should not have been called" );
+			},
+			error: function( data ) {
+				test.fail( "The error delegate should not have been called" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./sleep.php",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_HTML,
+			timeoutPeriod: 5000,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				timeout: {
+					instance: delegate,
+					method: "timeout"
+				},
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		connection.abort();
+		
+		return true;
+	} );
+	
+	createTest( "destroy", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( data ) {
+				test.fail( "The success delegate should not have been called" );
+			},
+			timeout: function( data ) {
+				test.fail( "The timeout delegate should not have been called" );
+			},
+			error: function( data ) {
+				test.fail( "The error delegate should not have been called" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./sleep.php",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_HTML,
+			timeoutPeriod: 5000,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				timeout: {
+					instance: delegate,
+					method: "timeout"
+				},
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		connection.destructor();
+		connection = null;
+		
+		return true;
 	} );
 	
 } )( TestController.getInstance() );
