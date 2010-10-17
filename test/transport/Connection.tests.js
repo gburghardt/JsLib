@@ -683,18 +683,9 @@
 			dataType: Connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
-				success: {
-					instance: delegate,
-					method: "success"
-				},
-				timeout: {
-					instance: delegate,
-					method: "timeout"
-				},
-				error: {
-					instance: delegate,
-					method: "error"
-				}
+				success : { instance: delegate, method: "success" },
+				timeout : { instance: delegate, method: "timeout" },
+				error   : { instance: delegate, method: "error" }
 			}
 		} );
 		
@@ -724,18 +715,9 @@
 			dataType: Connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
-				success: {
-					instance: delegate,
-					method: "success"
-				},
-				timeout: {
-					instance: delegate,
-					method: "timeout"
-				},
-				error: {
-					instance: delegate,
-					method: "error"
-				}
+				success : { instance: delegate, method: "success" },
+				timeout : { instance: delegate, method: "timeout" },
+				error   : { instance: delegate, method: "error" }
 			}
 		} );
 		
