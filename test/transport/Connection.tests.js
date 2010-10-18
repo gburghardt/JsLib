@@ -728,4 +728,39 @@
 		return true;
 	} );
 	
+	createTest( "post", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( data ) {
+				test.assertString( "data.html should have been a string", data.html );
+				test.pass();
+			},
+			
+			error: function( data ) {
+				test.fail( "The error callback should not have been called" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./post_form.php",
+			method: Connection.METHOD_POST,
+			dataType: Connection.DATA_TYPE_HTML,
+			params: "name=John",
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
 } )( TestController.getInstance() );

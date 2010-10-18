@@ -37,7 +37,6 @@ Connection.METHOD_PUT = "PUT";
  *                             JSON strings
  */
 Connection.prototype.constructor = function( jsonService ) {
-	var logFactory = new LogFactory("console", jsonService);
 	
 	/**
 	 * @property {Connection} A static reference to this connection used in function
@@ -329,6 +328,10 @@ Connection.prototype.constructor = function( jsonService ) {
 	var _complete = false;
 	
 	var open = function() {
+		if ( _url.indexOf("post_form.php") > -1 ) {
+			// debugger;
+		}
+		
 		if ( _opened ) {
 			return;
 		}
@@ -538,6 +541,7 @@ Connection.prototype.constructor = function( jsonService ) {
 			case Connection.METHOD_POST:
 			case Connection.METHOD_PUT:
 			case Connection.METHOD_DELETE:
+				_xhr.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
 				_xhr.send( serializeParams( getParams() ) );
 			break;
 			
