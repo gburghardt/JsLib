@@ -99,14 +99,6 @@ Connection.prototype.constructor = function( jsonService ) {
 			case Connection.DATA_TYPE_XML:
 				_dataType = Connection.DATA_TYPE_XML;
 			break;
-			
-			case Connection.DATA_TYPE_JSONP:
-				_dataType = Connection.DATA_TYPE_JSONP;
-			break;
-			
-			default:
-				_dataType = Connection.DATA_TYPE_JSON;
-			break;
 		}
 	};
 	
@@ -129,7 +121,7 @@ Connection.prototype.constructor = function( jsonService ) {
 	};
 	
 	var setMethod = function( str ) {
-		switch( str.toUpperCase() ) {
+		switch( String( str ).toUpperCase() ) {
 			case Connection.METHOD_POST:
 				_method = Connection.METHOD_POST;
 			break;
@@ -153,10 +145,6 @@ Connection.prototype.constructor = function( jsonService ) {
 			case Connection.METHOD_OPTIONS:
 				_method = Connection.METHOD_OPTIONS;
 			break;
-		
-			default:
-				_method = Connection.METHOD_GET;
-			break;
 		}
 	};
 	
@@ -174,7 +162,7 @@ Connection.prototype.constructor = function( jsonService ) {
 	};
 	
 	var haveParams = function() {
-		return (_params !== null);
+		return (_params !== null && _params !== "" );
 	};
 	
 	/**
@@ -538,15 +526,9 @@ Connection.prototype.constructor = function( jsonService ) {
 				_xhr.send( null );
 			break;
 			
-			case Connection.METHOD_POST:
-			case Connection.METHOD_PUT:
-			case Connection.METHOD_DELETE:
+			default:
 				_xhr.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
 				_xhr.send( serializeParams( getParams() ) );
-			break;
-			
-			default:
-				throw new Error( "Cannot send a request whose method is " + this.getMethod() + " to URL " + this.getUrl() );
 			break;
 		}
 		

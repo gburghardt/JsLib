@@ -14,6 +14,189 @@
 		return true;
 	} );
 	
+	createTest( "setMethod", function( test ) {
+		var connection = null;
+		
+		var methods = [
+			Connection.METHOD_GET,
+			Connection.METHOD_POST,
+			Connection.METHOD_DELETE,
+			Connection.METHOD_PUT,
+			"INVALID_METHOD",
+			null,
+			42,
+			{},
+			function () {},
+			NaN,
+			""
+		];
+		
+		var expectedMethods = [
+			Connection.METHOD_GET,
+			Connection.METHOD_POST,
+			Connection.METHOD_DELETE,
+			Connection.METHOD_PUT,
+			Connection.METHOD_POST,
+			Connection.METHOD_POST,
+			Connection.METHOD_POST,
+			Connection.METHOD_POST,
+			Connection.METHOD_POST,
+			Connection.METHOD_POST,
+			Connection.METHOD_POST,
+		];
+		
+		var currentMethod = null;
+		var expectedMethod = null;
+		var actualMethod = null;
+		
+		for ( var i = 0, length = methods.length; i < length; i++ ) {
+			currentMethod = methods[ i ];
+			expectedMethod = expectedMethods[ i ];
+			connection = new Connection();
+			connection.setOptions( { method: currentMethod } );
+			actualMethod = connection.getMethod();
+			
+			test.assertEquals( "The method should have been " + expectedMethod + " but " + actualMethod + " was found instead." , actualMethod, expectedMethod );
+		}
+		
+		return true;
+	} );
+	
+	createTest( "setDataType", function( test ) {
+		var connection = null;
+		var dataTypes = [
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_HTML,
+			Connection.DATA_TYPE_XML,
+			"invalid_data_type",
+			34,
+			null,
+			{},
+			[],
+			function () {},
+			NaN
+		];
+		var expectedDataTypes = [
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_HTML,
+			Connection.DATA_TYPE_XML,
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_JSON,
+			Connection.DATA_TYPE_JSON
+		];
+		var currentDataType = null;
+		var expectedDataType = null;
+		var actualDataType = null;
+		
+		for ( var i = 0, length = dataTypes.length; i < length; i++ ) {
+			currentDataType = dataTypes[ i ];
+			expectedDataType = expectedDataTypes[ i ];
+			connection = new Connection();
+			connection.setDataType( currentDataType );
+			actualDataType = connection.getDataType();
+			
+			test.assertEquals( "The dataType should have been " + expectedDataType + " but " + actualDataType + " was found instead.", actualDataType, expectedDataType );
+		}
+		
+		return true;
+	} );
+	
+	createTest( "getUrl", function( test ) {
+		var connection = null;
+		var postUrl = "./post_form.php";
+		var getUrl = "./dummy.txt";
+		var params = null;
+		var expectedUrl = null;
+		var actualUrl = null;
+		var allInfo = [
+			{
+				url: postUrl,
+				method: Connection.METHOD_POST,
+				params: "name=getUrl",
+				expectedUrl: postUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: "name=getUrl",
+				expectedUrl: getUrl + "?name=getUrl"
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: {
+					name: "getUrl"
+				},
+				expectedUrl: getUrl + "?name=getUrl"
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: function() {
+					var p = new SerializableData();
+					p.set( "name", "getUrl" );
+					return p;
+				}(),
+				expectedUrl: getUrl + "?name=getUrl"
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: function() {},
+				expectedUrl: getUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: NaN,
+				expectedUrl: getUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: null,
+				expectedUrl: getUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: "",
+				expectedUrl: getUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: undefined,
+				expectedUrl: getUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: true,
+				expectedUrl: getUrl
+			},{
+				url: getUrl,
+				method: Connection.METHOD_GET,
+				params: false,
+				expectedUrl: getUrl
+			}
+		];
+		
+		var info = null;
+		
+		for ( var i = 0, length = allInfo.length; i < length; i++ ) {
+			info = allInfo[ i ];
+			connection = new Connection( JSON );
+			connection.setOptions( {
+				url: info.url,
+				method: info.method,
+				params: info.params
+			} );
+			actualUrl = connection.getUrl();
+			expectedUrl = info.expectedUrl;
+			test.assertEquals( "(" + i + ") url should be equal to " + expectedUrl + " but instead " + actualUrl + " was given.", actualUrl, expectedUrl );
+		}
+		
+		// TODO - create test that reuses a connection where the URL doesn't change because the params are invalid
+		
+		return true;
+	} );
+	
 	createTest( "send", function( test ) {
 		var connection = new Connection( JSON );
 		var delegate = {
@@ -759,6 +942,137 @@
 		} );
 		
 		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "invalidMethod", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function() {
+				test.pass();
+			},
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./post_form.php",
+			method: "invalid_method",
+			dataType: Connection.DATA_TYPE_HTML,
+			params: "name=Ed",
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "error" }
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "sendWithOptions", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function() {
+				test.pass();
+			},
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		connection.sendWithOptions( {
+			url: "./dummy.txt",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_HTML,
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "success" }
+			}
+		} );
+		
+		return 5000;
+	} );
+	
+	createTest( "sendWithStringParams", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function() {
+				test.pass();
+			},
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./post_form.php",
+			dataType: Connection.DATA_TYPE_HTML,
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "success" }
+			}
+		} );
+		
+		connection.sendWithParams( "name=sendWithParams" );
+		
+		return 5000;
+	} );
+	
+	createTest( "sendWithObjectParams", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function() {
+				test.pass();
+			},
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./post_form.php",
+			dataType: Connection.DATA_TYPE_HTML,
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "success" }
+			}
+		} );
+		
+		connection.sendWithParams( {
+			name: "sendWithObjectParams"
+		} );
+		
+		return 5000;
+	} );
+	
+	createTest( "sendWithSerializableParams", function( test ) {
+		var connection = new Connection();
+		var params = new SerializableData();
+		var delegate = {
+			success: function() {
+				test.pass();
+			},
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		params.set( "name", "sendWithSerializableData" );
+		
+		connection.setOptions( {
+			url: "./post_form.php",
+			dataType: Connection.DATA_TYPE_HTML,
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "success" }
+			}
+		} );
+		
+		connection.sendWithParams( params );
 		
 		return 5000;
 	} );
