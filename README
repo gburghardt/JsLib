@@ -18,6 +18,15 @@ FUTURE DEVELOPMENT
     
   * DOMEventRouter - A class the associates controllers with special anchor URLs
     in <a> tags
+      * From an element inwards, handle events.
+      * Attach click handler to root element
+          * If root is a form, attach to submit
+          * If click target does not have a data-click-action attribute, climb up the DOM tree
+            until one is found. If none is found, fail silently. If one is found, notify
+            the controller registered to this action. If none found, fail silently. If
+            found, process route. Cache route. Call method on controller
+      * attributes
+          * data-click-action, data-submit-action, data-focus-action, data-blur-action
     
   * ConnectionPool - A class allowing AJAX objects to be reused, utilizing the
     Delegate pattern
