@@ -6,6 +6,7 @@
 		<title>Testing Event</title>
 		<link rel="stylesheet" type="text/css" media="all" href="../src/test/test.css">
 		<script src="../external/json2.js"></script>
+		<script src="../src/logging/Logger.js"></script>
 		<script src="../src/logging/ConsoleLogger.js"></script>
 		
 		<script src="../src/test/TestViewFactory.js"></script>
@@ -23,7 +24,9 @@
 		<script src="../src/test/TestController.js"></script>
 		
 		<script>
-			var log = new ConsoleLogger( JSON );
+			var log = new ConsoleLogger( "Event.html" );
+			log.setJsonService( JSON );
+			
 			TestController.createInstance( TestFactoryGenerator.getInstance(), log, "tester" );
 			
 			window.onload = function() {
