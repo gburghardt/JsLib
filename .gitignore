@@ -1,2 +1,6 @@
 *~
 external
+.settings
+.project
+*.orig
+*.swp

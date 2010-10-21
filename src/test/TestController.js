@@ -282,7 +282,7 @@ TestController.prototype = {
 	 * @return {void}
 	 */
 	notifyTestFailed: function( test ) {
-		var message = test.getFailureMessage();
+		var message = "Test failed!";
 		
 		this.log.error( message, test.getSuiteId() + "." + test.getId() );
 		

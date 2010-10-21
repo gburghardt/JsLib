@@ -3,11 +3,14 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Testing Event</title>
+		<title>Testing LogFactory</title>
 		<link rel="stylesheet" type="text/css" media="all" href="../src/test/test.css">
+		<link rel="stylesheet" type="text/css" media="screen" href="../external/src/blackbirdjs/blackbird.css">
 		<script src="../external/json2.js"></script>
+		<script src="../external/src/blackbirdjs/blackbird.js"></script>
 		<script src="../src/logging/Logger.js"></script>
 		<script src="../src/logging/ConsoleLogger.js"></script>
+		<script src="../src/logging/BlackbirdLogger.js"></script>
 		
 		<script src="../src/test/TestViewFactory.js"></script>
 		<script src="../src/test/TestFactory.js"></script>
@@ -24,10 +27,10 @@
 		<script src="../src/test/TestController.js"></script>
 		
 		<script>
-			var log = new ConsoleLogger( "Event.html" );
-			log.setJsonService( JSON );
+			var logger = new ConsoleLogger( "LogFactory.html" );
+			logger.setJsonService( JSON );
 			
-			TestController.createInstance( TestFactoryGenerator.getInstance(), log, "tester" );
+			TestController.createInstance( TestFactoryGenerator.getInstance(), logger, "tester" );
 			
 			window.onload = function() {
 				var testController = TestController.getInstance();
@@ -39,12 +42,12 @@
 			};
 		</script>
 		
-		<script src="../src/Event.js"></script>
-		<script src="./Event.tests.js"></script>
+		<script src="../src/logging/LogFactory.js"></script>
+		<script src="./LogFactory.tests.js"></script>
 		
 	</head>
 	<body>
-		<h1>Testing Event</h1>
+		<h1>Testing LogFactory</h1>
 		<div class="test-view test-view-summary" id="test-view-summary-tester"></div>
 		<div class="test-view test-view-progress" id="test-view-progress-tester"></div>
 	</body>
