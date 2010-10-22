@@ -639,6 +639,10 @@ Test.prototype = {
 		return this.assert( typeof testValue === "boolean", message, "bool" );
 	},
 	
+	assertDefined: function( message, testValue ) {
+		this.assert( typeof testValue !== "undefined", message, "defined" );
+	},
+	
 	/**
 	 * Assert that the test value matches an actual value
 	 * 
@@ -815,6 +819,10 @@ Test.prototype = {
 	 */
 	assertTrue: function( message, testValue ) {
 		return this.assert( testValue === true, message, "true" );
+	},
+	
+	assertUndefined: function( message, testValue ) {
+		return this.assert( typeof testValue === "undefined", message, "undefined" );
 	},
 	
 	

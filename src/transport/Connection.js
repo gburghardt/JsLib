@@ -447,10 +447,22 @@ Connection.prototype.constructor = function( jsonService ) {
 		data = null;
 	};
 	
+	var isXMLParseError = function( doc ) {
+		var valid = (
+			doc === null ||
+			( doc.childNodes && doc.childNodes.length === 0 ) ||
+			( doc.documentElement && doc.documentElement.nodeName.toLowerCase() === "parsererror" )
+		);
+		
+		doc = null;
+		
+		return valid;
+	};
+	
 	var processXMLResponse = function() {
 		var doc = _xhr.responseXML;
 		
-		if ( doc === null ) {
+		if ( isXMLParseError( doc ) ) {
 			_this.delegate( "error", {
 				type: "xmlSyntaxError",
 				responseText: _xhr.responseText

@@ -197,6 +197,50 @@
 		return true;
 	} );
 	
+	createTest( "getUrlReuseConnection", function( test ) {
+		var connection = new Connection( JSON );
+		
+		var delegate = {
+			success1: function() {
+				test.info( "First call was a success" );
+			},
+			
+			success2: function() {
+				test.info( "Second call was a success" );
+			},
+			
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		var expectedUrl = "";
+		var actualUrl = "";
+		
+		connection.setOptions( {
+			url: "./dummy.txt",
+			async: false,
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_HTML,
+			params: "foo=bar"
+		} );
+		
+		expectedUrl = "./dummy.txt?foo=bar";
+		actualUrl = connection.getUrl();
+		test.assertEquals( "The URLs should be the same", actualUrl, expectedUrl );
+		
+		connection.setParams( 1234 );
+		actualUrl = connection.getUrl();
+		test.assertEquals( "The URLs should be the same", actualUrl, expectedUrl );
+		
+		expectedUrl = "./dummy.txt?name=Fred";
+		connection.setParams( "name=Fred" );
+		actualUrl = connection.getUrl();
+		test.assertEquals( "The URLs should be the same", actualUrl, expectedUrl );
+		
+		return true;
+	} );
+	
 	createTest( "send", function( test ) {
 		var connection = new Connection( JSON );
 		var delegate = {
@@ -664,7 +708,7 @@
 		var delegate = {
 			success: function( xml ) {
 				test.assertObject( "The xml variable should be an object", xml );
-				test.assertObject( "The xml.childNodes variable should be an object", xml.childNodes );
+				test.assertDefined( "The xml.childNodes variable should be an object", xml.childNodes );
 				test.assertNumber( "The xml.childNodes.length property should be a number", xml.childNodes.length );
 				test.pass();
 			},
@@ -696,7 +740,45 @@
 		return 5000;
 	} );
 	
-	createTest( "XML Unhappy", function( test ) {
+	createTest( "invalidXML", function( test ) {
+		var connection = new Connection();
+		var delegate = {
+			success: function( xml ) {
+				test.fail( "The success delegate should not have been called" );
+			},
+			
+			error: function( data ) {
+				test.assertObject( "data should be an object", data );
+				test.assertString( "data.type should be a string", data.type );
+				test.assertEquals( "data.type should be equal to xmlSyntaxError", data.type, "xmlSyntaxError" );
+				test.assertString( "data.responseText should be a string", data.responseText );
+				test.pass();
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./invalid.xml",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_XML,
+			actions: {
+				success: {
+					instance: delegate,
+					method: "success"
+				},
+				
+				error: {
+					instance: delegate,
+					method: "error"
+				}
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
+	createTest( "emptyXMLFile", function( test ) {
 		var connection = new Connection();
 		var delegate = {
 			success: function( xml ) {
