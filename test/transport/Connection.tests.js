@@ -1194,4 +1194,32 @@
 		return 15000;
 	} );
 	
+	createTest( "enforceAJAXInBackend", function( test ) {
+		var connection = new Connection();
+		
+		var delegate = {
+			success: function( data ) {
+				test.assertObject( "data should be an Object", data );
+				test.pass();
+			},
+			error: function() {
+				test.fail( "The error delegate should not have been called." );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./enforce_ajax.php",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_HTML,
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "error" }
+			}
+		} );
+		
+		connection.send();
+		
+		return 5000;
+	} );
+	
 } )( TestController.getInstance() );
