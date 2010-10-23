@@ -1159,4 +1159,39 @@
 		return 5000;
 	} );
 	
+	createTest( "reuseConnection", function( test ) {
+		var connection = new Connection();
+		var timesSent = 0;
+		
+		var delegate = {
+			success: test.wrapCallback( function() {
+				if( timesSent > 1 ) {
+					test.pass();
+				}
+				else {
+					timesSent++;
+					connection.send();
+				}
+			} ),
+			error: function() {
+				test.fail( "The error delegate should not have been called" );
+			}
+		};
+		
+		connection.setOptions( {
+			url: "./dummy.txt?test=reuseConnection",
+			method: Connection.METHOD_GET,
+			dataType: Connection.DATA_TYPE_HTML,
+			actions: {
+				success: { instance: delegate, method: "success" },
+				error: { instance: delegate, method: "error" }
+			}
+		} );
+		
+		timesSent++;
+		connection.send();
+		
+		return 15000;
+	} );
+	
 } )( TestController.getInstance() );

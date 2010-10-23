@@ -28,6 +28,8 @@
 			var log = new ConsoleLogger( "Connection.html" );
 			log.setJsonService( JSON );
 			
+			var logFactory = new LogFactory( "console", JSON );
+			
 			TestController.createInstance( TestFactoryGenerator.getInstance(), log, "tester" );
 			
 			window.onload = function() {

@@ -308,22 +308,9 @@ Connection.prototype.constructor = function( jsonService ) {
 	
 	
 	
-	/**
-	 * @property {Boolean} Whether or not the connection is currently open
-	 */
-	var _opened = false;
-	
 	var _complete = false;
 	
 	var open = function() {
-		if ( _url.indexOf("post_form.php") > -1 ) {
-			// debugger;
-		}
-		
-		if ( _opened ) {
-			return;
-		}
-		
 		if ( _xhr === null ) {
 			_xhr = new XMLHttpRequest();
 		}
@@ -335,13 +322,10 @@ Connection.prototype.constructor = function( jsonService ) {
 			_xhr.open( _this.getMethod(), _this.getUrl(), _this.getAsync() );
 		}
 		
-		_xhr.setRequestHeader( "X-REQUESTED-WITH", "XMLHttpRequest" );
-		
 		if ( !_xhr.onreadystatechange ) {
+			_xhr.setRequestHeader( "X-REQUESTED-WITH", "XMLHttpRequest" );
 			_xhr.onreadystatechange = handleReadyStateChanged;
 		}
-		
-		_opened = true;
 	};
 	
 	var handleReadyStateChanged = function() {
