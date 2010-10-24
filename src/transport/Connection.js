@@ -1,5 +1,10 @@
 /**
+ * @class This class provides a wrapper for the native XMLHttpRequest object, doing all
+ * the legwork to make connection handling easy and standardized. This class is not
+ * compatible with Internet Explorer 5 & 6.
+ *
  * @extends Delegator
+ * @depends XMLHttpRequest
  */
 function Connection() {
 	this.constructor.apply( this, arguments );
