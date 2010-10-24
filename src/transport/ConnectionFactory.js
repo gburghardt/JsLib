@@ -11,10 +11,19 @@ function ConnectionFactory() {
 
 ConnectionFactory.prototype = {
 	
+	/**
+	 * @property {Object} A service object responsible for convering JSON string into
+	 *                    native JavaScript objects, and turning objects into JSON strings
+	 */
 	jsonService: null,
 	
+	/**
+	 * @constructs
+	 * @param {Object}
+	 * @returns {void}
+	 */
 	constructor: function( jsonService ) {
-		this.jsonService = jsonService;
+		this.jsonService = jsonService || null;
 		jsonService = null;
 	},
 	
@@ -22,6 +31,12 @@ ConnectionFactory.prototype = {
 		this.jsonService = null;
 	},
 	
+	/**
+	 * Get a new instance of a connection object
+	 *
+	 * @param {void}
+	 * @returns {Connection}
+	 */
 	getInstance: function() {
 		return new Connection( this.jsonService );
 	}
