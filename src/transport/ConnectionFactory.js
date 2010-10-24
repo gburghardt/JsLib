@@ -19,7 +19,7 @@ ConnectionFactory.prototype = {
 	
 	/**
 	 * @constructs
-	 * @param {Object}
+	 * @param {Object} jsonService The jsonService property
 	 * @returns {void}
 	 */
 	constructor: function( jsonService ) {
