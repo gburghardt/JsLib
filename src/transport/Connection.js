@@ -310,6 +310,8 @@ Connection.prototype.constructor = function( jsonService ) {
 	
 	var _complete = false;
 	
+	
+	
 	var open = function() {
 		if ( _xhr === null ) {
 			_xhr = new XMLHttpRequest();
