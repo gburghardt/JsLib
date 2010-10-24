@@ -5,6 +5,8 @@
  *
  * @extends Delegator
  * @depends XMLHttpRequest
+ *
+ * @todo - Add support for the XMLHttpRequestFactory class to make this cross-browser.
  */
 function Connection() {
 	this.constructor.apply( this, arguments );
