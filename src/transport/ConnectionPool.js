@@ -14,7 +14,7 @@ function ConnectionPool() {
 	this.constructor.apply( this, arguments );
 }
 
-ConnectionManager.prototype = {
+ConnectionPool.prototype = {
 	
 	/**
 	 * @const {String} Used to mark a connection as available in the pool
@@ -33,13 +33,21 @@ ConnectionManager.prototype = {
 	 *                                   (or any object supporting the same public
 	 *                                   interface as XMLHttpRequest).
 	 * @param {Number} maxConnections The maximum number of allowed connections.
+	 * @param {Object} eventDispatcher An optional event dispatcher used to notify the
+	 *                                 application when connection requests exceed the
+	 *                                 connections available in this pool.
 	 * @returns {void}
 	 */
-	constructor: function( connectionFactory, maxConnections ) {
-		this.connectionFactory = connectionFactory;
+	constructor: function( connectionFactory, maxConnections, eventDispatcher ) {
+		if ( !this.setConnectionFactory( connectionFactory ) ) {
+			throw new Error( "A connectionFactory is required, which returns new connection objects supporting the XMLHttpRequest interface." );
+		}
+		
 		this.setMaxConnections( maxConnections );
+		this.setEventDispatcher( eventDispatcher );
 		this.connections = [];
 		connectionFactory = null;
+		eventDispatcher = null;
 	},
 	
 	destructor: function() {
@@ -54,6 +62,27 @@ ConnectionManager.prototype = {
 		
 			this.connections = null;
 		}
+	},
+	
+	
+	
+	/**
+	 * @property {Object} Factory object responsible for generating new connection objects
+	 *                    that support the XMLHttpRequest interface.
+	 */
+	connectionFactory: null,
+	
+	setConnectionFactory: function( connectionFactory ) {
+		var isSet = false;
+		
+		if ( typeof connectionFactory === "object" && connectionFactory !== null ) {
+			this.connectionFactory = connectionFactory;
+			isSet = true;
+		}
+		
+		connectionFactory = null;
+		
+		return isSet;
 	},
 	
 	
@@ -81,12 +110,20 @@ ConnectionManager.prototype = {
 			}
 		}
 		
-		if ( instance === null && ( this.maxConnections < 0 || this.connection.length < this.maxConnections ) ) {
-			instance = this.connectionFactory.getInstance();
-			this.connections.push( {
-				instance: instance,
-				status: this.STATUS_IN_USE
-			} );
+		if ( instance === null ) {
+			if ( this.connectionsAvailable() ) {
+				instance = this.connectionFactory.getInstance();
+				this.connections.push( {
+					instance: instance,
+					status: this.STATUS_IN_USE
+				} );
+			}
+			else if ( this.eventDispatcher ) {
+				this.eventDispatcher.publish( "connectionPoolEmpty", {
+					connectionPool: this,
+					maxSize: this.maxConnections
+				} );
+			}
 		}
 		
 		return instance;
@@ -100,6 +137,7 @@ ConnectionManager.prototype = {
 	 */
 	release: function( instance ) {
 		var released = false;
+		var maxConnectionsMet = !this.connectionsAvailable();
 		
 		for ( var i = 0, length = this.connections.length; i < length; i++ ) {
 			if ( instance === this.connections[ i ].instance ) {
@@ -108,9 +146,37 @@ ConnectionManager.prototype = {
 			}
 		}
 		
+		if ( maxConnectionsMet && this.eventDispatcher ) {
+			this.eventDispatcher.publish( "connectionPoolAvailable", {
+				connectionPool: this,
+				maxSize: this.maxConnections
+			} );
+		}
+		
 		instance = null;
 		
 		return released;
+	},
+	
+	waitForAvailableConnection: function( instance, callback ) {
+		// TODO - allow for functions
+		// TODO - add property to store objects that want to be notified when a connection
+		//        becomes available
+	},
+	
+	
+	
+	/**
+	 * @property {Object} An event dispatcher supporting the publish/subscribe interface.
+	 */
+	eventDispatcher: null,
+	
+	setEventDispatcher: function( eventDispatcher ) {
+		if ( typeof eventDispatcher === "object" ) {
+			this.eventDispatcher = eventDispatcher;
+		}
+		
+		eventDispatcher = null;
 	},
 	
 	
@@ -120,6 +186,14 @@ ConnectionManager.prototype = {
 	 *                    to -1 (unlimited).
 	 */
 	maxConnections: -1,
+	
+	connectionsAvailable: function() {
+		return ( this.maxConnections < 0 || this.connections.length < this.maxConnections );
+	},
+	
+	getAvailableConnections: function() {
+		return this.maxConnections - this.connections.length;
+	},
 	
 	/**
 	 * Sets the maxConnections property
