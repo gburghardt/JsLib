@@ -31,7 +31,7 @@
 		);
 	} );
 	
-	createTest( "getInstance", function( test ) {
+	createTest( "getConnection", function( test ) {
 		var pool = new ConnectionPool( new ConnectionFactory(), 3 );
 		var connection1 = pool.getConnection();
 		var connection2 = pool.getConnection();
