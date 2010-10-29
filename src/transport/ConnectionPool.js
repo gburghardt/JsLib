@@ -45,6 +45,7 @@ ConnectionPool.prototype = {
 		
 		this.setMaxConnections( maxConnections );
 		this.setEventDispatcher( eventDispatcher );
+		this.connectionRequests = [];
 		this.connections = [];
 		connectionFactory = null;
 		eventDispatcher = null;
@@ -52,6 +53,7 @@ ConnectionPool.prototype = {
 	
 	destructor: function() {
 		this.connectionFactory = null;
+		this.eventDispatcher = null;
 		
 		if ( this.connections ) {
 			for ( var i = 0, length = this.connections.length; i < length; i++ ) {
@@ -61,6 +63,16 @@ ConnectionPool.prototype = {
 			}
 		
 			this.connections = null;
+		}
+		
+		if ( this.connectionRequests ) {
+			for ( var i = 0, length = this.connectionRequests.length; i < length; i++ ) {
+				this.connectionsRequests[ i ].instance = null;
+				this.connectionsRequests[ i ].callback = null;
+				this.connectionsRequests[ i ] = null;
+			}
+			
+			this.connectionsRequests = null;
 		}
 	},
 	
@@ -88,6 +100,84 @@ ConnectionPool.prototype = {
 	
 	
 	/**
+	 * @property {Array} A list of objects that want to be notified when requests become
+	 *                   available.
+	 */
+	connectionRequests: null,
+	
+	processConnectionRequests: function() {
+		if ( this.connectionRequests.length < 1 ) {
+			return;
+		}
+		
+		var request = null;
+		var instance = null;
+		var callback = null;
+		var method = "";
+		var connection = null;
+		
+		while ( this.connectionRequests.length && this.connectionsAvailable() ) {
+			connection = this.getConnection();
+			request = this.connectionRequests.unshift();
+			instance = request.instance;
+			callback = request.callback;
+			method = request.method;
+			
+			if ( request.method ) {
+				instance[ method ]( connection );
+			}
+			else if ( typeof instance === "object" ) {
+				callback.call( instance, connection );
+			}
+			else {
+				callback( connection );
+			}
+		}
+		
+		request = instance = callback = connection = null;
+	},
+	
+	/**
+	 * Allows objects or functions to be notified when a connection becomes available.
+	 * This method has several interfaces. It can take a callback function, an object
+	 * instance and the name of a method to call, or an object instance and a function
+	 * object where 'this' inside the function refers to instance.
+	 *
+	 * @param {Object} instance An object instance
+	 * @param {String}   callback Name of a method to call on object
+	 *        {Function} callback A function to be called with 'this' pointing to instance
+	 *
+	 * @param {Function} instance A function to call
+	 * @returns {void}
+	 */
+	waitForAvailableConnection: function( instance, callback ) {
+		var request = {};
+		
+		if ( arguments.length === 1 ) {
+			// assume instance is a function
+			request.callback = instance;
+		}
+		else if ( typeof callback === "function" ) {
+			// assume callback is a function and instance is object callback should be
+			// bound to when executed
+			request.callback = callback;
+			request.instance = instance;
+		}
+		else {
+			// Assume callback is the name of a method to call on instance
+			request.method = callback;
+			request.instance = instance;
+		}
+		
+		this.connectionRequests.push( request );
+		request = null;
+		instance = null;
+		callback = null;
+	},
+	
+	
+	
+	/**
 	 * @property {Array} An array of connection objects
 	 */
 	connections: null,
@@ -101,6 +191,8 @@ ConnectionPool.prototype = {
 	 */
 	getConnection: function() {
 		var instance = null;
+		
+		this.processConnectionRequests();
 		
 		for ( var i = 0, length = this.connections.length; i < length; i++ ) {
 			if ( this.STATUS_AVAILABLE === this.connections[ i ].status ) {
@@ -156,12 +248,6 @@ ConnectionPool.prototype = {
 		instance = null;
 		
 		return released;
-	},
-	
-	waitForAvailableConnection: function( instance, callback ) {
-		// TODO - allow for functions
-		// TODO - add property to store objects that want to be notified when a connection
-		//        becomes available
 	},
 	
 	
