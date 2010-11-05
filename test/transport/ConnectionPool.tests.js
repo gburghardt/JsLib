@@ -46,4 +46,53 @@
 		);
 	} );
 	
+	createTest( "waitForAvailableConnection", function( test ) {
+		var pool = new ConnectionPool( new ConnectionFactory(), 1 );
+		var connection1 = pool.getConnection();
+		var connection2 = pool.getConnection();
+		var callback1Called = false;
+		var callback2Called = false;
+		var callback3Called = false;
+		
+		test.assertNull( "connection2 should be null", connection2 );
+		
+		var callback = function( connection ) {
+			callback1Called = true;
+			test.assertObject( "The connection passed to the function callback should be an object", connection );
+			test.assertInstanceof( "The connection passed to the function callback should be an instance of Connection", connection, Connection );
+			pool.release( connection );
+		};
+		
+		var obj = {
+			connectionFreed: function( connection ) {
+				callback2Called = true;
+				test.assertObject( "The connection passed to the callback method should be an object", connection );
+				test.assertInstanceof( "The connection passed to the callback method should be an instance of Connection", connection, Connection );
+				test.assertEquals( "'this' should be equal to obj in the callback method", this, obj );
+				pool.release( connection );
+			}
+		};
+		
+		var callback2 = function( connection ) {
+			callback3Called = true;
+			test.assertObject( "The connection passed to the bound callback should be an object", connection );
+			test.assertInstanceof( "The connection passed to the bound callback should be an instance of Connection", connection, Connection );
+			test.assertEquals( "'this' should be equal to obj", this, obj );
+			pool.release( connection );
+		};
+		
+		pool.waitForAvailableConnection( callback );
+		pool.waitForAvailableConnection( obj, "connectionFreed" );
+		pool.waitForAvailableConnection( obj, callback2 );
+		pool.release( connection1 );
+		connection2 = pool.getConnection();
+		
+		return (
+			test.assertObject( "connection2 should be an object", connection2 ) &&
+			test.assertTrue( "The first callback didn't get called", callback1Called ) &&
+			test.assertTrue( "The second callback didn't get called", callback2Called ) &&
+			test.assertTrue( "The third callback didn't get called", callback3Called )
+		);
+	} );
+	
 } )( TestController.getInstance() );

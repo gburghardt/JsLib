@@ -118,7 +118,7 @@ ConnectionPool.prototype = {
 		
 		while ( this.connectionRequests.length && this.connectionsAvailable() ) {
 			connection = this.getConnection();
-			request = this.connectionRequests.unshift();
+			request = this.connectionRequests.shift();
 			instance = request.instance;
 			callback = request.callback;
 			method = request.method;
@@ -192,10 +192,9 @@ ConnectionPool.prototype = {
 	getConnection: function() {
 		var instance = null;
 		
-		this.processConnectionRequests();
-		
 		for ( var i = 0, length = this.connections.length; i < length; i++ ) {
 			if ( this.STATUS_AVAILABLE === this.connections[ i ].status ) {
+				this.inUseCount++;
 				instance = this.connections[ i ].instance;
 				this.connections[ i ].status = this.STATUS_IN_USE;
 				break;
@@ -203,7 +202,8 @@ ConnectionPool.prototype = {
 		}
 		
 		if ( instance === null ) {
-			if ( this.connectionsAvailable() ) {
+			if ( this.connections.length < this.maxConnections ) {
+				this.inUseCount++;
 				instance = this.connectionFactory.getInstance();
 				this.connections.push( {
 					instance: instance,
@@ -234,7 +234,9 @@ ConnectionPool.prototype = {
 		for ( var i = 0, length = this.connections.length; i < length; i++ ) {
 			if ( instance === this.connections[ i ].instance ) {
 				this.connections[ i ].status = this.STATUS_AVAILABLE;
+				this.inUseCount--;
 				released = true;
+				break;
 			}
 		}
 		
@@ -246,6 +248,8 @@ ConnectionPool.prototype = {
 		}
 		
 		instance = null;
+		
+		this.processConnectionRequests();
 		
 		return released;
 	},
@@ -273,12 +277,25 @@ ConnectionPool.prototype = {
 	 */
 	maxConnections: -1,
 	
+	inUseCount: 0,
+	
 	connectionsAvailable: function() {
-		return ( this.maxConnections < 0 || this.connections.length < this.maxConnections );
+		if ( this.maxConnections < 0 ) {
+			return true;
+		}
+		else if ( this.connections.length - this.inUseCount > 0 ) {
+			return true;
+		}
+		else if ( this.connections.length < this.maxConnections ) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	},
 	
 	getAvailableConnections: function() {
-		return this.maxConnections - this.connections.length;
+		return this.connections.length - this.maxConnections - this.inUseCount;
 	},
 	
 	/**
