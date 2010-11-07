@@ -3,6 +3,7 @@
  * @depends JSON
  * @depends Delegator
  * @depends Connection
+ * @depends SameDomainConnection
  * @depends ConnectionFactory
  */
 ( function( testController ) {
@@ -59,7 +60,7 @@
 		var callback = function( connection ) {
 			callback1Called = true;
 			test.assertObject( "The connection passed to the function callback should be an object", connection );
-			test.assertInstanceof( "The connection passed to the function callback should be an instance of Connection", connection, Connection );
+			test.assertInstanceof( "The connection passed to the function callback should be an instance of SameDomainConnection", connection, SameDomainConnection );
 			pool.release( connection );
 		};
 		
@@ -67,7 +68,7 @@
 			connectionFreed: function( connection ) {
 				callback2Called = true;
 				test.assertObject( "The connection passed to the callback method should be an object", connection );
-				test.assertInstanceof( "The connection passed to the callback method should be an instance of Connection", connection, Connection );
+				test.assertInstanceof( "The connection passed to the callback method should be an instance of SameDomainConnection", connection, SameDomainConnection );
 				test.assertEquals( "'this' should be equal to obj in the callback method", this, obj );
 				pool.release( connection );
 			}
@@ -76,7 +77,7 @@
 		var callback2 = function( connection ) {
 			callback3Called = true;
 			test.assertObject( "The connection passed to the bound callback should be an object", connection );
-			test.assertInstanceof( "The connection passed to the bound callback should be an instance of Connection", connection, Connection );
+			test.assertInstanceof( "The connection passed to the bound callback should be an instance of SameDomainConnection", connection, SameDomainConnection );
 			test.assertEquals( "'this' should be equal to obj", this, obj );
 			pool.release( connection );
 		};

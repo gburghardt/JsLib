@@ -4,6 +4,7 @@
  * 
  * @extends Object
  * @depends Connection
+ * @depends SameDomainConnection
  */
 function ConnectionFactory() {
 	this.constructor.apply( this, arguments );
@@ -38,7 +39,7 @@ ConnectionFactory.prototype = {
 	 * @returns {Connection}
 	 */
 	getInstance: function() {
-		return new Connection( this.jsonService );
+		return new SameDomainConnection( this.jsonService );
 	}
 	
 };

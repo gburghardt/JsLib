@@ -8,34 +8,34 @@
  *
  * @todo - Add support for the XMLHttpRequestFactory class to make this cross-browser.
  */
-function Connection() {
+function SameDomainConnection() {
 	this.constructor.apply( this, arguments );
 }
 
-Connection.superClass = Delegator.prototype;
-Connection.prototype = function() {};
-Connection.prototype.prototype = Connection.superClass;
-Connection.prototype = new Connection.prototype;
+SameDomainConnection.superClass = Delegator.prototype;
+SameDomainConnection.prototype = function() {};
+SameDomainConnection.prototype.prototype = SameDomainConnection.superClass;
+SameDomainConnection.prototype = new SameDomainConnection.prototype;
 
 /**
  * @static {String} Success delegate is given an XML DOM structure and the XML string
  */
-Connection.DATA_TYPE_XML = "XML";
+SameDomainConnection.DATA_TYPE_XML = "XML";
 
 /**
  * @static {String} Success delegate is given the raw response string
  */
-Connection.DATA_TYPE_HTML = "HTML";
+SameDomainConnection.DATA_TYPE_HTML = "HTML";
 
 /**
  * @static {String} Success delegate is given the eval'd object and the response string
  */
-Connection.DATA_TYPE_JSON = "JSON";
+SameDomainConnection.DATA_TYPE_JSON = "JSON";
 
-Connection.METHOD_DELETE = "DELETE";
-Connection.METHOD_GET = "GET";
-Connection.METHOD_POST = "POST";
-Connection.METHOD_PUT = "PUT";
+SameDomainConnection.METHOD_DELETE = "DELETE";
+SameDomainConnection.METHOD_GET = "GET";
+SameDomainConnection.METHOD_POST = "POST";
+SameDomainConnection.METHOD_PUT = "PUT";
 
 /**
  * @constructs
@@ -43,10 +43,10 @@ Connection.METHOD_PUT = "PUT";
  * @param {Object} jsonService The object responsible for converting objects to an from
  *                             JSON strings
  */
-Connection.prototype.constructor = function( jsonService ) {
+SameDomainConnection.prototype.constructor = function( jsonService ) {
 	
 	/**
-	 * @property {Connection} A static reference to this connection used in function
+	 * @property {SameDomainConnection} A static reference to this connection used in function
 	 *                        closures
 	 */
 	var _this = this;
@@ -80,7 +80,7 @@ Connection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {String} The data type to interpret responses as
 	 */
-	var _dataType = Connection.DATA_TYPE_JSON;
+	var _dataType = SameDomainConnection.DATA_TYPE_JSON;
 	
 	/**
 	 * @access public
@@ -95,16 +95,16 @@ Connection.prototype.constructor = function( jsonService ) {
 	
 	this.setDataType = function( dataType ) {
 		switch( String( dataType ).toUpperCase() ) {
-			case Connection.DATA_TYPE_JSON:
-				_dataType = Connection.DATA_TYPE_JSON;
+			case SameDomainConnection.DATA_TYPE_JSON:
+				_dataType = SameDomainConnection.DATA_TYPE_JSON;
 			break;
 			
-			case Connection.DATA_TYPE_HTML:
-				_dataType = Connection.DATA_TYPE_HTML;
+			case SameDomainConnection.DATA_TYPE_HTML:
+				_dataType = SameDomainConnection.DATA_TYPE_HTML;
 			break;
 			
-			case Connection.DATA_TYPE_XML:
-				_dataType = Connection.DATA_TYPE_XML;
+			case SameDomainConnection.DATA_TYPE_XML:
+				_dataType = SameDomainConnection.DATA_TYPE_XML;
 			break;
 		}
 	};
@@ -114,7 +114,7 @@ Connection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {String} The HTTP method to use
 	 */
-	var _method = Connection.METHOD_POST;
+	var _method = SameDomainConnection.METHOD_POST;
 	
 	/**
 	 * @access public
@@ -129,28 +129,28 @@ Connection.prototype.constructor = function( jsonService ) {
 	
 	var setMethod = function( str ) {
 		switch( String( str ).toUpperCase() ) {
-			case Connection.METHOD_POST:
-				_method = Connection.METHOD_POST;
+			case SameDomainConnection.METHOD_POST:
+				_method = SameDomainConnection.METHOD_POST;
 			break;
 			
-			case Connection.METHOD_GET:
-				_method = Connection.METHOD_GET;
+			case SameDomainConnection.METHOD_GET:
+				_method = SameDomainConnection.METHOD_GET;
 			break;
 			
-			case Connection.METHOD_PUT:
-				_method = Connection.METHOD_PUT;
+			case SameDomainConnection.METHOD_PUT:
+				_method = SameDomainConnection.METHOD_PUT;
 			break;
 			
-			case Connection.METHOD_DELETE:
-				_method = Connection.METHOD_DELETE;
+			case SameDomainConnection.METHOD_DELETE:
+				_method = SameDomainConnection.METHOD_DELETE;
 			break;
 			
-			case Connection.METHOD_HEAD:
-				_method = Connection.METHOD_HEAD;
+			case SameDomainConnection.METHOD_HEAD:
+				_method = SameDomainConnection.METHOD_HEAD;
 			break;
 			
-			case Connection.METHOD_OPTIONS:
-				_method = Connection.METHOD_OPTIONS;
+			case SameDomainConnection.METHOD_OPTIONS:
+				_method = SameDomainConnection.METHOD_OPTIONS;
 			break;
 		}
 	};
@@ -249,7 +249,7 @@ Connection.prototype.constructor = function( jsonService ) {
 	this.getUrl = function() {
 		var url = _url;
 		
-		if ( Connection.METHOD_GET === this.getMethod() && haveParams() ) {
+		if ( SameDomainConnection.METHOD_GET === this.getMethod() && haveParams() ) {
 			var params = getParams();
 			
 			if ( url.indexOf( "?" ) === -1 ) {
@@ -385,15 +385,15 @@ Connection.prototype.constructor = function( jsonService ) {
 	
 	var processSuccessfullResponse = function() {
 		switch( _this.getDataType() ) {
-			case Connection.DATA_TYPE_JSON:
+			case SameDomainConnection.DATA_TYPE_JSON:
 				processJSONResponse();
 			break;
 			
-			case Connection.DATA_TYPE_XML:
+			case SameDomainConnection.DATA_TYPE_XML:
 				processXMLResponse();
 			break;
 			
-			case Connection.DATA_TYPE_HTML:
+			case SameDomainConnection.DATA_TYPE_HTML:
 				processHTMLResponse();
 			break;
 			
@@ -408,7 +408,7 @@ Connection.prototype.constructor = function( jsonService ) {
 		var error = null;
 		
 		if ( !jsonService ) {
-			error = new Error( "No jsonService is available to parse the response text for this Connection (" + _url + ")" );
+			error = new Error( "No jsonService is available to parse the response text for this SameDomainConnection (" + _url + ")" );
 			
 			_this.delegate( "error", {
 				type: "missingJsonServiceError",
@@ -527,7 +527,7 @@ Connection.prototype.constructor = function( jsonService ) {
 		startTimer();
 		
 		switch ( this.getMethod().toUpperCase() ) {
-			case Connection.METHOD_GET:
+			case SameDomainConnection.METHOD_GET:
 				_xhr.send( null );
 			break;
 			
@@ -656,10 +656,10 @@ Connection.prototype.constructor = function( jsonService ) {
 		_xhr = null;
 		_this = null;
 		
-		Connection.superClass.destructor.call( this );
+		SameDomainConnection.superClass.destructor.call( this );
 	};
 	
 	
 	
-	Connection.superClass.constructor.call( this );
+	SameDomainConnection.superClass.constructor.call( this );
 };

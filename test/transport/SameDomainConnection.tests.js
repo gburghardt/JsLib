@@ -2,14 +2,14 @@
  * @depends TestController
  * @depends JSON
  * @depends Delegator
- * @depends Connection
+ * @depends SameDomainConnection
  */
 ( function( testController ) {
 	
-	var createTest = testController.createTestSuite( "Connection" );
+	var createTest = testController.createTestSuite( "SameDomainConnection" );
 	
 	createTest( "instantiate", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		return true;
 	} );
@@ -18,10 +18,10 @@
 		var connection = null;
 		
 		var methods = [
-			Connection.METHOD_GET,
-			Connection.METHOD_POST,
-			Connection.METHOD_DELETE,
-			Connection.METHOD_PUT,
+			SameDomainConnection.METHOD_GET,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_DELETE,
+			SameDomainConnection.METHOD_PUT,
 			"INVALID_METHOD",
 			null,
 			42,
@@ -32,17 +32,17 @@
 		];
 		
 		var expectedMethods = [
-			Connection.METHOD_GET,
-			Connection.METHOD_POST,
-			Connection.METHOD_DELETE,
-			Connection.METHOD_PUT,
-			Connection.METHOD_POST,
-			Connection.METHOD_POST,
-			Connection.METHOD_POST,
-			Connection.METHOD_POST,
-			Connection.METHOD_POST,
-			Connection.METHOD_POST,
-			Connection.METHOD_POST,
+			SameDomainConnection.METHOD_GET,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_DELETE,
+			SameDomainConnection.METHOD_PUT,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.METHOD_POST,
 		];
 		
 		var currentMethod = null;
@@ -52,7 +52,7 @@
 		for ( var i = 0, length = methods.length; i < length; i++ ) {
 			currentMethod = methods[ i ];
 			expectedMethod = expectedMethods[ i ];
-			connection = new Connection();
+			connection = new SameDomainConnection();
 			connection.setOptions( { method: currentMethod } );
 			actualMethod = connection.getMethod();
 			
@@ -65,9 +65,9 @@
 	createTest( "setDataType", function( test ) {
 		var connection = null;
 		var dataTypes = [
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_HTML,
-			Connection.DATA_TYPE_XML,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_HTML,
+			SameDomainConnection.DATA_TYPE_XML,
 			"invalid_data_type",
 			34,
 			null,
@@ -77,16 +77,16 @@
 			NaN
 		];
 		var expectedDataTypes = [
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_HTML,
-			Connection.DATA_TYPE_XML,
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_JSON,
-			Connection.DATA_TYPE_JSON
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_HTML,
+			SameDomainConnection.DATA_TYPE_XML,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_JSON,
+			SameDomainConnection.DATA_TYPE_JSON
 		];
 		var currentDataType = null;
 		var expectedDataType = null;
@@ -95,7 +95,7 @@
 		for ( var i = 0, length = dataTypes.length; i < length; i++ ) {
 			currentDataType = dataTypes[ i ];
 			expectedDataType = expectedDataTypes[ i ];
-			connection = new Connection();
+			connection = new SameDomainConnection();
 			connection.setDataType( currentDataType );
 			actualDataType = connection.getDataType();
 			
@@ -115,24 +115,24 @@
 		var allInfo = [
 			{
 				url: postUrl,
-				method: Connection.METHOD_POST,
+				method: SameDomainConnection.METHOD_POST,
 				params: "name=getUrl",
 				expectedUrl: postUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: "name=getUrl",
 				expectedUrl: getUrl + "?name=getUrl"
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: {
 					name: "getUrl"
 				},
 				expectedUrl: getUrl + "?name=getUrl"
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: function() {
 					var p = new SerializableData();
 					p.set( "name", "getUrl" );
@@ -141,37 +141,37 @@
 				expectedUrl: getUrl + "?name=getUrl"
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: function() {},
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: NaN,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: null,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: "",
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: undefined,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: true,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: Connection.METHOD_GET,
+				method: SameDomainConnection.METHOD_GET,
 				params: false,
 				expectedUrl: getUrl
 			}
@@ -181,7 +181,7 @@
 		
 		for ( var i = 0, length = allInfo.length; i < length; i++ ) {
 			info = allInfo[ i ];
-			connection = new Connection( JSON );
+			connection = new SameDomainConnection( JSON );
 			connection.setOptions( {
 				url: info.url,
 				method: info.method,
@@ -197,8 +197,8 @@
 		return true;
 	} );
 	
-	createTest( "getUrlReuseConnection", function( test ) {
-		var connection = new Connection( JSON );
+	createTest( "getUrlReuseSameDomainConnection", function( test ) {
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			success1: function() {
@@ -220,8 +220,8 @@
 		connection.setOptions( {
 			url: "./dummy.txt",
 			async: false,
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			params: "foo=bar"
 		} );
 		
@@ -242,7 +242,7 @@
 	} );
 	
 	createTest( "send", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		var delegate = {
 			success: function( data ) {
 				test.assertObject("data should be an object", data);
@@ -257,8 +257,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			user: "foo",
 			password: "bar",
 			params: {
@@ -283,7 +283,7 @@
 	
 	createTest( "sendWithSerializableData", function( test ) {
 		var params = new SerializableData();
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		var delegate = {
 			success: function( html, meta ) {
 				test.pass();
@@ -296,8 +296,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			params: params,
 			actions: {
 				success: {
@@ -312,7 +312,7 @@
 	} );
 	
 	createTest( "timeout", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( html, meta ) {
 				test.fail( "The connection should have timed out" );
@@ -328,8 +328,8 @@
 		
 		connection.setOptions( {
 			url: "./sleep.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success: {
@@ -349,7 +349,7 @@
 	} );
 	
 	createTest("synchronousRequest", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var successCalled = false;
 		var delegate = {
 			success: function( html, meta ) {
@@ -362,9 +362,9 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			async: false,
-			dataType: Connection.DATA_TYPE_HTML,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success: {
@@ -386,12 +386,12 @@
 	} );
 	
 	createTest( "404NotFound", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			error4xx: function( data ) {
 				test.assertObject( "The data.connection variable should be an object", data.connection );
-				test.assertInstanceof( "The data.connection variable should be an instance of Connection", data.connection, Connection );
+				test.assertInstanceof( "The data.connection variable should be an instance of SameDomainConnection", data.connection, SameDomainConnection );
 				test.assertEquals( "The connection and data.connection variables should be the same object", data.connection, connection );
 				test.assertNumber( "The data.status variable should be a number", data.status );
 				test.assertEquals( "The data.status variable should be 404", data.status, 404 );
@@ -405,7 +405,7 @@
 		
 		connection.setOptions( {
 			url: "/bad/url/not/exists.txt",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			actions: {
 				error4xx: {
 					instance: delegate,
@@ -425,12 +425,12 @@
 	} );
 	
 	createTest( "500ServerError", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			error5xx: function( data ) {
 				test.assertObject( "The data.connection variable should be an object", data.connection );
-				test.assertInstanceof( "The data.connection variable should be an instance of Connection", data.connection, Connection );
+				test.assertInstanceof( "The data.connection variable should be an instance of SameDomainConnection", data.connection, SameDomainConnection );
 				test.assertEquals( "The connection and data.connection variables should be the same object", data.connection, connection );
 				test.assertNumber( "The data.status variable should be a number", data.status );
 				test.assertEquals( "The data.status variable should be 500", data.status, 500 );
@@ -444,8 +444,8 @@
 		
 		connection.setOptions( {
 			url: "./500_error.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				error5xx: {
 					instance: delegate,
@@ -465,12 +465,12 @@
 	} );
 	
 	createTest( "generalErrorDelegate", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			error: function( data ) {
 				test.assertObject( "The data.connection variable should be an object", data.connection );
-				test.assertInstanceof( "The data.connection variable should be an instance of Connection", data.connection, Connection );
+				test.assertInstanceof( "The data.connection variable should be an instance of SameDomainConnection", data.connection, SameDomainConnection );
 				test.assertEquals( "The connection and data.connection variables should be the same object", data.connection, connection );
 				test.assertNumber( "The data.status variable should be a number", data.status );
 				test.assertEquals( "The data.status variable should be 404", data.status, 404 );
@@ -484,7 +484,7 @@
 		
 		connection.setOptions( {
 			url: "/bad/url/not/exists.txt",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			actions: {
 				error: {
 					instance: delegate,
@@ -504,7 +504,7 @@
 	} );
 	
 	createTest( "generalErrorDelegateNotCalled4xx", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			error4xx: function( data ) {
@@ -522,7 +522,7 @@
 		
 		connection.setOptions( {
 			url: "/bad/url/not/exists.txt",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			actions: {
 				error4xx: {
 					instance: delegate,
@@ -547,7 +547,7 @@
 	} );
 	
 	createTest( "generalErrorDelegateNotCalled5xx", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			error5xx: function( data ) {
@@ -565,7 +565,7 @@
 		
 		connection.setOptions( {
 			url: "./500_error.php",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			actions: {
 				error5xx: {
 					instance: delegate,
@@ -590,7 +590,7 @@
 	} );
 	
 	createTest( "htmlHappyNoMeta", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		var delegate = {
 			success: function( data ) {
 				test.assertString( "data.html should be a string", data.html );
@@ -605,8 +605,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -626,7 +626,7 @@
 	} );
 	
 	createTest( "htmlHappyWithMeta", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		var delegate = {
 			success: function( data ) {
 				test.assertString( "data.html should be a string", data.html );
@@ -642,8 +642,8 @@
 		
 		connection.setOptions( {
 			url: "./html_meta.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -663,7 +663,7 @@
 	} );
 	
 	createTest( "htmlUnhappyMeta", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		
 		var delegate = {
 			success: function( data ) {
@@ -683,8 +683,8 @@
 		
 		connection.setOptions( {
 			url: "./html_meta_syntax_error.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -704,7 +704,7 @@
 	} );
 	
 	createTest( "XML Happy", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( xml ) {
 				test.assertObject( "The xml variable should be an object", xml );
@@ -720,8 +720,8 @@
 		
 		connection.setOptions( {
 			url: "./test.xml",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_XML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_XML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -741,7 +741,7 @@
 	} );
 	
 	createTest( "invalidXML", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( xml ) {
 				test.fail( "The success delegate should not have been called" );
@@ -758,8 +758,8 @@
 		
 		connection.setOptions( {
 			url: "./invalid.xml",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_XML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_XML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -779,7 +779,7 @@
 	} );
 	
 	createTest( "emptyXMLFile", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( xml ) {
 				test.fail( "The success delegate should not have been called" );
@@ -796,8 +796,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_XML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_XML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -817,7 +817,7 @@
 	} );
 	
 	createTest( "JSON Happy", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		var delegate = {
 			success: function( data ) {
 				test.assertObject( "data should be an object", data );
@@ -832,7 +832,7 @@
 		
 		connection.setOptions( {
 			url: "./json.txt",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			actions: {
 				success: {
 					instance: delegate,
@@ -852,7 +852,7 @@
 	} );
 	
 	createTest( "JSON Unhappy - No jsonService", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( data ) {
 				test.fail( "The success delegate should not have been called" );
@@ -870,7 +870,7 @@
 		
 		connection.setOptions( {
 			url: "./bad_json.txt",
-			method: Connection.METHOD_GET,
+			method: SameDomainConnection.METHOD_GET,
 			actions: {
 				success: {
 					instance: delegate,
@@ -890,7 +890,7 @@
 	} );
 	
 	createTest( "JSON Unhappy - Syntax error", function( test ) {
-		var connection = new Connection( JSON );
+		var connection = new SameDomainConnection( JSON );
 		var delegate = {
 			success: function( data ) {
 				test.fail( "The success delegate should not have been called with malformed JSON" );
@@ -908,8 +908,8 @@
 		
 		connection.setOptions( {
 			url: "./bad_json.txt",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_JSON,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_JSON,
 			actions: {
 				success: {
 					instance: delegate,
@@ -929,7 +929,7 @@
 	} );
 	
 	createTest( "abort", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( data ) {
 				test.fail( "The success delegate should not have been called" );
@@ -944,8 +944,8 @@
 		
 		connection.setOptions( {
 			url: "./sleep.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success : { instance: delegate, method: "success" },
@@ -961,7 +961,7 @@
 	} );
 	
 	createTest( "destroy", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( data ) {
 				test.fail( "The success delegate should not have been called" );
@@ -976,8 +976,8 @@
 		
 		connection.setOptions( {
 			url: "./sleep.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success : { instance: delegate, method: "success" },
@@ -994,7 +994,7 @@
 	} );
 	
 	createTest( "post", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function( data ) {
 				test.assertString( "data.html should have been a string", data.html );
@@ -1008,8 +1008,8 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			method: Connection.METHOD_POST,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_POST,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			params: "name=John",
 			actions: {
 				success: {
@@ -1029,7 +1029,7 @@
 	} );
 	
 	createTest( "invalidMethod", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function() {
 				test.pass();
@@ -1042,7 +1042,7 @@
 		connection.setOptions( {
 			url: "./post_form.php",
 			method: "invalid_method",
-			dataType: Connection.DATA_TYPE_HTML,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			params: "name=Ed",
 			actions: {
 				success: { instance: delegate, method: "success" },
@@ -1056,7 +1056,7 @@
 	} );
 	
 	createTest( "sendWithOptions", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function() {
 				test.pass();
@@ -1068,8 +1068,8 @@
 		
 		connection.sendWithOptions( {
 			url: "./dummy.txt",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1080,7 +1080,7 @@
 	} );
 	
 	createTest( "sendWithStringParams", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function() {
 				test.pass();
@@ -1092,7 +1092,7 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			dataType: Connection.DATA_TYPE_HTML,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1105,7 +1105,7 @@
 	} );
 	
 	createTest( "sendWithObjectParams", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var delegate = {
 			success: function() {
 				test.pass();
@@ -1117,7 +1117,7 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			dataType: Connection.DATA_TYPE_HTML,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1132,7 +1132,7 @@
 	} );
 	
 	createTest( "sendWithSerializableParams", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		var params = new SerializableData();
 		var delegate = {
 			success: function() {
@@ -1147,7 +1147,7 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			dataType: Connection.DATA_TYPE_HTML,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1159,8 +1159,8 @@
 		return 5000;
 	} );
 	
-	createTest( "reuseConnection", function( test ) {
-		var connection = new Connection();
+	createTest( "reuseSameDomainConnection", function( test ) {
+		var connection = new SameDomainConnection();
 		var timesSent = 0;
 		
 		var delegate = {
@@ -1179,9 +1179,9 @@
 		};
 		
 		connection.setOptions( {
-			url: "./dummy.txt?test=reuseConnection",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			url: "./dummy.txt?test=reuseSameDomainConnection",
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "error" }
@@ -1195,7 +1195,7 @@
 	} );
 	
 	createTest( "enforceAJAXInBackend", function( test ) {
-		var connection = new Connection();
+		var connection = new SameDomainConnection();
 		
 		var delegate = {
 			success: function( data ) {
@@ -1209,8 +1209,8 @@
 		
 		connection.setOptions( {
 			url: "./enforce_ajax.php",
-			method: Connection.METHOD_GET,
-			dataType: Connection.DATA_TYPE_HTML,
+			method: SameDomainConnection.METHOD_GET,
+			dataType: SameDomainConnection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "error" }

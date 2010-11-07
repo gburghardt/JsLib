@@ -4,9 +4,10 @@
 <html lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>ConnectionMemoryTest</title>
+	<title>SameDomainConnectionMemoryTest</title>
 	<script src="../../src/Delegator.js"></script>
 	<script src="../../src/transport/Connection.js"></script>
+	<script src="../../src/transport/SameDomainConnection.js"></script>
 	<script>
 		var timerId = null;
 		var period = 200;
@@ -36,12 +37,12 @@
 		}
 		
 		window.onload = function() {
-			connection = new Connection();
+			connection = new SameDomainConnection();
 			
 			connection.setOptions( {
 				url: "./dummy.txt",
-				method: Connection.METHOD_GET,
-				dataType: Connection.DATA_TYPE_HTML,
+				method: SameDomainConnection.METHOD_GET,
+				dataType: SameDomainConnection.DATA_TYPE_HTML,
 				actions: {
 					success: { instance: window, method: "startTimer" },
 					error: { instance: window, method: "stopTimer" }
@@ -53,7 +54,7 @@
 	</script>
 </head>
 <body>
-	<h1>Connection Memory Test</h1>
+	<h1>SameDomainConnection Memory Test</h1>
 	
 	<p>
 		This is just a brute force memory leak test. In Windows, open up the Task Manager.

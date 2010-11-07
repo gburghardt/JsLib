@@ -8,6 +8,7 @@
  *
  * @extends Object
  * @depends Connection
+ * @depends SameDomainConnection
  * @depends XMLHttpRequest
  */
 function ConnectionPool() {
