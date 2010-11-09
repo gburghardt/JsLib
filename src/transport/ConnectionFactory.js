@@ -5,6 +5,7 @@
  * @extends Object
  * @depends Connection
  * @depends SameDomainConnection
+ * @depends CrossDomainConnection
  */
 function ConnectionFactory() {
 	this.constructor.apply( this, arguments );
@@ -17,6 +18,16 @@ ConnectionFactory.prototype = {
 	 *                    native JavaScript objects, and turning objects into JSON strings
 	 */
 	jsonService: null,
+	
+	/**
+	 * @property {Number} A same-domain connection used for AJAX requests
+	 */
+	TYPE_SAME_DOMAIN: 0,
+	
+	/**
+	 * @property {Number} A cross domain connection used for jsonp requests
+	 */
+	TYPE_CROSS_DOMAIN: 1,
 	
 	/**
 	 * @constructs
@@ -35,11 +46,16 @@ ConnectionFactory.prototype = {
 	/**
 	 * Get a new instance of a connection object
 	 *
-	 * @param {void}
+	 * @param {Number} type The type of connection to create
 	 * @returns {Connection}
 	 */
-	getInstance: function() {
-		return new SameDomainConnection( this.jsonService );
+	getInstance: function( type ) {
+		if ( this.TYPE_CROSS_DOMAIN === type ) {
+			return new CrossDomainConnection( this.jsonService );
+		}
+		else {
+			return new SameDomainConnection( this.jsonService );
+		}
 	}
 	
 };
