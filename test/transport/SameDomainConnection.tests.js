@@ -18,10 +18,10 @@
 		var connection = null;
 		
 		var methods = [
-			SameDomainConnection.METHOD_GET,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_DELETE,
-			SameDomainConnection.METHOD_PUT,
+			SameDomainConnection.prototype.METHOD_GET,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_DELETE,
+			SameDomainConnection.prototype.METHOD_PUT,
 			"INVALID_METHOD",
 			null,
 			42,
@@ -32,17 +32,17 @@
 		];
 		
 		var expectedMethods = [
-			SameDomainConnection.METHOD_GET,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_DELETE,
-			SameDomainConnection.METHOD_PUT,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_POST,
-			SameDomainConnection.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_GET,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_DELETE,
+			SameDomainConnection.prototype.METHOD_PUT,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_POST,
+			SameDomainConnection.prototype.METHOD_POST,
 		];
 		
 		var currentMethod = null;
@@ -65,9 +65,9 @@
 	createTest( "setDataType", function( test ) {
 		var connection = null;
 		var dataTypes = [
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_HTML,
-			SameDomainConnection.DATA_TYPE_XML,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_HTML,
+			SameDomainConnection.prototype.DATA_TYPE_XML,
 			"invalid_data_type",
 			34,
 			null,
@@ -77,16 +77,16 @@
 			NaN
 		];
 		var expectedDataTypes = [
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_HTML,
-			SameDomainConnection.DATA_TYPE_XML,
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_JSON,
-			SameDomainConnection.DATA_TYPE_JSON
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_HTML,
+			SameDomainConnection.prototype.DATA_TYPE_XML,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_JSON,
+			SameDomainConnection.prototype.DATA_TYPE_JSON
 		];
 		var currentDataType = null;
 		var expectedDataType = null;
@@ -115,24 +115,24 @@
 		var allInfo = [
 			{
 				url: postUrl,
-				method: SameDomainConnection.METHOD_POST,
+				method: SameDomainConnection.prototype.METHOD_POST,
 				params: "name=getUrl",
 				expectedUrl: postUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: "name=getUrl",
 				expectedUrl: getUrl + "?name=getUrl"
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: {
 					name: "getUrl"
 				},
 				expectedUrl: getUrl + "?name=getUrl"
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: function() {
 					var p = new SerializableData();
 					p.set( "name", "getUrl" );
@@ -141,37 +141,37 @@
 				expectedUrl: getUrl + "?name=getUrl"
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: function() {},
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: NaN,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: null,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: "",
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: undefined,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: true,
 				expectedUrl: getUrl
 			},{
 				url: getUrl,
-				method: SameDomainConnection.METHOD_GET,
+				method: SameDomainConnection.prototype.METHOD_GET,
 				params: false,
 				expectedUrl: getUrl
 			}
@@ -220,8 +220,8 @@
 		connection.setOptions( {
 			url: "./dummy.txt",
 			async: false,
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			params: "foo=bar"
 		} );
 		
@@ -257,8 +257,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			user: "foo",
 			password: "bar",
 			params: {
@@ -296,8 +296,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			params: params,
 			actions: {
 				success: {
@@ -328,8 +328,8 @@
 		
 		connection.setOptions( {
 			url: "./sleep.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success: {
@@ -362,9 +362,9 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			async: false,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			dataType: connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success: {
@@ -405,7 +405,7 @@
 		
 		connection.setOptions( {
 			url: "/bad/url/not/exists.txt",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			actions: {
 				error4xx: {
 					instance: delegate,
@@ -444,8 +444,8 @@
 		
 		connection.setOptions( {
 			url: "./500_error.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				error5xx: {
 					instance: delegate,
@@ -484,7 +484,7 @@
 		
 		connection.setOptions( {
 			url: "/bad/url/not/exists.txt",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			actions: {
 				error: {
 					instance: delegate,
@@ -522,7 +522,7 @@
 		
 		connection.setOptions( {
 			url: "/bad/url/not/exists.txt",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			actions: {
 				error4xx: {
 					instance: delegate,
@@ -565,7 +565,7 @@
 		
 		connection.setOptions( {
 			url: "./500_error.php",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			actions: {
 				error5xx: {
 					instance: delegate,
@@ -605,8 +605,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -642,8 +642,8 @@
 		
 		connection.setOptions( {
 			url: "./html_meta.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -683,8 +683,8 @@
 		
 		connection.setOptions( {
 			url: "./html_meta_syntax_error.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -720,8 +720,8 @@
 		
 		connection.setOptions( {
 			url: "./test.xml",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_XML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_XML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -758,8 +758,8 @@
 		
 		connection.setOptions( {
 			url: "./invalid.xml",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_XML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_XML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -796,8 +796,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_XML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_XML,
 			actions: {
 				success: {
 					instance: delegate,
@@ -832,7 +832,7 @@
 		
 		connection.setOptions( {
 			url: "./json.txt",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			actions: {
 				success: {
 					instance: delegate,
@@ -870,7 +870,7 @@
 		
 		connection.setOptions( {
 			url: "./bad_json.txt",
-			method: SameDomainConnection.METHOD_GET,
+			method: connection.METHOD_GET,
 			actions: {
 				success: {
 					instance: delegate,
@@ -908,8 +908,8 @@
 		
 		connection.setOptions( {
 			url: "./bad_json.txt",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_JSON,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_JSON,
 			actions: {
 				success: {
 					instance: delegate,
@@ -944,8 +944,8 @@
 		
 		connection.setOptions( {
 			url: "./sleep.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success : { instance: delegate, method: "success" },
@@ -976,8 +976,8 @@
 		
 		connection.setOptions( {
 			url: "./sleep.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			timeoutPeriod: 5000,
 			actions: {
 				success : { instance: delegate, method: "success" },
@@ -1008,8 +1008,8 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			method: SameDomainConnection.METHOD_POST,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_POST,
+			dataType: connection.DATA_TYPE_HTML,
 			params: "name=John",
 			actions: {
 				success: {
@@ -1042,7 +1042,7 @@
 		connection.setOptions( {
 			url: "./post_form.php",
 			method: "invalid_method",
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			dataType: connection.DATA_TYPE_HTML,
 			params: "name=Ed",
 			actions: {
 				success: { instance: delegate, method: "success" },
@@ -1068,8 +1068,8 @@
 		
 		connection.sendWithOptions( {
 			url: "./dummy.txt",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1092,7 +1092,7 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1117,7 +1117,7 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1147,7 +1147,7 @@
 		
 		connection.setOptions( {
 			url: "./post_form.php",
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "success" }
@@ -1180,8 +1180,8 @@
 		
 		connection.setOptions( {
 			url: "./dummy.txt?test=reuseSameDomainConnection",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "error" }
@@ -1209,8 +1209,8 @@
 		
 		connection.setOptions( {
 			url: "./enforce_ajax.php",
-			method: SameDomainConnection.METHOD_GET,
-			dataType: SameDomainConnection.DATA_TYPE_HTML,
+			method: connection.METHOD_GET,
+			dataType: connection.DATA_TYPE_HTML,
 			actions: {
 				success: { instance: delegate, method: "success" },
 				error: { instance: delegate, method: "error" }

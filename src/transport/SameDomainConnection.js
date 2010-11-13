@@ -12,30 +12,15 @@ function SameDomainConnection() {
 	this.constructor.apply( this, arguments );
 }
 
-SameDomainConnection.superClass = Delegator.prototype;
+SameDomainConnection.superClass = Connection.prototype;
 SameDomainConnection.prototype = function() {};
 SameDomainConnection.prototype.prototype = SameDomainConnection.superClass;
 SameDomainConnection.prototype = new SameDomainConnection.prototype;
 
-/**
- * @static {String} Success delegate is given an XML DOM structure and the XML string
- */
-SameDomainConnection.DATA_TYPE_XML = "XML";
-
-/**
- * @static {String} Success delegate is given the raw response string
- */
-SameDomainConnection.DATA_TYPE_HTML = "HTML";
-
-/**
- * @static {String} Success delegate is given the eval'd object and the response string
- */
-SameDomainConnection.DATA_TYPE_JSON = "JSON";
-
-SameDomainConnection.METHOD_DELETE = "DELETE";
-SameDomainConnection.METHOD_GET = "GET";
-SameDomainConnection.METHOD_POST = "POST";
-SameDomainConnection.METHOD_PUT = "PUT";
+SameDomainConnection.prototype.METHOD_DELETE = "DELETE";
+SameDomainConnection.prototype.METHOD_GET = "GET";
+SameDomainConnection.prototype.METHOD_POST = "POST";
+SameDomainConnection.prototype.METHOD_PUT = "PUT";
 
 /**
  * @constructs
@@ -44,6 +29,8 @@ SameDomainConnection.METHOD_PUT = "PUT";
  *                             JSON strings
  */
 SameDomainConnection.prototype.constructor = function( jsonService ) {
+	
+	SameDomainConnection.superClass.constructor.call( this, jsonService );
 	
 	/**
 	 * @property {SameDomainConnection} A static reference to this connection used in function
@@ -80,7 +67,7 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {String} The data type to interpret responses as
 	 */
-	var _dataType = SameDomainConnection.DATA_TYPE_JSON;
+	var _dataType = this.DATA_TYPE_JSON;
 	
 	/**
 	 * @access public
@@ -95,16 +82,16 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	
 	this.setDataType = function( dataType ) {
 		switch( String( dataType ).toUpperCase() ) {
-			case SameDomainConnection.DATA_TYPE_JSON:
-				_dataType = SameDomainConnection.DATA_TYPE_JSON;
+			case this.DATA_TYPE_JSON:
+				_dataType = this.DATA_TYPE_JSON;
 			break;
 			
-			case SameDomainConnection.DATA_TYPE_HTML:
-				_dataType = SameDomainConnection.DATA_TYPE_HTML;
+			case this.DATA_TYPE_HTML:
+				_dataType = this.DATA_TYPE_HTML;
 			break;
 			
-			case SameDomainConnection.DATA_TYPE_XML:
-				_dataType = SameDomainConnection.DATA_TYPE_XML;
+			case this.DATA_TYPE_XML:
+				_dataType = this.DATA_TYPE_XML;
 			break;
 		}
 	};
@@ -114,7 +101,7 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	/**
 	 * @property {String} The HTTP method to use
 	 */
-	var _method = SameDomainConnection.METHOD_POST;
+	var _method = this.METHOD_POST;
 	
 	/**
 	 * @access public
@@ -129,106 +116,30 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	
 	var setMethod = function( str ) {
 		switch( String( str ).toUpperCase() ) {
-			case SameDomainConnection.METHOD_POST:
-				_method = SameDomainConnection.METHOD_POST;
+			case _this.METHOD_POST:
+				_method = _this.METHOD_POST;
 			break;
 			
-			case SameDomainConnection.METHOD_GET:
-				_method = SameDomainConnection.METHOD_GET;
+			case _this.METHOD_GET:
+				_method = _this.METHOD_GET;
 			break;
 			
-			case SameDomainConnection.METHOD_PUT:
-				_method = SameDomainConnection.METHOD_PUT;
+			case _this.METHOD_PUT:
+				_method = _this.METHOD_PUT;
 			break;
 			
-			case SameDomainConnection.METHOD_DELETE:
-				_method = SameDomainConnection.METHOD_DELETE;
+			case _this.METHOD_DELETE:
+				_method = _this.METHOD_DELETE;
 			break;
 			
-			case SameDomainConnection.METHOD_HEAD:
-				_method = SameDomainConnection.METHOD_HEAD;
+			case _this.METHOD_HEAD:
+				_method = _this.METHOD_HEAD;
 			break;
 			
-			case SameDomainConnection.METHOD_OPTIONS:
-				_method = SameDomainConnection.METHOD_OPTIONS;
+			case _this.METHOD_OPTIONS:
+				_method = _this.METHOD_OPTIONS;
 			break;
 		}
-	};
-	
-	
-	
-	/**
-	 * @property {Object} A key-value object of params to pass in the request
-	 * @property {Object} An object of key-value pairs that supports a serialize() method
-	 * @property {String} A pre serialized query string
-	 */
-	var _params = null;
-	
-	var getParams = function() {
-		return _params;
-	};
-	
-	var haveParams = function() {
-		return (_params !== null && _params !== "" );
-	};
-	
-	/**
-	 * @access private
-	 *
-	 * Serialize an object of params to be sent in the request
-	 *
-	 * @param {Object} p An object of key-value pairs of parameters, or an object
-	 *                        supporting a serialize() method.
-	 *        {String} p A preserialized and URL encoded parameter string
-	 * @return {String}
-	 */
-	var serializeParams = function( params ) {
-		var str = "";
-		var tempParams = [];
-		var encodedKey = "";
-		
-		if ( typeof params === "string" ) {
-			str = params;
-		}
-		else if ( typeof params === "object" && params !== null ) {
-			if ( typeof params.serialize === "function" ) {
-				str = params.serialize();
-			}
-			else {
-				for ( var key in params ) {
-					if ( !params.hasOwnProperty( key ) ) {
-						continue;
-					}
-					
-					encodedKey = encodeURIComponent( key );
-					
-					if ( typeof params[ key ] === "object" && params[ key ] instanceof Array ) {
-						for ( var i = 0, length = params[ key ].length; i < length; i++ ) {
-							tempParams.push( encodedKey + "=" + encodeURIComponent( params[ key ][ i ] ) );
-						}
-					}
-					else {
-						tempParams.push( encodedKey + "=" + encodeURIComponent( params[ key ] ) );
-					}
-				}
-				
-				str = tempParams.join( "&" );
-			}
-		}
-		
-		params = null;
-		tempParams = null;
-		
-		return str;
-	};
-	
-	this.setParams = function( params ) {
-		var type = typeof params;
-		if ( type === "string" || type === "object" ) {
-			_params = params;
-		}
-		
-		params = null;
 	};
 	
 	
@@ -249,14 +160,14 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	this.getUrl = function() {
 		var url = _url;
 		
-		if ( SameDomainConnection.METHOD_GET === this.getMethod() && haveParams() ) {
-			var params = getParams();
+		if ( this.METHOD_GET === this.getMethod() && this.haveParams() ) {
+			var params = this.getParams();
 			
 			if ( url.indexOf( "?" ) === -1 ) {
 				url += "?";
 			}
 			
-			url += serializeParams( params );
+			url += this.serializeParams( params );
 		}
 		
 		return url;
@@ -385,15 +296,15 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	
 	var processSuccessfullResponse = function() {
 		switch( _this.getDataType() ) {
-			case SameDomainConnection.DATA_TYPE_JSON:
+			case _this.DATA_TYPE_JSON:
 				processJSONResponse();
 			break;
 			
-			case SameDomainConnection.DATA_TYPE_XML:
+			case _this.DATA_TYPE_XML:
 				processXMLResponse();
 			break;
 			
-			case SameDomainConnection.DATA_TYPE_HTML:
+			case _this.DATA_TYPE_HTML:
 				processHTMLResponse();
 			break;
 			
@@ -407,7 +318,7 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 		var data = null;
 		var error = null;
 		
-		if ( !jsonService ) {
+		if ( !_this.jsonService ) {
 			error = new Error( "No jsonService is available to parse the response text for this SameDomainConnection (" + _url + ")" );
 			
 			_this.delegate( "error", {
@@ -418,7 +329,7 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 		}
 		else {
 			try {
-				data = jsonService.parse( _xhr.responseText );
+				data = _this.jsonService.parse( _xhr.responseText );
 			}
 			catch ( err ) {
 				error = err;
@@ -476,7 +387,7 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 		
 		if ( metaText ) {
 			try {
-				meta = jsonService.parse( metaText );
+				meta = _this.jsonService.parse( metaText );
 			}
 			catch ( err ) {
 				error = err;
@@ -527,13 +438,13 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 		startTimer();
 		
 		switch ( this.getMethod().toUpperCase() ) {
-			case SameDomainConnection.METHOD_GET:
+			case this.METHOD_GET:
 				_xhr.send( null );
 			break;
 			
 			default:
 				_xhr.setRequestHeader( "Content-Type", "application/x-www-form-urlencoded" );
-				_xhr.send( serializeParams( getParams() ) );
+				_xhr.send( this.serializeParams( this.getParams() ) );
 			break;
 		}
 		
@@ -562,23 +473,11 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 		this.setDataType( o.dataType );
 		setUser( o.user );
 		setPassword( o.password );
-		setActions( o.actions );
+		this.setActions( o.actions );
 		setTimeoutPeriod( o.timeoutPeriod );
 		setAsync( o.async );
 		
 		o = null;
-	};
-	
-	var setActions = function( actions ) {
-		for ( var action in actions ) {
-			if ( !actions.hasOwnProperty( action ) ) {
-				continue;
-			}
-			
-			_this.addDelegate( action, actions[ action ].instance, actions[ action ].method );
-		}
-		
-		actions = null;
 	};
 	
 	
@@ -659,7 +558,5 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 		SameDomainConnection.superClass.destructor.call( this );
 	};
 	
-	
-	
-	SameDomainConnection.superClass.constructor.call( this );
+	jsonService = null;
 };
