@@ -3,7 +3,7 @@
  * the legwork to make connection handling easy and standardized. This class is not
  * compatible with Internet Explorer 5 & 6.
  *
- * @extends Delegator
+ * @extends Connection
  * @depends XMLHttpRequest
  *
  * @todo - Add support for the XMLHttpRequestFactory class to make this cross-browser.

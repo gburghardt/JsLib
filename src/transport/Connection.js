@@ -28,6 +28,10 @@ Connection.prototype.DATA_TYPE_HTML = "HTML";
  */
 Connection.prototype.DATA_TYPE_JSON = "JSON";
 
+/**
+ * @property {Object} An object supporting the parse() and stringify() methods
+ *                    for safely encoding and decoding JSON text and objects.
+ */
 Connection.prototype.jsonService = null;
 
 Connection.prototype.constructor = function( jsonService ) {
@@ -103,6 +107,14 @@ Connection.prototype.constructor = function( jsonService ) {
 		return str;
 	};
 	
+	/**
+	 * Set the params used in requests
+	 * 
+	 * @param {Object} params A hash object of params used as key-value pairs
+	 *        {SerializableData} params An object that supports a serialize()
+	 *                                  method
+	 *        {String} params A query string of request params
+	 */
 	this.setParams = function( params ) {
 		var type = typeof params;
 		if ( type === "string" || type === "object" ) {
@@ -113,23 +125,57 @@ Connection.prototype.constructor = function( jsonService ) {
 	};
 	
 	
-	
+	/**
+	 * @abstract
+	 * 
+	 * Abort the current connection
+	 */
 	this.abort = function() {
 		throw new Error("Child classes of Connection must implement abstract method abort()");
 	};
 	
+	/**
+	 * @abstract
+	 * 
+	 * Send a request
+	 */
 	this.send = function() {
 		throw new Error("Child classes of Connection must implement abstract method send()");
 	};
 	
+	/**
+	 * @abstract
+	 * 
+	 * Send a request with a hash object of connection options.
+	 * 
+	 * @param {Object} options A hash object of connection options
+	 */
 	this.sendWithOptions = function( options ) {
 		throw new Error("Child classes of Connection must implement abstract method sendWithOptions(Object: options)");
 	};
 	
+	/**
+	 * @abstract
+	 * 
+	 * Send with parameters
+	 * 
+	 * @param {Object} params A hash object of params used as key-value pairs
+	 *        {SerializableData} params An object that supports a serialize()
+	 *                                  method
+	 *        {String} params A query string of request params
+	 */
 	this.sendWithParams = function( params ) {
 		throw new Error("Child classes of Connection must implement abstract method sendWithParams(Object: params)");
 	};
 	
+	/**
+	 * Set the actions that delegates will respond to
+	 * 
+	 * @param {Object} actions A hash object of action names and info
+	 *            {Object}
+	 *                {Object} instance An object instance
+	 *                {String} method The method to call on instance
+	 */
 	this.setActions = function( actions ) {
 		for ( var action in actions ) {
 			if ( !actions.hasOwnProperty( action ) ) {
@@ -142,12 +188,22 @@ Connection.prototype.constructor = function( jsonService ) {
 		actions = null;
 	};
 	
+	/**
+	 * @abstract
+	 * 
+	 * Set options for this connection
+	 * 
+	 * @param {Object} options A hash object of connection options
+	 */
 	this.setOptions = function( options ) {
 		throw new Error("Child classes of Connection must implement abstract method setOptions(Object: options)");
 	};
 	
 	
 	
+	/**
+	 * @destructs
+	 */
 	this.destructor = function() {
 		Connection.superClass.destructor.call(this);
 	};
