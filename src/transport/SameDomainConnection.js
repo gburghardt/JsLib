@@ -32,6 +32,8 @@ SameDomainConnection.prototype.constructor = function( jsonService ) {
 	
 	SameDomainConnection.superClass.constructor.call( this, jsonService );
 	
+	
+	
 	/**
 	 * @property {SameDomainConnection} A static reference to this connection used in function
 	 *                        closures
