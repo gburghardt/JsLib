@@ -141,7 +141,7 @@ var Router = {
 	 * @return {Boolean} True if removed, false otherwise
 	 */
 	unregisterController: function() {
-		var id = instance = null;
+		var id, instance;
 		var unregistered;
 		
 		if (arguments.length === 1) {
@@ -152,19 +152,19 @@ var Router = {
 					continue;
 				}
 				
-				this.unregister(id, instance);
+				this.unregisterController(id, instance);
 			}
 		}
 		else {
 			unregistered = false;
-			id = aguments[0];
+			id = arguments[0];
 			instance = arguments[1];
 			
 			if (this.controllers[id] && this.controllers[id].length) {
 				for (var i = 0, length = this.controllers[id].length; i < length; i++) {
 					if (instance === this.controllers[id][i]) {
 						this.controllers[id][i] = null;
-						this.controllers[id].splice(i, 0);
+						this.controllers[id].splice(i, 1);
 						unregistered = true;
 						
 						break;
