@@ -58,4 +58,50 @@
 		return true;
 	} );
 	
+	createTest( "parseRouteString", function( test ) {
+		var route = new Route("foo/bar");
+		var routeArgs      = [ "abc", "100", "-100", "1.3", "null", "true", "false", "a%20b" ];
+		var expectedValues = [ "abc",  100,   -100,   1.3,   null,   true,   false,  "a b" ];
+		var rawRoute = "foo/bar/" + routeArgs.join("/");
+		test.info("Raw route: " + rawRoute);
+		var info = route.parseRouteString(rawRoute);
+		var passing = true;
+		
+		return (
+			test.assertString("Arg 0 should be a string", info.args[0]) &&
+			test.assertEquals("Arg 0 should be " + expectedValues[0], info.args[0], expectedValues[0]) &&
+			
+			test.assertNumber("Arg 1 should be a number", info.args[1]) &&
+			test.assertEquals("Arg 1 should be " + expectedValues[1], info.args[1], expectedValues[1]) &&
+			
+			test.assertNumber("Arg 2 should be a number", info.args[2]) &&
+			test.assertEquals("Arg 2 should be " + expectedValues[2], info.args[2], expectedValues[2]) &&
+			
+			test.assertNumber("Arg 3 should be a number", info.args[3]) &&
+			test.assertEquals("Arg 3 should be " + expectedValues[3], info.args[3], expectedValues[3]) &&
+			
+			test.assertNull("Arg 4 should be null", info.args[4]) &&
+			test.assertEquals("Arg 4 should be " + expectedValues[4], info.args[4], expectedValues[4]) &&
+			
+			test.assertBoolean("Arg 5 should be boolean", info.args[5]) &&
+			test.assertTrue("Arg 5 should be true", info.args[5]) &&
+			
+			test.assertBoolean("Arg 6 should be boolean", info.args[6]) &&
+			test.assertFalse("Arg 6 should be false", info.args[6]) &&
+			
+			test.assertString("Arg 7 should be a string", info.args[7]) &&
+			test.assertEquals("Arg 7 should be '" + expectedValues[7] + "'", info.args[7], expectedValues[7])
+		);
+	} );
+	
+	createTest( "toString", function( test ) {
+		var rawRoute1 = "foo/bar/abc/null/1234/true/a%20b";
+		var route = new Route(rawRoute1);
+		var rawRoute2 = route.toString();
+		
+		return (
+			test.assertEquals("The two raw routes should be equal", rawRoute1, rawRoute2)
+		);
+	} );
+	
 } )( TestController.getInstance() );

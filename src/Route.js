@@ -1,7 +1,35 @@
 /**
  * @class This class encapsulates information about a "route" through a JavaScript
  * application. It allows routers to determine which controllers should handle this route.
+ * Routes exist in the DOM as HTML 5 data-route-foo attributes. The complimentary class to
+ * this is DOMEventRouter, where data-route-click is a route for a click event. These
+ * route strings come in the form:
  *
+ * [/]controllerId/methodName[[/]arg1[/]argN]
+ *
+ * Example: /details/show
+ *          details/show
+ *          details/show/1234 <-- numeric arguments are converted to numbers
+ *          details/show/null <-- "null" strings are converted to actual null values, case insensitive
+ *          details/show/true <-- "true" and "false" are converted to actual boolean values, case insensitive
+ *          details/show/a,b  <-- Values containing commas are converted to arrays, allowing you to pass arrays as arguments to controllers
+ *          details/show/foo%20bar <-- Becomes "foo bar". All string values are decoded via decodeURIComponent
+ *          details/show/1/null/false <-- Pass multiple arguments to the controllers: 1, null and false. An unlimited number of arguments are supported
+ * 
+ * These routes can even be included in the anchor portion of the URL to a page.
+ * 
+ * http://www.foo.com/#details/display/arg1
+ * |________________|  |_____| |_____| |__|
+ *         |              |       |     |
+ *         1              2       3     4
+ * 
+ * 1) URL to your web page
+ * 2) Route controller Id
+ * 3) Route controller method name
+ * 4) First argument to the route controller method
+ * 
+ * This can enable Ajax applications to utilize the browser's back button.
+ * 
  * @extends Object
  */
 function Route() {
@@ -38,23 +66,18 @@ Route.prototype = {
 	methodName: null,
 	
 	/**
-	 * @property {String} The raw string used for this route. It must be in a specific
-	 *                    format: [/]controllerId/methodName[[/]value1[/]valueN]
-	 *                    Example: /details/show
-	 *                             details/show
-	 *                             details/show/1234 <-- numeric arguments are converted to numbers
-	 *                             details/show/null <-- "null" strings are converted to actual null values, case insensitive
-	 *                             details/show/true <-- "true" and "false" are converted to actual boolean values, case insensitive
-	 *                             details/show/a,b  <-- Values containing commas are converted to arrays, allowing you to pass arrays as arguments to controllers
-	 *                             details/show/foo%20bar <-- Because "foo bar". All string values are decoded via decodeURIComponent
-	 *                             details/show/1/null/false <-- Pass multiple arguments to the controllers: 1, null and false. An unlimited number of arguments are supported
-	 */
-	rawRoute: null,
-	
-	/**
-	 * @constructs
+	 * Class constructor. This supports two interfaces. In the first, a raw route string
+	 * is provided and parsed. In the second interface, you must pass a controller Id and
+	 * a method name, with the optional third argument being the args propery.
 	 *
-	 * @param {String} rawRoute The rawRoute property
+	 * @param {String} controllerId The raw route string, which gets parsed into the
+	 *                              controller Id, method name and arguments.
+	 * 
+	 * @param {String} controllerId The Id for a controller
+	 * @param {String} method The method to call on a controller
+	 * @param {Array} args The optional arguments to the controller method
+	 * 
+	 * @throws Error
 	 */
 	constructor: function(controllerId, method, args) {
 		var rawRoute = null;
@@ -88,7 +111,7 @@ Route.prototype = {
 	},
 	
 	addArg: function(value) {
-		this.args.push(this.decodeArg(value));
+		this.args.push(value);
 	},
 	
 	decodeArg: function(value) {
@@ -128,7 +151,7 @@ Route.prototype = {
 			s += this.encodeArgs(value);
 		}
 		else {
-			s += value;
+			s += encodeURIComponent(String(value));
 		}
 		
 		return s;
@@ -141,7 +164,7 @@ Route.prototype = {
 			s += "/" + this.encodeArg(args[i]);
 		}
 		
-		return args;
+		return s;
 	},
 	
 	getArgs: function() {
