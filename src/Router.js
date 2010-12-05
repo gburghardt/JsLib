@@ -38,6 +38,18 @@ var Router = {
 			
 			this.controllers = null;
 		}
+		
+		if (this.routes) {
+			for (var key in this.routes) {
+				if (!this.routes.hasOwnProperty(key)) {
+					continue;
+				}
+				
+				this.routes[key] = null;
+			}
+			
+			this.routes = null;
+		}
 	},
 	
 	controllerExists: function(id, instance) {
