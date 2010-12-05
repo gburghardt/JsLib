@@ -1,7 +1,8 @@
 /**
  * @class This class bridges the Router with the Document Object Model and DOM events. It
- * hijacks the process by adding the target element of the DOM event as the last argument
- * to the controller methods.
+ * hijacks the process by adding the target element of the DOM event and route as the
+ * second to last argument to the controller methods, and the event object as the last
+ * argument.
  * 
  * @requires Router
  * @extends Object
@@ -12,11 +13,29 @@ function DOMEventRouter() {
 
 DOMEventRouter.prototype = {
 	
+	/**
+	 * @property {Object} A hash object of event names and nodes to which they are bound
+	 */
 	events: null,
 	
+	/**
+	 * @property {Object} A router object supporting the getRoute and processRoute
+	 *                    methods. See Router.
+	 */
 	router: null,
 	
+	/**
+	 * Class constructor. 
+	 *
+	 * @param {Object} A router object, supporting the same interface as Router.
+	 *
+	 * @throws Error
+	 */
 	constructor: function(router) {
+		if (!router) {
+			throw new Error("A router must be passed as the first argument to DOMEventRoute.prototype.constructor, supporting getRoute() and processRoute() methods.");
+		}
+		
 		this.router = router;
 		this.events = {};
 		this.handleDOMEvent = this.bindFunction(this.handleDOMEvent);
@@ -116,7 +135,7 @@ DOMEventRouter.prototype = {
 			// get the route object from the router
 			route = this.router.getRoute(rawRoute);
 			
-			// make target DOM element second to last argument to the controller method
+			// make event target and route element second to last argument to the controller method
 			route.args.push(node);
 			
 			// make event object last argument to controller method
