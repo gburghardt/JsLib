@@ -10,7 +10,7 @@ function RemoteViewLoader() {
 	this.constructor.apply( this, arguments );
 }
 
-RemoteView.prototype = {
+RemoteViewLoader.prototype = {
 	
 	/**
 	 * @property {Object} The object encapsulating the remote API to retrieve the views
