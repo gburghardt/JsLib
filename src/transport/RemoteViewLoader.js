@@ -18,12 +18,21 @@ RemoteViewLoader.prototype = {
 	api: null,
 	
 	/**
+	 * @property {Boolean} True to cancel a DOM event if triggered via an event.
+	 */
+	cancelEvent: true,
+	
+	/**
 	 * Class constructor
 	 *
 	 * @param {Object} api The api property
 	 */
-	constructor: function( api ) {
+	constructor: function( api, cancelEvent ) {
 		this.api = api;
+		
+		if ( typeof cancelEvent === "boolean" ) {
+			this.cancelEvent = cancelEvent;
+		}
 		
 		api = null;
 	},
@@ -74,6 +83,7 @@ RemoteViewLoader.prototype = {
 	 * @param {String} method The method name to call on the API object.
 	 * @param {String} selector The Id of a DOM node
 	 * @param {Array} paramsArray An array of parameter keys and values
+	 * @return {Boolean} True or false to keep propagating event or stop it.
 	 *
 	 * @throws Error
 	 */
@@ -101,6 +111,8 @@ RemoteViewLoader.prototype = {
 		else {
 			throw new Error("Method " + method + " does not exist in this.api.");
 		}
+		
+		return !this.cancelEvent;
 	}
 	
 };
