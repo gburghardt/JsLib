@@ -441,6 +441,10 @@ Logger.prototype = {
 		}
 		
 		return str;
+	},
+	
+	escapeHTML: function(s) {
+		return s.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/\n|\\n|\\u000a|\u000a/g, "<br>");
 	}
 	
 };

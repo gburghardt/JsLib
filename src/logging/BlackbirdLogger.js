@@ -25,6 +25,14 @@ BlackbirdLogger.prototype.constructor = function( logHandle, level, debugMode, e
 	this.setConsole( window[ BlackbirdLogger.namespace ] );
 };
 
+BlackbirdLogger.prototype.formatMessage = function( type, text, data ) {
+  return BlackbirdLogger.superClass.formatMessage.call(this, this.escapeHTML(type), this.escapeHTML(text), data);
+};
+
+BlackbirdLogger.prototype.mixedToString = function(x) {
+	return this.escapeHTML(BlackbirdLogger.superClass.mixedToString.call(this, x));
+};
+
 BlackbirdLogger.isSupported = function() {
 	return (typeof window[BlackbirdLogger.namespace] === "object" && window[BlackbirdLogger.namespace]);
 };
