@@ -4,15 +4,18 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Testing ConsoleLogger</title>
-		<script src="../external/src/json2.js"></script>
+		<link rel="stylesheet" type="text/css" href="../src/logging/blackbirdjs/blackbird.css">
+		<script src="../src/logging/json2.js"></script>
+		<script src="../src/logging/blackbirdjs/blackbird.js"></script>
 		<script src="../src/logging/Logger.js"></script>
 		<script src="../src/logging/ConsoleLogger.js"></script>
+		<script src="../src/logging/BlackbirdLogger.js"></script>
+		<script src="../src/logging/LogFactory.js"></script>
 		<script>
 			Logger.setLevel( 300 );
+			LogFactory.init( JSON );
 
-			var log = new ConsoleLogger( "ConsoleLogger.html", 500 );
-			log.setJsonService( JSON );
-			
+			var log = LogFactory.get( "ConsoleLogger.html", 500 );
 			var data = {
 				str: "string value",
 				num: 23,
@@ -29,32 +32,32 @@
 			log.warn( "A warning goes here" );
 			log.error( "Oops! Something went wrong." );
 			
-			log.info( "My message", "ConsoleLogger.html" );
-			log.debug( "Something else", "ConsoleLogger.html" );
-			log.warn( "A warning goes here", "ConsoleLogger.html" );
-			log.error( "Oops! Something went wrong.", "ConsoleLogger.html" );
+			log.info( "My message" );
+			log.debug( "Something else" );
+			log.warn( "A warning goes here");
+			log.error( "Oops! Something went wrong.");
 			
-			log.info( "My message", "ConsoleLogger.html", data );
-			log.debug( "Something else", "ConsoleLogger.html", data );
-			log.warn( "A warning goes here", "ConsoleLogger.html", data );
-			log.error( "Oops! Something went wrong.", "ConsoleLogger.html", data );
+			log.info( "My message", data );
+			log.debug( "Something else", data );
+			log.warn( "A warning goes here", data );
+			log.error( "Oops! Something went wrong.", data );
 			
-			log.info( "My message", null, data );
-			log.debug( "Something else", null, data );
-			log.warn( "A warning goes here", null, data );
-			log.error( "Oops! Something went wrong.", null, data );
+			log.info( "My message", data );
+			log.debug( "Something else", data );
+			log.warn( "A warning goes here", data );
+			log.error( "Oops! Something went wrong.", data );
 			
-			log.info( null, null, data );
-			log.debug( null, null, data );
-			log.warn( null, null, data );
-			log.error( null, null, data );
+			log.info( null, data );
+			log.debug( null, data );
+			log.warn( null, data );
+			log.error( null, data );
 			
 			log.profile( "logMessages" );
 			
 			log.profile( "Info click", "ConsoleLogger.html" );
 			
 			window.onload = function() {
-				var log = new ConsoleLogger( "window.onload", 1000 );
+				var log = LogFactory.get( "window.onload", 1000 );
 
 				log.info( "An info log" );
 				log.debug( "A debug log" );
@@ -63,7 +66,7 @@
 			};
 
 			setTimeout( function() {
-				var log = new ConsoleLogger( "setTimeoutCallback" );
+				var log = LogFactory.get( "setTimeoutCallback" );
 				log.info( "This info statement shouldn't show up." );
 				log.debug( "This debug statement shouldn't show up." );
 				log.warn( "This warn statement should show up." );

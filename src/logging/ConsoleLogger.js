@@ -23,3 +23,15 @@ ConsoleLogger.prototype.constructor = function( logHandle, level, debugMode, ena
 		this.setConsole( console );
 	}
 };
+
+ConsoleLogger.prototype.report = function( type, text, data ) {
+	ConsoleLogger.superClass.report.call( this, type, text );
+	
+	if ( data ) {
+		this.console.debug(data);
+	}
+};
+
+ConsoleLogger.isSupported = function() {
+	return (typeof console === "object" && console);
+};

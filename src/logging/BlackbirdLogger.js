@@ -25,10 +25,14 @@ BlackbirdLogger.prototype.constructor = function( logHandle, level, debugMode, e
 	this.setConsole( window[ BlackbirdLogger.namespace ] );
 };
 
+BlackbirdLogger.isSupported = function() {
+	return (typeof window[BlackbirdLogger.namespace] === "object" && window[BlackbirdLogger.namespace]);
+};
+
 /**
  * @static {String} Set this to the value of the NAMESPACE variable declared at
  *                  the top of your blackbird.js file. By default, it is "log".
  *                  This identifies the property in the window object where the
  *                  blackbird console object resides.
  */
-BlackbirdLogger.namespace = "log";
+BlackbirdLogger.namespace = "blackbirdLogger";

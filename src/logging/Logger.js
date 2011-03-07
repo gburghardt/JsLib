@@ -50,11 +50,10 @@ Logger.prototype = {
 	 * debugMode.
 	 * 
 	 * @param {String} message The message to log
-	 * @param {String} source The log source
 	 * @param {Object} data Data to log
 	 * @return {Void}
 	 */
-	log: function( message, source, data ) {
+	log: function( message, data ) {
 		this.__log = this.log;
 		
 		if ( this.debugMode ) {
@@ -69,48 +68,44 @@ Logger.prototype = {
 	 * Log an info message
 	 *
 	 * @param {String} message Log text to display
-	 * @param {String} source Log message origin: file, function or method name
 	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @return {void}
 	 */
-	info: function( message, source, data ) {
-		this.report( "info", message, source, data );
+	info: function( message, data ) {
+		this.report( "info", message, data );
 	},
 	
 	/**
 	 * Log a debug message
 	 *
-	 * @param {String} message Log text to display
-	 * @param {String} source Log message origin: file, function or method name
+	 * @param {String} message Log text to display	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @return {void}
 	 */
-	debug: function( message, source, data ) {
-		this.report( "debug", message, source, data );
+	debug: function( message, data ) {
+		this.report( "debug", message, data );
 	},
 	
 	/**
 	 * Log a warning message
 	 *
 	 * @param {String} message Log text to display
-	 * @param {String} source Log message origin: file, function or method name
 	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @return {void}
 	 */
-	warn: function( message, source, data ) {
-		this.report( "warn", message, source, data );
+	warn: function( message, data ) {
+		this.report( "warn", message, data );
 	},
 	
 	/**
 	 * Log an error message
 	 *
 	 * @param {String} message Log text to display
-	 * @param {String} source Log message origin: file, function or method name
 	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @return {void}
 	 */
-	error: function( message, source, data ) {
-		this.report( "error", message, source, data );
+	error: function( message, data ) {
+		this.report( "error", message, data );
 	},
 	
 	/**
@@ -142,16 +137,15 @@ Logger.prototype = {
 	 *
 	 * @param {String} type The type of log message
 	 * @param {String} text Log text to display
-	 * @param {String} source Log message origin: file, function or method name
 	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @return {void}
 	 */
-	report: function( type, text, source, data ) {
+	report: function( type, text, data ) {
 		if ( !this.canLog( type ) ) {
 			return;
 		}
 		
-		var message = this.formatMessage( type, text, source, data );
+		var message = this.formatMessage( type, text, data );
 		
 		this.console[ type ]( message );
 	},
@@ -391,22 +385,15 @@ Logger.prototype = {
 	 *
 	 * @param {String} type The type of log message
 	 * @param {String} text Log text to display
-	 * @param {String} source Log message origin: file, function or method name
 	 * @param {Mixed} data Miscellaneous data to log to the user
 	 * @return {String}
 	 */
-	formatMessage: function( type, text, source, data ) {
+	formatMessage: function( type, text, data ) {
 		var message = "";
-		var undef;
 		var hasSource = false;
 		
 		if ( this.logHandle ) {
 			message += this.logHandle;
-			hasSource = true;
-		}
-		
-		if ( source !== undef && source !== null ) {
-			message += "." + source;
 			hasSource = true;
 		}
 		
@@ -419,7 +406,7 @@ Logger.prototype = {
 			}
 		}
 		
-		if ( data !== undef ) {
+		if ( data !== undefined ) {
 			message += this.formatMessageData( data );
 		}
 		
