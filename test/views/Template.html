@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Testing Template.js</title>
+		<script type="text/javascript" src="../../src/views/Template.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var data = {
+				name: "John Doe",
+				age: 42,
+				"position.title": "CEO",
+				"position.salary": 100000,
+				id: "1234"
+			};
+			
+			var template = new Template([
+				'<h1>${name} {${id}}</h1>',
+				'<dl>',
+					'<dt>Age</dt>',
+					'<dd>${age}</dd>',
+					
+					'<dt>Position</dt>',
+					'<dd>${position.title}</dd>',
+					
+					'<dt>Salary</dt>',
+					'<dd>${position.salary}</dd>',
+					
+					'<dt>Salary</dt>',
+					'<dd>${position.salary}</dd>',
+					
+					'<dt>Location</dt>',
+					'<dd>${position.location}</dd>',
+				'</dl>'
+			].join(""));
+			
+			var renderStart = new Date();
+			document.write(template.render(data));
+			var renderEnd = new Date();
+			
+			var cachedStart = new Date();
+			for (var i = 0, length = 1000; i < length; i++) {
+				document.write(template.render());
+			}
+			var cachedEnd = new Date();
+			
+			document.write("<p>Rendered time: " + (renderEnd.getTime() - renderStart.getTime()) + " ms</p>");
+			document.write("<p>Cached time: " + (cachedEnd.getTime() - cachedStart.getTime()) + " ms</p>");
+		</script>
+	</body>
+</html>
