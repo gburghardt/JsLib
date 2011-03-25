@@ -2,6 +2,7 @@ function random() {
 	return Math.round(Math.random() * 100000);
 }
 var data = {
+	"heading.class": "heading",
 	name: "John Doe",
 	age: 42,
 	"position.title": "CEO",
