@@ -8,7 +8,7 @@ function Template() {
 	};
 	
 	function compileSource(source) {
-		return source.replace(/<!--(\s*)(\$\{.+\})(\s*)-->/g, "$2");
+		return source.replace(/<!--\s*(\$\{.+\})\s*-->/g, "$1");
 	}
 
 	this.getLastRenderedSource = function() {
