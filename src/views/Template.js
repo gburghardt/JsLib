@@ -7,6 +7,18 @@ function Template() {
 		this.setSource(source);
 	};
 	
+	function compileSource(source) {
+		return source.replace(/<!--(\s*)(\$\{.+\})(\s*)-->/g, "$2");
+	}
+
+	this.getLastRenderedSource = function() {
+		return _lastRenderedSource;
+	};
+	
+	this.getSource = function() {
+		return _source;
+	};
+	
 	this.render = function(data) {
 		if (data) {
 			var s = _source;
@@ -33,9 +45,19 @@ function Template() {
 		return source;
 	};
 	
+	this.setLastRenderedSource = function(source) {
+		_lastRenderedSource = source;
+	};
+	
 	this.setSource = function(source) {
-		if (typeof source === "string") {
-			_source = source;
+		var type = typeof(source);
+		
+		if ("string" === type) {
+			_source = compileSource(source);
+		}
+		else if ("object" === type) {
+			_source = compileSource(source.innerHTML);
+			source = null;
 		}
 	};
 	

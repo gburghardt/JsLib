@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Testing CompositeTemplate.js</title>
+		<script type="text/javascript" src="../../src/views/Template.js"></script>
+		<script type="text/javascript" src="../../src/views/CompositeTemplate.js"></script>
+	</head>
+	<body>
+		<div id="view" style="display: none">
+			<h1>${name} {${id}}</h1>
+			<dl>
+				<dt>Age</dt>
+				<dd>${age}</dd>
+				
+				<dt>Position</dt>
+				<dd>${position.title}</dd>
+				
+				<dt>Salary</dt>
+				<dd>${position.salary}</dd>
+				
+				<dt>Salary</dt>
+				<dd>${position.salary}</dd>
+				
+				<dt>Location</dt>
+				<dd>${position.location}</dd>
+				
+				<dt>Contact:</dt>
+				<dd>${contact}</dd>
+			</dl>
+			
+			<table border="1" cellspacing="0" cellpadding="3">
+				<caption>Projects</caption>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Cost</th>
+					</tr>
+				</thead>
+				<tbody><!-- ${projects} --></tbody>
+			</table>
+		</div>
+		<script type="text/javascript">
+			var data = {
+				name: "John Doe",
+				age: 42,
+				"position.title": "CEO",
+				"position.salary": 100000,
+				id: "1234",
+				projects: [{
+					name: "Zodiac",
+					cost: 150000
+				},{
+					name: "Zulu Ramp Up",
+					cost: 1009000
+				}],
+				contact: {
+					phone: "555-555-5555",
+					email: "jdoe@example.com",
+					address1: "555 E 33rd St",
+					address2: "Suite 85",
+					city: "Chicago",
+					region: "IL",
+					postalCode: "60601"
+				}
+			};
+			
+			var template = new CompositeTemplate(document.getElementById("view"));
+			
+			var contactTemplate = new Template([
+				'${phone}<br>',
+				'${email}<br>',
+				'${address1}<br>',
+				'${address2}<br>',
+				'${city}, ${region} ${postalCode}'
+			].join(""));
+			
+			var projectTemplate = new Template([
+				'<tr>',
+					'<td>${name}</td>',
+					'<td>${cost}</td>',
+				'</tr>'
+			].join(""));
+			
+			template.addTemplate("contact", contactTemplate);
+			template.addTemplate("projects", projectTemplate);
+			
+			var start = new Date();
+			document.write(template.render(data));
+			document.write("<p>Render time: " + (new Date().getTime() - start.getTime()) + " ms</p>");
+		</script>
+	</body>
+</html>
