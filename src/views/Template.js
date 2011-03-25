@@ -8,7 +8,18 @@ function Template() {
 	};
 	
 	function compileSource(source) {
-		return source.replace(/<!--\s*(\$\{.+\})\s*-->/g, "$1");
+		return source
+			// Recognize <!-- ${foo} --> as template tags. Allows template tags
+			// to be embedded in HTML structures where the browser strips out
+			// invalid tags and text, such as in tables and lists.
+			.replace(/<!--\s*(\$\{.+\})\s*-->/g, "$1")
+			
+			// Recognize data-view-compiled-attribute="foo=${bar}" as
+			// foo="${bar}" attribute with template tag value. Allows template
+			// tags to be used in HTML attribute values treated in a special way
+			// by the browser, such as the style attribute.
+			.replace(/data-view-compiled-attribute="(\w+)\s*=\s*(\$\{[\w\-_.]+\})"/g, '$1="$2"')
+		;
 	}
 
 	this.getLastRenderedSource = function() {
@@ -62,7 +73,7 @@ function Template() {
 	};
 	
 	this.stripUnrenderedSymbols = function(source) {
-		return source.replace(/\$\{.+\}/g, "");
+		return source.replace(/\$\{[\w\-_.]+\}/g, "");
 	};
 	
 	this.constructor.apply(this, arguments);
