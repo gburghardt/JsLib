@@ -2,9 +2,16 @@ function Template() {
 	
 	var _lastRenderedSource = "";
 	var _source = "";
+	var _valueTransformers;
 	
 	this.constructor = function(source) {
 		this.setSource(source);
+		_valueTransformers = {};
+	};
+	
+	this.addValueTransformer = function(key, fn) {
+		_valueTransformers[key] = fn;
+		fn = null;
 	};
 	
 	function compileSource(source) {
@@ -51,6 +58,11 @@ function Template() {
 	
 	this.renderValue = function(source, key, value) {
 		var rx = rx = new RegExp("\\$\\{" + key.replace(/\./g, "\\.") + "\\}", "g");
+		
+		if (_valueTransformers[key]) {
+			value = _valueTransformers[key](value, key, this);
+		}
+		
 		source = source.replace(rx, value);
 		rx = null;
 		return source;

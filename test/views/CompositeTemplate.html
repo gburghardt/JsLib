@@ -55,6 +55,11 @@
 		</div>
 		
 		<script type="text/javascript">
+			
+			function renderEmail(email, key, view) {
+				return '<a href="mailto:"' + email + '">' + email + '</a>';
+			}
+			
 			var template = new CompositeTemplate(document.getElementById("view"));
 			
 			var contactTemplate = new Template([
@@ -65,7 +70,12 @@
 				'${city}, ${region} ${postalCode}'
 			].join(""));
 			
+			contactTemplate.addValueTransformer("email", renderEmail);
+			
 			var projectTemplate = new Template(document.getElementById("view-projects-row"));
+			projectTemplate.addValueTransformer("cost", function(value, key, view) {
+				return Number(value).toFixed(2);
+			});
 
 			template.addTemplate("contact", contactTemplate);
 			template.addTemplate("projects", projectTemplate);
