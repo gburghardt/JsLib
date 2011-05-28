@@ -14,9 +14,11 @@
 			}
 		};
 
-		var testTask = new QueueTask(queue, function(data, task) {
+		var callback = function(data, task) {
 			task.completed();
-		}, null, false);
+		};
+
+		var testTask = new QueueTask(queue, callback, null, false);
 		
 		testTask.execute();
 	});
@@ -30,9 +32,11 @@
 			}
 		};
 
-		var testTask = new QueueTask(queue, function(data, task) {
+		var callback = function(data, task) {
 			throw new Error("This error should not show up.");
-		}, null, true);
+		};
+
+		var testTask = new QueueTask(queue, callback, null, true);
 		
 		testTask.execute();
 	});
@@ -44,9 +48,11 @@
 			}
 		};
 
-		var testTask = new QueueTask(queue, function(data, task) {
+		var callback = function(data, task) {
 			throw new Error("This error should not show up.");
-		}, null, false);
+		};
+
+		var testTask = new QueueTask(queue, callback, null, false);
 		
 		try {
 			testTask.execute();
