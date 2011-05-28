@@ -235,6 +235,10 @@ function Queue() {
 		return _pendingCount + _runningCount;
 	}
 
+	function taskExists(id) {
+		return !!_taskRegistry[id];
+	}
+
 	function timerExpired() {
 		_timer = null;
 		_processing = false;
@@ -261,6 +265,7 @@ function Queue() {
 	this.notifyTaskCompleted = notifyTaskCompleted;
 	this.process = process;
 	this.size = size;
+	this.taskExists = taskExists;
 
 	// call constructor
 	constructor.apply(this, arguments);
