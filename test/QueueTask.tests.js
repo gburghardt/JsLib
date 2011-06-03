@@ -39,6 +39,7 @@
 		var testTask = new QueueTask(queue, callback, null, true);
 		
 		testTask.execute();
+		return true;
 	});
 
 	createTest("callbackThrowsError", function(test) {
