@@ -33,12 +33,10 @@ function QueueTask() {
 		if (_silent) {
 			try {
 				_callback(getData(), _this);
-				_queue.notifyTaskCompleted(_this);
 			}
 			catch (error) {
 				_error = error;
 				_status = "error";
-				_queue.notifyTaskCompleted(_this);
 			}
 		}
 		else {
@@ -88,7 +86,7 @@ function QueueTask() {
 }
 
 QueueTask.createId = function() {
-	var i = 0;
+	var i = -1;
 
 	return function() {
 		return "task-" + (i++);

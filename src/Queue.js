@@ -1,6 +1,6 @@
 function Queue() {
 
-	var _completeCount = 0;
+	var _completedCount = 0;
 	var _errors = [];
 	var _options = {
 		maxSize: -1,
@@ -61,13 +61,12 @@ function Queue() {
 	function addTask(callback, data) {
 		var id = null;
 
-		if (_options.maxSize < 1 || size() >= _options.maxSize) {
+		if (_options.maxSize < 1 || size() < _options.maxSize) {
 			task = new QueueTask(this, callback, data, _options.silent);
 			id = task.getId();
 			_taskRegistry[id] = task;
 			_pendingTasks.push(task);
 			_pendingCount++;
-			added = true;
 		}
 
 		callback = data = null;
@@ -92,6 +91,10 @@ function Queue() {
 	}
 
 	function completeTask(task) {
+	  if (_timedOut) {
+	    return;
+	  }
+
 		_runningCount--;
 		_completedCount++;
 
@@ -139,6 +142,14 @@ function Queue() {
 
 	function getRunningCount() {
 		return _runningCount;
+	}
+
+	function getTask(id) {
+		if (_taskRegistry[id]) {
+			return _taskRegistry[id];
+		}
+
+		return null;
 	}
 
 	function notifyTaskCompleted(task) {
@@ -251,8 +262,6 @@ function Queue() {
 		else {
 			_options.onError(_this, _errors);
 		}
-
-		reset();
 	}
 
 	this.constructor = constructor;
@@ -262,8 +271,11 @@ function Queue() {
 	this.getCompletedCount = getCompletedCount;
 	this.getPendingCount = getPendingCount;
 	this.getRunningCount = getRunningCount;
+	this.getTask = getTask;
 	this.notifyTaskCompleted = notifyTaskCompleted;
 	this.process = process;
+	this.removeTask = removeTask;
+	this.reset = reset;
 	this.size = size;
 	this.taskExists = taskExists;
 
