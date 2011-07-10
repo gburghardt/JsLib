@@ -52,6 +52,10 @@ HttpRequest.get = function(url, options) {
 	
 };
 
+HttpRequest.notifyHandlers = function(name, data) {
+	
+};
+
 HttpRequest.post = function(url, options) {
 	
 };
