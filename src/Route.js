@@ -56,6 +56,7 @@ Route.prototype = {
 	dataTypes: {
 		"array": /,/,
 		"bool": /^true|false$/i,
+		"hash": /^(\s*([_a-zA-Z]\w+)\s*:\s*([\w\s,%]+)(\s*;\s*|\s*$))+/g,
 		"null": /^null$/i,
 		"numeric": /^[-.0-9]+$/
 	},
@@ -115,7 +116,10 @@ Route.prototype = {
 	},
 	
 	decodeArg: function(value) {
-		if (this.dataTypes["array"].test(value)) {
+	  if (this.dataTypes["hash"].test(value)) {
+	    value = this.decodeHash(value);
+	  }
+		else if (this.dataTypes["array"].test(value)) {
 			value = this.decodeArgs(value.split(","));
 		}
 		else if (this.dataTypes["bool"].test(value)) {
@@ -141,6 +145,23 @@ Route.prototype = {
 		}
 		
 		return args;
+	},
+	
+	decodeHash: function(hashString) {
+	  var pieces = hashString.replace(/^\s+|\s+$/g).split(/\s*[:;]\s*/g);
+    var hash = {};
+
+    P2P.logger.debug("Route#decodeHash - Called");
+    P2P.logger.debug({
+      hashString: hashString,
+      pieces: pieces
+    });
+
+    for (var i = 0, length = pieces.length; i < length; i += 2) {
+      hash[ pieces[i] ] = this.decodeArg(pieces[i + 1]);
+    }
+
+    return hash;
 	},
 	
 	encodeArg: function(value) {
@@ -194,8 +215,14 @@ Route.prototype = {
 				info.methodName = pieces[1];
 			}
 			
-			if (pieces.length > 2) {
-				info.args = this.decodeArgs(pieces.slice(2));
+			try {
+  			if (pieces.length > 2) {
+  				info.args = this.decodeArgs(pieces.slice(2));
+  			}
+			}
+			catch (error) {
+			  P2P.logger.error("An error occurred while parsing route args");
+			  P2P.logger.error(error);
 			}
 		}
 		
