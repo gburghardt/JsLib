@@ -151,12 +151,6 @@ Route.prototype = {
 	  var pieces = hashString.replace(/^\s+|\s+$/g).split(/\s*[:;]\s*/g);
     var hash = {};
 
-    P2P.logger.debug("Route#decodeHash - Called");
-    P2P.logger.debug({
-      hashString: hashString,
-      pieces: pieces
-    });
-
     for (var i = 0, length = pieces.length; i < length; i += 2) {
       hash[ pieces[i] ] = this.decodeArg(pieces[i + 1]);
     }
@@ -215,14 +209,8 @@ Route.prototype = {
 				info.methodName = pieces[1];
 			}
 			
-			try {
-  			if (pieces.length > 2) {
-  				info.args = this.decodeArgs(pieces.slice(2));
-  			}
-			}
-			catch (error) {
-			  P2P.logger.error("An error occurred while parsing route args");
-			  P2P.logger.error(error);
+			if (pieces.length > 2) {
+				info.args = this.decodeArgs(pieces.slice(2));
 			}
 		}
 		

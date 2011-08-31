@@ -60,8 +60,8 @@
 	
 	createTest( "parseRouteString", function( test ) {
 		var route = new Route("foo/bar");
-		var routeArgs      = [ "abc", "100", "-100", "1.3", "null", "true", "false", "a%20b" ];
-		var expectedValues = [ "abc",  100,   -100,   1.3,   null,   true,   false,  "a b" ];
+		var routeArgs      = [ "abc", "100", "-100", "1.3", "null", "true", "false", "a%20b", "foo: bar; bar: 123; abc: null; arr: 1,2,abc%20123" ];
+		var expectedValues = [ "abc",  100,   -100,   1.3,   null,   true,   false,  "a b", {foo: "bar", bar: 123, abc: null, arr: [1,2,"abc 123"]} ];
 		var rawRoute = "foo/bar/" + routeArgs.join("/");
 		test.info("Raw route: " + rawRoute);
 		var info = route.parseRouteString(rawRoute);
@@ -90,7 +90,14 @@
 			test.assertFalse("Arg 6 should be false", info.args[6]) &&
 			
 			test.assertString("Arg 7 should be a string", info.args[7]) &&
-			test.assertEquals("Arg 7 should be '" + expectedValues[7] + "'", info.args[7], expectedValues[7])
+			test.assertEquals("Arg 7 should be '" + expectedValues[7] + "'", info.args[7], expectedValues[7]) &&
+			
+			test.assertObject("Arg 8 should be an object", info.args[8]) &&
+			test.assertEquals("Arg 8, foo should be bar", info.args[8].foo, expectedValues[8].foo) &&
+			test.assertEquals("Arg 8, bar should be 123", info.args[8].bar, expectedValues[8].bar) &&
+			test.assertEquals("Arg 8, abc should be null", info.args[8].abc, expectedValues[8].abc) &&
+			test.assertArray("Arg 8, arr should be an array", info.args[8].arr) &&
+			test.assertEquals("Arg 8, arr should be " + expectedValues[8].arr, info.args[8].arr.toString(), expectedValues[8].arr.toString())
 		);
 	} );
 	
