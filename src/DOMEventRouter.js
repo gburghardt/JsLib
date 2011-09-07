@@ -115,45 +115,72 @@ DOMEventRouter.prototype = {
 	 * @return {Boolean} True if all routes were processed, or no routes were found.
 	 */
 	processRoutes: function(type, node, event) {
-		var rawRoute = null;
+		var rawRoutes = [];
 		var propagate = true;
-		var route = null;
+		var route = null, routeIds, i, length;
 		
 		if (node.nodeName === "#document") {
 			// treat the #document node specially because we cannot add data-foo attributes. See addDocumentRoute().
 			if (node["data-route-" + type]) {
 				// grab the raw route from a property on the document object
-				rawRoute = node["data-route-" + type];
+				rawRoutes.push(node["data-route-" + type]);
 			}
 		}
-		else {
+		else if (node.getAttribute("data-route-" + type)) {
 			// grab the raw route from an attribute on the HTML tag.
-			rawRoute = node.getAttribute("data-route-" + type);
+			rawRoutes.push(node.getAttribute("data-route-" + type));
 		}
 		
-		if (rawRoute) {
-			// get the route object from the router
-			route = this.router.getRoute(rawRoute);
+		// try bulk processing routes
+		if (node.getAttribute && node.getAttribute("data-route-" + type + "-ids")) {
+			routeIds = node.getAttribute("data-route-" + type + "-ids").split(/\s+/g);
 			
-			// make event target and route element second to last argument to the controller method
-			route.args.push(node);
-			
-			// make event object last argument to controller method
-			route.args.push(event);
-			
-			// process the route like normal
-			propagate = this.router.processRoute(route);
-			
-			// remove the event object from the route arguments
-			route.args.pop();
-			
-			// remove the DOM element from the route arguments
-			route.args.pop();
+			for (i = 0, length = routeIds.length; i < length; i++) {
+				rawRoutes.push(routeIds[i] + "/" + node.getAttribute("data-route-args-" + routeIds[i]));
+			}
 		}
-		else if (node.parentNode) {
+		
+		for (i = 0, length = rawRoutes.length; i < length; i++) {
+			if (this.processRoute(rawRoutes[i], event, node) === false) {
+				propagate = false;
+				break;
+			}
+		}
+
+		if (propagate !== false && node.parentNode) {
 			// try the next node up the tree
-			propagate = this.processRoutes(type, node.parentNode);
+			propagate = this.processRoutes(type, node.parentNode, event);
 		}
+		
+		return propagate;
+	},
+	
+	processRoute: function(rawRoute, event, node) {
+		// get the route object from the router
+		var route = this.router.getRoute(rawRoute);
+		var propagate;
+		
+		console.info("Process route: " + rawRoute);
+		console.debug({
+		  event: event,
+		  node: node,
+		  route: route
+		});
+		
+		// make event target and route element second to last argument to the controller method
+		route.args.push(node);
+		
+		// make event object last argument to controller method
+		route.args.push(event);
+		
+		// process the route like normal
+		propagate = this.router.processRoute(route);
+		
+		// remove the event object from the route arguments
+		route.args.pop();
+		
+		// remove the DOM element from the route arguments
+		route.args.pop();
 		
 		return propagate;
 	},

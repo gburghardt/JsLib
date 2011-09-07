@@ -4,7 +4,17 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>DomEventRouter</title>
-		<script type="text/javascript" src="http://code.jquery.com/jquery-1.5.min.js"></script>
+		<style type="text/css" media="screen">
+		  #tip {
+		    background-color: #000;
+		    color: #fff;
+		    padding: .2em .67em;
+		    position: fixed;
+        right: 10%;
+        top: 33%;
+		  }
+		</style>
+		<script type="text/javascript" src="../../src/assets/jquery-1.4.2.js"></script>
 		<script type="text/javascript" src="../../src/Route.js"></script>
 		<script type="text/javascript" src="../../src/Router.js"></script>
 		<script type="text/javascript" src="../../src/DOMEventRouter.js"></script>
@@ -12,13 +22,34 @@
 			domEventRouter = new DOMEventRouter(Router);
 			domEventRouter.addDocumentRoute("click", "app/documentClicked");
 			
+			var myPrompt = {
+			  prompt: function(outputId, question) {
+			    document.getElementById(outputId).innerHTML = prompt(question, "");
+			  },
+			  append: function(inputId, outputId) {
+			    var output = document.getElementById(outputId);
+			    var input = document.getElementById(inputId);
+			    output.innerHTML = output.innerHTML + "<li>" + input.innerHTML + ' <button type="button" data-route-click-ids="appender" data-route-args-appender="remove">X</button></li>';
+			  },
+			  remove: function(node) {
+			    if (confirm("Are you sure you want to remove this?")) {
+			      jQuery(node).parent("li").remove();
+		      }
+			  }
+			};
+			
 			var myApp = {
 				closeFlyovers: function() {
 					console.info("Flyovers have been closed!");
-					return false;
 				},
 				documentClicked: function() {
 					console.info("The document was clicked!");
+				},
+				focus: function() {
+				  console.info("The app has focus");
+				},
+				blur: function() {
+				  console.info("The app lost focus");
 				}
 			};
 			
@@ -67,6 +98,8 @@
 			
 			Router.registerController("app", myApp);
 			Router.registerController("details", productDetails);
+			Router.registerController("injecter", myPrompt);
+			Router.registerController("appender", myPrompt);
 			
 			window.onload = function() {
 				domRouter.registerRoutes(jQuery(document), "click", "mousedown", "mouseup");
@@ -80,5 +113,14 @@
 			<button type="button" data-route-focus="details/showTooltip/This%20is%20a%20tooltip" data-route-blur="details/hideTooltip" data-route-click="details/showColors/blue,green,orange">?</button>
 			<div id="tip"></div>
 		</div>
+		<p>
+		  <button type="button"
+		    data-route-click-ids="injecter appender"
+		    data-route-args-injecter="prompt/promptOutput/What%20food%20do%20like%3F"
+		    data-route-args-appender="append/promptOutput/accumulatedOutput"
+		  >Prompt</button>
+		  <div id="promptOutput"></div>
+		  <ol id="accumulatedOutput"></ol>
+		</p>
 	</body>
 </html>
