@@ -32,7 +32,7 @@ FlowController.prototype = {
 
 		for (var name in this.controllers) {
 			if (this.controllers.hasOwnProperty(name)) {
-				this.controllers[name].init(name, this.getNode(name));
+				this.controllers[name].init(this.getNode(name));
 				this.controllers[name] = null;
 			}
 		}
