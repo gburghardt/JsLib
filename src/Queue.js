@@ -30,7 +30,7 @@ function Queue() {
 	var _runningCount = 0;
 	var _pendingTasks = [];
 	var _taskRegistry = {};
-	var _this = this;
+	var self = this;
 	var _timedOut = false;
 	var _timer;
 
@@ -62,7 +62,7 @@ function Queue() {
 		var id = null;
 
 		if (_options.maxSize < 1 || size() < _options.maxSize) {
-			task = new QueueTask(this, callback, data, _options.silent);
+			task = new QueueTask(self, callback, data, _options.silent);
 			id = task.getId();
 			_taskRegistry[id] = task;
 			_pendingTasks.push(task);
@@ -100,14 +100,14 @@ function Queue() {
 
 		if (task.hasError()) {
 			_errors.push(task.getError());
-			_options.onError(task.getError(), task, _this);
+			_options.onError(task.getError(), task, self);
 		}
 
 		if (!_processing) {
-			_options.onComplete(_this, _errors);
+			_options.onComplete(self, _errors);
 		}
 		else if (_errors.length && _options.stopOnError) {
-			_options.onComplete(_this, _errors);
+			_options.onComplete(self, _errors);
 		}
 		else if (_completedCount === _origPendingCount) {
 			// all tasks are complete
@@ -118,11 +118,11 @@ function Queue() {
 			}
 
 			if (!_errors.length) {
-				_options.onSuccess(_this);
+				_options.onSuccess(self);
 			}
 
 			_processing = false;
-			_options.onComplete(_this, _errors);
+			_options.onComplete(self, _errors);
 			reset();
 		}
 		else if (_options.step && _completedCount % _options.step === 0) {
@@ -257,10 +257,10 @@ function Queue() {
 		_errors.push(new Error("Timed out waiting for tasks to complete after " + (_options.maxTime * 1000) + " seconds."));
 
 		if (_options.onTimeout) {
-			_options.onTimeout(_this, _errors);
+			_options.onTimeout(self, _errors);
 		}
 		else {
-			_options.onError(_this, _errors);
+			_options.onError(self, _errors);
 		}
 	}
 

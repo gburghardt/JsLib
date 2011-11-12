@@ -242,7 +242,25 @@
 	});
 
 	createTest("taskThrowsErrorCatastrophic", function(test) {
+		var queue = new Queue({
+		  maxTime: 1500,
+		  onComplete: function() {
+		    test.pass();
+		  },
+		  onError: function() {
+		    test.fail("The onError callback should not have been called");
+		  },
+		  onTimeout: function() {
+		    test.fail("The onTimeout callback should not have been called");
+		  }
+		});
+
+    queue.addTask(function(data, task) {
+      throw new Error("Intentional error");
+    });
 		
+		queue.process();
+    return 2000;
 	});
 
 	createTest("allTasksProcessedEvenWithErrors", function(test) {

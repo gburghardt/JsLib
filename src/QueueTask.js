@@ -7,7 +7,7 @@ function QueueTask() {
 	var _queue;
 	var _silent = true;
 	var _status = "pending";
-	var _this = this;
+	var self = this;
 
 	function constructor(queue, callback, data, silent) {
 		_queue = queue;
@@ -24,7 +24,7 @@ function QueueTask() {
 
 	function completed() {
 		_status = "complete";
-		_queue.notifyTaskCompleted(_this);
+		_queue.notifyTaskCompleted(self);
 	}
 
 	function execute() {
@@ -32,7 +32,7 @@ function QueueTask() {
 
 		if (_silent) {
 			try {
-				_callback(getData(), _this);
+				_callback(getData(), self);
 			}
 			catch (error) {
 				_error = error;
@@ -40,7 +40,7 @@ function QueueTask() {
 			}
 		}
 		else {
-			_callback(getData(), _this);
+			_callback(getData(), self);
 		}
 	}
 
