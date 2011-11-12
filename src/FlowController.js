@@ -17,23 +17,21 @@ FlowController.prototype = {
 			onFinish: function() {}
 		};
 
-		for (var key in options || {}) {
-			if (options.hasOwnProperty(key)) {
-				this.options[key] = options[key];
-			}
-		}
-
+		this.configure(options);
 		options = null;
 	},
 
 	init: function(rootNode) {
 		this.rootNode = (typeof rootNode === "string") ? document.getElementById(rootNode) : rootNode;
 		this.createControllers();
+		this.initControllers();
+		rootNode = null;
+	},
 
+	initControllers: function() {
 		for (var name in this.controllers) {
 			if (this.controllers.hasOwnProperty(name)) {
 				this.controllers[name].init(this.getNode(name));
-				this.controllers[name] = null;
 			}
 		}
 	},
@@ -53,12 +51,32 @@ FlowController.prototype = {
 		this.activeController = this.options = null;
 	},
 
+	configure: function() {
+		var key,
+		    i = 0,
+		    args = arguments,
+		    length = args.length,
+		    options;
+
+		for (i; i < length; i++) {
+			options = args[i] || {};
+
+			for (key in options || {}) {
+				if (options.hasOwnProperty(key)) {
+					this.options[key] = options[key];
+				}
+			}
+		}
+
+		args = options = null;
+	},
+
 	createControllers: function() {
-		throw new Error("Subclasses of FlowController must implement a createControllers() method.");
+		throw new Error("Sub classes of FlowController must implement a createControllers() method.");
 	},
 
 	getNextActiveController: function(name, action, data) {
-		throw new Error("Subclasses of FlowController must implement a getNextActiveController() method.");
+		throw new Error("Sub classes of FlowController must implement a getNextActiveController() method.");
 	},
 
 	getNode: function(suffix) {
@@ -66,7 +84,7 @@ FlowController.prototype = {
 	},
 
 	processAction: function(name, action, data) {
-		var controller = self.getNextActiveController(name, action, data);
+		var controller = this.getNextActiveController(name, action, data);
 
 		if (controller) {
 			if (this.activeController) {

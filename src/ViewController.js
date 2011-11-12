@@ -4,33 +4,57 @@ function ViewController() {
 
 ViewController.prototype = {
 
+	callbacks: null,
+
 	flowController: null,
 
 	name: null,
 
+	options: null,
+
 	constructor: function(name, flowController) {
 		this.name = name;
+		this.callbacks = ["handleClick", "handleFormSubmit"];
 		this.flowController = flowController;
-		this.handleClick = this.bindFunction(this, this.handleClick);
+		this.options = {};
 		flowController = null;
 	},
 
 	destructor: function() {
 		if (this.rootNode) {
 			this.removeListener(this.rootNode, "click", this.handleClick);
+			this.removeListener(this.rootNode, "submit", this.handleFormSubmit);
 			this.rootNode = null;
 		}
 
-		this.flowController = null;
+		this.flowController = this.options = this.callbacks = null;
 	},
 
-	init: function(rootNode) {
+	init: function(rootNode, options) {
 		this.rootNode = rootNode;
-		this.addListener("click", this.handleClick);
-		rootNode = null;
+		this.rootNode.className = this.rootNode.className + " view-" + this.name;
+		this.configure(options);
+		this.initCallbacks();
+		this.addListener(this.rootNode, "click", this.handleClick);
+
+		if (this.rootNode.nodeName === "FORM") {
+			this.addListener(this.rootNode, "submit", this.handleFormSubmit);
+		}
+
+		rootNode = options = null;
+	},
+
+	initCallbacks: function() {
+		var i = 0, length = this.callbacks.length;
+
+		for (i; i < length; i++) {
+			this[ this.callbacks[i] ] = this.bindFunction(this, this[ this.callbacks[i] ]);
+		}
 	},
 
 	activate: function(action, data) {
+		this.show();
+		this.focus();
 		data = null;
 	},
 
@@ -43,22 +67,90 @@ ViewController.prototype = {
 		}
 	},
 
+	beforeClose: function() {
+		
+	},
+
 	bindFunction: function(context, fn) {
 		return function() {
 			return fn.apply(context, arguments);
 		};
 	},
 
+	blur: function() {
+		
+	},
+
+	close: function() {
+		if (this.beforeClose() !== false) {
+			this.hide();
+			this.destructor();
+		}
+	},
+
+	configure: function() {
+		var key,
+		    i = 0,
+		    args = arguments,
+		    length = args.length,
+		    options;
+
+		for (i; i < length; i++) {
+			options = args[i] || {};
+
+			for (key in options || {}) {
+				if (options.hasOwnProperty(key)) {
+					this.options[key] = options[key];
+				}
+			}
+		}
+
+		args = options = null;
+	},
+
 	deactivate: function(action, data) {
+		this.hide();
+		this.blur();
 		data = null;
 	},
 
-	handleClick: function(event) {
-		var node = event.targetElement || event.foo;
-		var action = node.getAttribute("data-action") || node.getAttribute("action");
+	focus: function() {
+		
+	},
+
+	getActionData: function() {
+		throw new Error("Sub classes of ViewController must implement a getActionData() method.");
+	},
+
+	invokeAction: function(node) {
+		if (!node || node === this.rootNode) {
+			return;
+		}
+
+		var action = node.getAttribute("data-action");
 
 		if (action && this[action]) {
-			this[action]();
+			this[action](node);
+		}
+		else {
+			this.invokeAction(node.parentNode);
+		}
+	},
+
+	handleClick: function(event) {
+		this.invokeAction(event.targetElement || event.srcElement);
+		return false;
+	},
+
+	handleFormSubmit: function(event) {
+		this.invokeAction(event.targetElement || event.srcElement);
+		return false;
+	},
+
+	hide: function() {
+		if (this.visible) {
+			this.visible = false;
+			this.rootNode.style.display = "none";
 		}
 	},
 
@@ -68,6 +160,13 @@ ViewController.prototype = {
 		}
 		else if (node.dettachEvent) {
 			node.dettachEvent("on" + name, callback);
+		}
+	},
+
+	show: function() {
+		if (!this.visible) {
+			this.rootNode.style.display = "block";
+			this.visible = true;
 		}
 	}
 
