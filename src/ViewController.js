@@ -12,6 +12,8 @@ ViewController.prototype = {
 
 	options: null,
 
+	visible: false,
+
 	constructor: function(name, flowController) {
 		this.name = name;
 		this.callbacks = ["handleClick", "handleFormSubmit"];
@@ -67,10 +69,6 @@ ViewController.prototype = {
 		}
 	},
 
-	beforeClose: function() {
-		
-	},
-
 	bindFunction: function(context, fn) {
 		return function() {
 			return fn.apply(context, arguments);
@@ -79,13 +77,6 @@ ViewController.prototype = {
 
 	blur: function() {
 		
-	},
-
-	close: function() {
-		if (this.beforeClose() !== false) {
-			this.hide();
-			this.destructor();
-		}
 	},
 
 	configure: function() {
@@ -115,7 +106,17 @@ ViewController.prototype = {
 	},
 
 	focus: function() {
+		var field = this.rootNode.getElementsByTagName("input")[0] ||
+		            this.rootNode.getElementsByTagName("textarea")[0] ||
+		            this.rootNode.getElementsByTagName("select")[0] || null;
 		
+		if (field) {
+			field.focus();
+
+			if (field.select) {
+				field.select();
+			}
+		}
 	},
 
 	getActionData: function() {

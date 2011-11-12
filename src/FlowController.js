@@ -12,6 +12,8 @@ FlowController.prototype = {
 
 	rootNode: null,
 
+	visible: false,
+
 	constructor: function(options) {
 		this.options = {
 			onFinish: function() {}
@@ -51,6 +53,23 @@ FlowController.prototype = {
 		this.activeController = this.options = null;
 	},
 
+	beforeClose: function() {
+		
+	},
+
+	blur: function() {
+		if (this.activeController) {
+			this.activeController.blur();
+		}
+	},
+
+	close: function() {
+		if (this.beforeClose() !== false) {
+			this.hide();
+			this.destructor();
+		}
+	},
+
 	configure: function() {
 		var key,
 		    i = 0,
@@ -75,12 +94,30 @@ FlowController.prototype = {
 		throw new Error("Sub classes of FlowController must implement a createControllers() method.");
 	},
 
+	finish: function(data) {
+		this.options.onFinish(data);
+		this.close();
+	},
+
+	focus: function() {
+		if (this.activeController) {
+			this.activeController.focus();
+		}
+	},
+
 	getNextActiveController: function(name, action, data) {
 		throw new Error("Sub classes of FlowController must implement a getNextActiveController() method.");
 	},
 
 	getNode: function(suffix) {
 		return document.getElementById(this.rootNode.id + suffix);
+	},
+
+	hide: function() {
+		if (this.visible) {
+			this.visible = false;
+			this.rootNode.style.display = "none";
+		}
 	},
 
 	processAction: function(name, action, data) {
@@ -96,6 +133,13 @@ FlowController.prototype = {
 		}
 		else {
 			throw new Error("No view controller was found for name '" + name + "', and action '" + action + "'.");
+		}
+	},
+
+	show: function() {
+		if (!this.visible) {
+			this.rootNode.style.display = "block";
+			this.visible = true;
 		}
 	}
 
