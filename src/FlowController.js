@@ -1,5 +1,5 @@
 /**
- * class FlowController
+ * abstract class FlowController
  *
  * This class encapsulates the logic of switching between multiple forms.
  **/
@@ -16,6 +16,8 @@ FlowController.prototype = {
 
 	/**
 	 * FlowController#controllers -> Object
+	 *
+	 * A hash object of names and view controllers.
 	 **/
 	controllers: null,
 
