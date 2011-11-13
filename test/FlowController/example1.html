@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Flow Controller Example #1</title>
+	</head>
+	<body>
+		<div id="signup">
+			<form action="#" method="get" data-action="submit" id="signup-basicInfo">
+				<p>
+					<label for="first_name">First name:</label>
+					<input type="text" name="first_name" id="first_name">
+				</p>
+				<p>
+					<label for="last_name">Last name:</label>
+					<input type="text" name="last_name" id="last_name">
+				</p>
+				<p>
+					<button type="button" data-action="cancel">Cancel</button>
+					<button type="submit">Submit</button>
+				</p>
+			</form>
+			<form action="#" method="get" data-action="submit" id="signup-payment">
+			</form>
+			<form action="#" method="get" data-action="submit" id="signup-confirmation">
+			</form>
+		</div>
+		<script type="text/javascript" src="../../src/FlowController.js"></script>
+		<script type="text/javascript" src="../../src/ViewController.js"></script>
+		<script type="text/javascript" src="./BasicInfoController.js"></script>
+		<script type="text/javascript" src="./PaymentInfoController.js"></script>
+		<script type="text/javascript" src="./ConfirmationController.js"></script>
+		<script type="text/javascript" src="./OrderFormFlowController.js"></script>
+		<script type="text/javascript">
+			var order = new OrderFormFlowController({
+				onFinish: function(data) {
+					console.info("Flow finished!");
+					console.debug(data);
+				}
+			});
+			order.init("signup");
+		</script>
+	</body>
+</html>

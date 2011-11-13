@@ -44,7 +44,7 @@ FlowController.prototype = {
 		this.options = {
 			onFinish: function() {}
 		};
-
+		this.controllers = {};
 		this.configure(options);
 		options = null;
 	},
@@ -171,7 +171,7 @@ FlowController.prototype = {
 	},
 
 	getNode: function(suffix) {
-		return document.getElementById(this.rootNode.id + suffix);
+		return document.getElementById(this.rootNode.id + "-" + suffix);
 	},
 
 	hide: function() {
@@ -203,9 +203,6 @@ FlowController.prototype = {
 
 			this.activeController = controller;
 			this.activeController.activate(action, data);
-		}
-		else {
-			throw new Error("No view controller was found for name '" + name + "', and action '" + action + "'.");
 		}
 	},
 

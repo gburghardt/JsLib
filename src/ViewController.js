@@ -145,7 +145,7 @@ ViewController.prototype = {
 	 * to the user, and the user may still be able to interact with it.
 	 **/
 	blur: function() {
-		
+
 	},
 
 	/**
@@ -198,7 +198,7 @@ ViewController.prototype = {
 		var field = this.rootNode.getElementsByTagName("input")[0] ||
 		            this.rootNode.getElementsByTagName("textarea")[0] ||
 		            this.rootNode.getElementsByTagName("select")[0] || null;
-		
+
 		if (field) {
 			field.focus();
 
@@ -219,16 +219,18 @@ ViewController.prototype = {
 	},
 
 	invokeAction: function(node) {
-		if (!node || node === this.rootNode) {
+		if (!node) {
 			return;
 		}
 
+		var propagate = (node !== this.rootNode);
 		var action = node.getAttribute("data-action");
 
 		if (action && this[action]) {
-			this[action](node);
+			propagate = (this[action](node) !== false && propagate);
 		}
-		else {
+
+		if (propagate) {
 			this.invokeAction(node.parentNode);
 		}
 	},
@@ -239,7 +241,10 @@ ViewController.prototype = {
 	},
 
 	handleFormSubmit: function(event) {
-		this.invokeAction(event.targetElement || event.srcElement);
+		console.info("ViewController#handleFormSubmit - Called");
+		console.debug({event: event});
+		this.invokeAction(event.target || event.srcElement);
+		event.preventDefault();
 		return false;
 	},
 
