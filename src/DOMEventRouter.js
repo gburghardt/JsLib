@@ -53,7 +53,7 @@ DOMEventRouter.prototype = {
 				}
 				
 				for (var i = 0, length = this.events[type].length; i < length; i++) {
-					this.events[type][i].unbind(type, this.handleDOMEvent);
+					this.removeEventListener(this.events[type][i], type, this.handleDOMEvent);
 					this.events[type][i] = null;
 				}
 				
@@ -97,13 +97,43 @@ DOMEventRouter.prototype = {
 	},
 	
 	handleDOMEvent: function(event) {
+		event = event || window.event;
 		var type = event.type;
-		var node = event.target;
-		var propagate = this.processRoutes(type, node, event);
-		
+		var node = event.target || event.srcElement || null;
+		var propagate;
+		var returnFalse = false;
+
+		try {
+			propagate = this.processRoutes(type, node, event);
+		}
+		catch (error) {
+			propagate = false;
+
+			if (window.console) {
+				if (window.console.error) {
+					window.console.error(error);
+				}
+				else {
+					window.console.log(error);
+				}
+			}
+		}
+
+		if (propagate === false) {
+			if (event.preventDefault) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			else {
+				returnFalse = true;
+			}
+		}
+
 		event = node = null;
-		
-		return propagate;
+
+		if (returnFalse) {
+			return false;
+		}
 	},
 	
 	/**
@@ -175,7 +205,7 @@ DOMEventRouter.prototype = {
 		var types = Array.prototype.slice.call(arguments, 1);
 		
 		for (var i = 0, length = types.length; i < length; i++) {
-			node.bind(types[i], this.handleDOMEvent);
+			this.addEventListener(node, types[i], this.handleDOMEvent);
 			this.addEvent(types[i], node);
 		}
 		
@@ -206,7 +236,7 @@ DOMEventRouter.prototype = {
 		var types = Array.prototype.slice.call(arguments, 1);
 		
 		for (var i = 0, length = types.length; i < length; i++) {
-			node.unbind(type, this.handleDOMEvent);
+			this.removeEventListener(node, type, this.handleDOMEvent);
 			this.removeEvent(type, node);
 		}
 		
@@ -215,12 +245,30 @@ DOMEventRouter.prototype = {
 	
 	
 	
+	addEventListener: function(node, type, callback) {
+		if (node.addEventListener) {
+			node.addEventListerner(type, callback, false);
+		}
+		else if (node.attachEvent) {
+			node.attachEvent("on" + type, callback);
+		}
+	},
+	
 	bindFunction: function(fn, ctx) {
 		ctx = ctx || this;
 		
 		return function() {
 			return fn.apply(ctx, arguments);
 		};
+	},
+	
+	removeEventListener: function(node, type, callback) {
+		if (node.addEventListener) {
+			node.removeEventListerner(type, callback, false);
+		}
+		else if (node.attachEvent) {
+			node.detachEvent("on" + type, callback);
+		}
 	}
 	
 };
