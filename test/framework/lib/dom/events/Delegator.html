@@ -1,0 +1,66 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Test: dom.events.Delegator</title>
+	</head>
+	<body data-action-mouseup="doStuff">
+		<h1>Title</h1>
+		<form action="#" method="get" data-action-submit="submit" data-action-mouseup="cancelMe">
+			<p data-action-mousedown="notUsed">
+				<button type="button" data-action-click="throwsAnError">Throw an error</button>
+				<a href="http://www.google.com/" data-action-click="throwsAnError" target="_blank">Throw an error</a>
+			</p>
+			<p>
+				<input type="text" name="foo"> <button type="submit">Submit</button>
+			</p>
+			Mouse Coords: <input type="text" id="x" name="mouse_x" size="3">, <input type="text" id="y" name="mouse_y" size="3">
+		</form>
+		<script type="text/javascript" src="../../../../../src/framework/lib/dom/events/Delegator.js"></script>
+		<script type="text/javascript">
+			document["data-action-mousemove"] = "trackMouse";
+			document["data-action-mousedown"] = "closeFlyovers";
+			var controller = {
+				cancelMe: function(event, node) {
+					event.preventDefault();
+					event.stopPropagation();
+				},
+				closeFlyovers: function(event, node) {
+					console.info("controller.closeFlyovers");
+				},
+				doStuff: function(event, node) {
+					console.info("Do stuff!");
+					console.debug({event: event, node: node});
+				},
+				notUsed: function() {
+					console.error("controller.notUsed should not be called");
+				},
+				onActionError: function(event, node, action, error) {
+					console.error("An error occurred while executing action " + action + ". Stack trace:");
+					console.error(error);
+					console.debug({
+						event: event,
+						node: node
+					});
+				},
+				submit: function(event, node) {
+					console.info("controller.submit called");
+					console.debug({event: event, node: node});
+					event.preventDefault();
+					event.stopPropagation();
+				},
+				trackMouse: function(event, node) {
+					// console.info("controller.trackMouse");
+					// console.debug({event: event, node: node});
+					document.getElementById("x").value = event.screenX;
+					document.getElementById("y").value = event.screenY;
+				},
+				throwsAnError: function(event, node) {
+					throw new Error("Test error");
+				}
+			};
+			var delegators = [];
+			delegators.push( new dom.events.Delegator(document, "click mousedown mouseup mousemove", controller).init() );
+			delegators.push( new dom.events.Delegator(document.getElementsByTagName("form")[0], "submit, mouseup", controller).init() );
+		</script>
+	</body>
+</html>
