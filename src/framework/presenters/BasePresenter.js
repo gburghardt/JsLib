@@ -4,11 +4,12 @@
 		Public:
 			modelToViewMap <Object>
 			viewToModelMap <Object>
-			constructor(BaseView view)
+			constructor(BaseView view, Object modelToViewMap, EventPublisher eventDispatcher)
 			destructor()
 			init()
 		Private:
 		Protected:
+			eventDispatcher <EventPublisher>
 			eventHandlers <Array[String]>
 			view <BaseView>
 			destroyEventHandlers()
@@ -29,9 +30,20 @@ BasePresenter.prototype = {
 
 	viewToModelMap: null,
 
-	constructor: function(view) {
+	constructor: function(view, modelToViewMap, eventDispatcher) {
 		this.eventHandlers = [];
-		this.view = view;
+
+		if (view) {
+			this.view = view;
+		}
+
+		if (modelToViewMap) {
+			this.setModelToViewMap(modelToViewMap);
+		}
+
+		if (eventDispatcher) {
+			this.eventDispatcher = eventDispatcher;
+		}
 	},
 
 	destructor: function() {
@@ -87,6 +99,8 @@ BasePresenter.prototype = {
 	},
 
 // Access: Protected
+
+	eventDispatcher: null,
 
 	eventHandlers: null,
 
