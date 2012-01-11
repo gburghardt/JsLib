@@ -8,15 +8,11 @@
 			destructor()
 			init()
 		Private:
-			handleNodeClick(Event event)
-			handleNodeSubmit(Event event)
-			processEvent(Event event)
 		Protected:
 			eventHandlers <Array[String]>
 			view <BaseView>
 			destroyEventHandlers()
 			getControlValue(String name) returns String
-			getNode(String idSuffix) returns HTMLElement or null
 			setControlValue(String name, String value)
 
 */
