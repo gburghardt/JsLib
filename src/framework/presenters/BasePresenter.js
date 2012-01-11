@@ -32,7 +32,6 @@ BasePresenter.prototype = {
 	constructor: function(view) {
 		this.eventHandlers = [];
 		this.view = view;
-		this.view.setPresenter(this);
 	},
 
 	destructor: function() {
@@ -55,6 +54,7 @@ BasePresenter.prototype = {
 
 	init: function() {
 		var handlerName, i = 0, length = this.eventHandlers.length;
+		this.view.setPresenter(this);
 		this.view.init();
 		
 		for (i; i < length; ++i) {
