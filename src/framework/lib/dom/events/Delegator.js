@@ -8,13 +8,7 @@ dom.events.Delegator = function() {
 	this.constructor = function(delegate, node, actionPrefix) {
 		this.delegate = delegate;
 		this.node = node;
-		this.actionPrefix = actionPrefix || "";
-
-		if (!this.actionPrefix.match(/\.$/)) {
-			this.actionPrefix += ".";
-		}
-
-		this.actionRegex = new RegExp("^" + this.actionPrefix.replace(/\./g, '\\.'));
+		this.setActionPrefix(actionPrefix || "");
 		this.eventTypes = [];
 		this.eventTypesAdded = {};
 	};
@@ -65,6 +59,15 @@ dom.events.Delegator = function() {
 		for (i; i < length; ++i) {
 			this.removeEventType(eventTypes[i]);
 		}
+	};
+
+	this.setActionPrefix = function(actionPrefix) {
+		if (actionPrefix && !actionPrefix.match(/\.$/)) {
+			actionPrefix += ".";
+		}
+
+		this.actionPrefix = actionPrefix;
+		this.actionRegex = new RegExp("^" + this.actionPrefix.replace(/\./g, '\\.'));
 	};
 
 // Access: Private
