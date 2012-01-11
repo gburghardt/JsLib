@@ -1,154 +1,162 @@
 /*
 
 class BaseView extends Object
-  Public:
-    static disableNodeCaching()
-    static enableNodeCaching()
-    constructor(String | HTMLElement id)
-    init()
-    destructor()
-    addEventListener(String type, Function listener)
-    removeEventListener(String type, Function listener)
-  Protected:
-    id <String>
-    ownerDocument <Document>
-    rootNode <HTMLElement>
-    getNode(String idSuffix) returns HTMLElement
-    handleNodeEvent(Event event)
-    purgeNodeCache()
-    querySelector(String selector) returns HTMLElement or undefined
-    querySelectorAll(String selector) returns HTMLCollection
-  Private:
-    static generateNodeId() returns String
-    nodeCache <Object>
-    getNodesFromCache(String key) returns HTMLElement or HTMLCollection or null
-    nodeCachingEnabled() returns Boolean
+	Public:
+		static disableNodeCaching()
+		static enableNodeCaching()
+		constructor(String | HTMLElement id)
+		init()
+		destructor()
+	Protected:
+    delegator <dom.events.Delegator>
+		id <String>
+		ownerDocument <Document>
+		rootNode <HTMLElement>
+		getDelegatorEventTypes() returns Array
+		getNode(String idSuffix) returns HTMLElement
+		handleNodeEvent(Event event)
+		purgeNodeCache()
+		querySelector(String selector) returns HTMLElement or undefined
+		querySelectorAll(String selector) returns HTMLCollection
+	Private:
+		static generateNodeId() returns String
+		nodeCache <Object>
+		getNodesFromCache(String key) returns HTMLElement or HTMLCollection or null
+		nodeCachingEnabled() returns Boolean
 
 */
 function BaseView() {
-  this.constructor.apply(this, arguments);
+	this.constructor.apply(this, arguments);
 }
 
 BaseView.prototype = {
 
 // Access: Public
 
-  constructor: function(id) {
-    this.nodeCache = {};
-    this.id = id;
-    id = null;
-  },
+	constructor: function(id) {
+		this.nodeCache = {};
+		this.id = id;
+		this.delegator = new dom.events.Delegator(this);
+		this.delegator.setActionPrefix(this.delegatorActionPrefix);
+		id = null;
+	},
 
-  init: function() {
-    if (typeof this.id === "string") {
-      if (!this.ownerDocument) {
-        this.ownerDocument = document;
-      }
+	init: function() {
+		if (typeof this.id === "string") {
+			if (!this.ownerDocument) {
+				this.ownerDocument = document;
+			}
 
-      this.rootNode = this.ownerDocument.getElementById(this.id);
-    }
-    else {
-      this.rootNode = this.id;
-      this.ownerDocument = this.rootNode.ownerDocument;
+			this.rootNode = this.ownerDocument.getElementById(this.id);
+		}
+		else {
+			this.rootNode = this.id;
+			this.ownerDocument = this.rootNode.ownerDocument;
 
-      if (!this.rootNode.getAttribute("id")) {
-        this.rootNode.setAttribute("id", BaseView.generateNodeId());
-      }
-    }
-  },
+			if (!this.rootNode.getAttribute("id")) {
+				this.rootNode.setAttribute("id", BaseView.generateNodeId());
+				this.id = this.rootNode.id;
+			}
+		}
 
-  destructor: function() {
-    this.rootNode = this.ownerDocument = null;
-  },
+		this.delagator.node = this.rootNode;
+		this.delegator.init();
+		this.delegator.addEventTypes(this.getDelegatorEventTypes());
+	},
 
-  addEventListener: function(type, listener) {
-    
-  },
+	destructor: function() {
+		if (this.delegator) {
+			this.delegator.destructor();
+			this.delegator = null;
+		}
 
-  removeEventListener: function(type, listener) {
-    
-  },
+		this.rootNode = this.ownerDocument = null;
+	},
 
 // Access: Protected
 
-  id: null,
+	delegateActionPrefix: "",
 
-  ownerDocument: null,
+	delegator: null,
 
-  rootNode: null,
+	id: null,
 
-  getNode: function(idSuffix) {
-    return this.ownerDocument.getElementById(this.id + "-" + idSuffix);
-  },
+	ownerDocument: null,
 
-  handleNodeEvent: function(event) {
-    
-  },
+	rootNode: null,
 
-  purgeNodeCache: function() {
-    this.nodeCache = {};
-  },
+	getDelegatorEventTypes: function() {
+		return [];
+	},
 
-  querySelector: function(selector) {
-    if (this.nodeCachingEnabled()) {
-      var node = this.getNodesFromCache("selector-" + selector);
+	getNode: function(idSuffix) {
+		return this.ownerDocument.getElementById(this.id + "-" + idSuffix);
+	},
 
-      if (!node) {
-        node = this.rootNode.querySelector(selector);
-        this.nodeCache["selector-" + selector] = node;
-      }
+	purgeNodeCache: function() {
+		this.nodeCache = {};
+	},
 
-      return node;
-    }
-    else {
-      return this.rootNode.querySelector(selector);
-    }
-  },
+	querySelector: function(selector) {
+		if (this.nodeCachingEnabled()) {
+			var node = this.getNodesFromCache("selector-" + selector);
 
-  querySelectorAll: function(selector) {
-    var nodes = [];
+			if (!node) {
+				node = this.rootNode.querySelector(selector);
+				this.nodeCache["selector-" + selector] = node;
+			}
 
-    if (this.nodeCachingEnabled()) {
-      nodes = this.getNodesFromCache("selectorAll-" + selector);
+			return node;
+		}
+		else {
+			return this.rootNode.querySelector(selector);
+		}
+	},
 
-      if (!nodes) {
-        nodes = this.rootNode.querySelectorAll(selector);
-        this.nodeCache["selectorAll-" + selector] = nodes;
-      }
-    }
-    else {
-      nodes = this.rootNode.querySelectorAll(selector);
-    }
+	querySelectorAll: function(selector) {
+		var nodes = [];
 
-    return nodes;
-  },
+		if (this.nodeCachingEnabled()) {
+			nodes = this.getNodesFromCache("selectorAll-" + selector);
+
+			if (!nodes) {
+				nodes = this.rootNode.querySelectorAll(selector);
+				this.nodeCache["selectorAll-" + selector] = nodes;
+			}
+		}
+		else {
+			nodes = this.rootNode.querySelectorAll(selector);
+		}
+
+		return nodes;
+	},
 
 // Access: Private
 
-  nodeCache: null,
+	nodeCache: null,
 
-  getNodesFromCache: function(key) {
-    return (this.nodeCache[key]) ? this.nodeCache[key] : null;
-  },
+	getNodesFromCache: function(key) {
+		return (this.nodeCache[key]) ? this.nodeCache[key] : null;
+	},
 
-  nodeCachingEnabled: function() {
-    return BaseView.nodeCachingEnabled;
-  }
+	nodeCachingEnabled: function() {
+		return BaseView.nodeCachingEnabled;
+	}
 
 };
 
 BaseNode.nodeCachingEnabled = false;
 
 BaseNode.disableNodeCaching = function() {
-  this.nodeCachingEnabled = false;
+	this.nodeCachingEnabled = false;
 };
 
 BaseNode.enableNodeCaching = function() {
-  this.nodeCachingEnabled = true;
+	this.nodeCachingEnabled = true;
 };
 
 BaseNode.nodeIdIndex = 0;
 
 BaseNode.generateNodeId = function() {
-  return "anonymous-node-" + (++BaseNode.nodeIdIndex);
+	return "anonymous-node-" + (++BaseNode.nodeIdIndex);
 };
