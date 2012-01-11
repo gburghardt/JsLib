@@ -64,8 +64,26 @@ BasePresenter.prototype = {
 	},
 
 	setModelToViewMap: function(modelToViewMap) {
-		this.modelToViewMap = modelToViewMap;
-		// TODO: Create the inverse of this
+		var key, i, length;
+		this.modelToViewMap = {};
+		this.viewToModelMap = {};
+
+		if (modelToViewMap instanceof Array) {
+			for (i = 0, length = modelToViewMap.length; i < length; ++i) {
+				this.modelToViewMap[ modelToViewMap[i] ] = modelToViewMap[i];
+			}
+
+			this.viewToModelMap = this.modelToViewMap;
+		}
+		else {
+			this.modelToViewMap = modelToViewMap;
+
+			for (key in modelToViewMap) {
+				if (modelToViewMap.hasOwnProperty(key)) {
+					this.viewToModelMap[ modelToViewMap[key] ] = key;
+				}
+			}
+		}
 	},
 
 // Access: Protected
