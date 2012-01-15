@@ -105,11 +105,19 @@ function FormView() {
 	};
 
 	this.getControlsByName = function(name) {
-		return this.querySelectorAll("[name=" + name + "]");
+		var nodes = this.rootNode.getElementsByTagName("*"), i = 0, length = nodes.length, controls = [];
+
+		for (i; i < length; ++i) {
+			if (nodes[i].name === name) {
+				controls.push(nodes[i]);
+			}
+		}
+
+		nodes = null;
+		return controls;
 	};
 
 	this.constructor.apply(this, arguments);
-
 }
 
 FormView.prototype = new BaseView();

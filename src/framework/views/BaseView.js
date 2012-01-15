@@ -58,9 +58,10 @@ BaseView.prototype = {
 			}
 		}
 
-		this.delagator.node = this.rootNode;
+		this.delegator.node = this.rootNode;
 		this.delegator.init();
 		this.delegator.addEventTypes(this.getDelegatorEventTypes());
+		return this;
 	},
 
 	destructor: function() {

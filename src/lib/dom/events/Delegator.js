@@ -62,7 +62,11 @@ dom.events.Delegator = function() {
 	};
 
 	this.setActionPrefix = function(actionPrefix) {
-		if (actionPrefix && !actionPrefix.match(/\.$/)) {
+		if (!actionPrefix) {
+			return;
+		}
+
+		if (!actionPrefix.match(/\.$/)) {
 			actionPrefix += ".";
 		}
 
