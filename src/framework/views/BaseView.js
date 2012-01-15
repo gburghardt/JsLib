@@ -26,7 +26,6 @@ class BaseView extends Object
 
 */
 function BaseView() {
-	this.constructor.apply(this, arguments);
 }
 
 BaseView.prototype = {
