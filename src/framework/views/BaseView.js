@@ -8,7 +8,7 @@ class BaseView extends Object
 		init()
 		destructor()
 	Protected:
-    delegator <dom.events.Delegator>
+		delegator <dom.events.Delegator>
 		id <String>
 		ownerDocument <Document>
 		rootNode <HTMLElement>
@@ -145,18 +145,18 @@ BaseView.prototype = {
 
 };
 
-BaseNode.nodeCachingEnabled = false;
+BaseView.nodeCachingEnabled = false;
 
-BaseNode.disableNodeCaching = function() {
+BaseView.disableNodeCaching = function() {
 	this.nodeCachingEnabled = false;
 };
 
-BaseNode.enableNodeCaching = function() {
+BaseView.enableNodeCaching = function() {
 	this.nodeCachingEnabled = true;
 };
 
-BaseNode.nodeIdIndex = 0;
+BaseView.nodeIdIndex = 0;
 
-BaseNode.generateNodeId = function() {
-	return "anonymous-node-" + (++BaseNode.nodeIdIndex);
+BaseView.generateNodeId = function() {
+	return "anonymous-node-" + (BaseView.nodeIdIndex++);
 };
