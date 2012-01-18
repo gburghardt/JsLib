@@ -10,6 +10,10 @@ function TestSuite( testController, testFactory, id ) {
 /** @lends TestSuite */
 TestSuite.prototype = {
 	
+	setupCallback: function() {},
+	
+	teardownCallback: function() {},
+	
 	/**
 	 * @constructs
 	 *
@@ -152,6 +156,7 @@ TestSuite.prototype = {
 		this.tests.push( test );
 		
 		test = null;
+		return this;
 	},
 	
 	/**
@@ -166,8 +171,20 @@ TestSuite.prototype = {
 		}
 		
 		for ( var i = 0, length = this.tests.length; i < length; i++ ) {
+			this.setupCallback( this.tests[ i ] );
 			this.tests[ i ].runTest();
+			this.teardownCallback( this.tests[ i ] );
 		}
+	},
+	
+	setup: function(callback) {
+		this.setupCallback = callback;
+		return this;
+	},
+	
+	teardown: function(callback) {
+		this.teardownCallback = callback;
+		return this;
 	},
 	
 	
