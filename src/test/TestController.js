@@ -164,7 +164,7 @@ TestController.prototype = {
 	 * @param {String} suiteId Id of the test suite to create
 	 * @return {Function} A shortcut function to add tests to the new suite.
 	 */
-	createTestSuite: function( suiteId ) {
+	createTestSuite: function( suiteId, returnSuite ) {
 		if ( typeof suiteId !== "string" ) {
 			suiteId = String( ( new Date() ).getTime() );
 		}
@@ -173,40 +173,46 @@ TestController.prototype = {
 		var testFactory = this.factoryGenerator.getTestFactory();
 		var suite = suiteFactory.getInstance( this, testFactory, suiteId );
 		
-		/**
-		 * A shortcut function allowing tests to be easily added to the suite.
-		 *
-		 * @param {String} testId Id of the new test
-		 * @param {Function} doTest The function containing the test code
-		 * @return {void}
-		 */
-		var testGenerator = function( testId, doTest ) {
-			if ( typeof doTest !== "function" ) {
-				throw new Error( "Argument 2 in <Private: testGenerator> must be the function which performs the actual test." );
-			}
+		if (!returnSuite) {
+			/**
+			 * A shortcut function allowing tests to be easily added to the suite.
+			 *
+			 * @param {String} testId Id of the new test
+			 * @param {Function} doTest The function containing the test code
+			 * @return {void}
+			 */
+			var testGenerator = function( testId, doTest ) {
+				if ( typeof doTest !== "function" ) {
+					throw new Error( "Argument 2 in <Private: testGenerator> must be the function which performs the actual test." );
+				}
 			
-			suite.createTest( testId, doTest );
+				suite.createTest( testId, doTest );
 			
-			doTest = null;
-		};
+				doTest = null;
+			};
 		
-		/**
-		 * Clean up the function closure to allow gracefull garbage collection
-		 * of objects
-		 *
-		 * @param {void}
-		 * @return {void}
-		 */
-		testGenerator.cleanup = function() {
-			suite = null;
-		};
+			/**
+			 * Clean up the function closure to allow gracefull garbage collection
+			 * of objects
+			 *
+			 * @param {void}
+			 * @return {void}
+			 */
+			testGenerator.cleanup = function() {
+				suite = null;
+			};
 		
-		this.testSuites.push( suite );
-		
-		suiteFactory = null;
-		testFactory = null;
-		
-		return testGenerator;
+			this.testSuites.push( suite );
+			suiteFactory = testFactory = null;
+
+			return testGenerator;
+		}
+		else {
+			this.testSuites.push( suite );
+			suiteFactory = testFactory = null;
+
+			return suite;
+		}
 	},
 	
 	
