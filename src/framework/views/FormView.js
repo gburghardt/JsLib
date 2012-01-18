@@ -35,14 +35,46 @@ function FormView() {
 		return this.getNode(idSuffix).innerHTML;
 	};
 
-	this.setControlValue = function(name, value) {
-		var controls = this.getControlsByName(name);
+	this.setControlValue = function(control, value) {
+		var i, length;
 
-		if (value instanceof Array) {
-			
+		if (control.disabled || control.getAttribute("data-control-disabled")) {
+			return;
+		}
+
+		if (control.nodeName === "INPUT") {
+			if (control.type === "checkbox" || control.type === "radio") {
+				control.checked = (control.value === value);
+			}
+			else {
+				control.value = value;
+			}
+		}
+		else if (control.nodeName === "SELECT") {
+			if (control.multiple) {
+				if ( !(value instanceof Array) ) {
+					value = [value];
+				}
+
+				for (i = 0, length = control.options.length; i < length; ++i) {
+					control.options[i].checked = (value.indexOf(control.options[i].value) > -1);
+				}
+			}
+			else {
+				for (i = 0, length = control.options.length; i < length; ++i) {
+					if (control.options[i].value === value) {
+						control.options[i].selected = true;
+					}
+				}
+
+				control.value = value;
+			}
+		}
+		else if (control.nodeName === "TEXTAREA") {
+			control.value = value;
 		}
 		else {
-			controls[0].value = value;
+			control.setAttribute("data-control-value", value);
 		}
 	};
 
