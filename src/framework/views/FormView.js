@@ -57,7 +57,7 @@ function FormView() {
 				}
 
 				for (i = 0, length = control.options.length; i < length; ++i) {
-					control.options[i].checked = (value.indexOf(control.options[i].value) > -1);
+					control.options[i].selected = (value.indexOf(control.options[i].value) > -1) ? true : false;
 				}
 			}
 			else {

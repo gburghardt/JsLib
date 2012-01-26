@@ -1,6 +1,6 @@
 ( function( testController ) {
 
-	var suite = testController.createTestSuite( "BaseView", true );
+	var suite = testController.createTestSuite( "FormView", true );
 
 	var data = {};
 
@@ -229,9 +229,55 @@
 	});
 
 	suite.createTest("setControlValue select[multiple=true]", function(test) {
+		var control = document.createElement("select");
+		var options = ["a", "b", "c", "d"];
+		var valuesToSelect = ["a", "c"];
+		var selectedValues = [];
+		var option, i, length;
+		control.multiple = true;
+
+		// add options
+		for (i = 0, length = options.length; i < length; ++i) {
+			option = document.createElement("option");
+			option.value = options[i];
+			option.text = options[i];
+			control.appendChild(option);
+		}
+
+		data.formView.setControlValue(control, valuesToSelect);
+
+		for (i = 0, length = control.options.length; i < length; ++i) {
+			if (control.options[i].selected) {
+				selectedValues.push(control.options[i].value);
+			}
+		}
+
+		return test.assertEquals("Selected values should be: " + valuesToSelect.join(", "), valuesToSelect.join(", "), selectedValues.join(", "));
 	});
 
 	suite.createTest("setControlValue select[multiple=false]", function(test) {
+		var control = document.createElement("select");
+		var values = ["a", "b", "c", "d"];
+		var expectedValues = ["a", "b", "c", "d"];
+		var success = true;
+		var option;
+		control.multiple = false;
+
+		// add options
+		for (var i = 0, length = values.length; i < length; ++i) {
+			option = document.createElement("option");
+			option.value = values[i];
+			option.text = values[i];
+			control.appendChild(option);
+		}
+
+		for (var i = 0, length = values.length; i < length; ++i) {
+			data.formView.setControlValue(control, values[i]);
+			success = success && test.assertEquals("Selected index should be " + i, control.options.selectedIndex, i)
+			                  && test.assertEquals("Value should be '" + expectedValues[i] + "'", control.value, expectedValues[i]);
+		}
+
+		return success;
 	});
 
 	suite.createTest("setControlValue textarea", function(test) {
