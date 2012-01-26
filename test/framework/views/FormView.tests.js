@@ -1,5 +1,5 @@
 ( function( testController ) {
-	
+
 	var suite = testController.createTestSuite( "BaseView", true );
 
 	var data = {};
@@ -8,12 +8,12 @@
 		data.form = document.createElement("form");
 		data.formView = new FormView(data.form).init();
 	});
-	
+
 	suite.teardown(function() {
 		data.form = null;
 		data.formView = null;
 	});
-	
+
 	suite.createTest("getControlsByName", function(test) {
 		data.form.innerHTML = [
 			'<input type="text" name="test1" size="10">',
@@ -21,7 +21,7 @@
 			'<select name="test2"></select>'
 		].join("\n");
 		var controls1 = data.formView.getControlsByName("test1"),
-		    controls2 = data.formView.getControlsByName("test2");
+				controls2 = data.formView.getControlsByName("test2");
 
 		return (
 			test.assertEquals("Should be 1", controls1.length, 1) &&
@@ -113,9 +113,9 @@
 		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 		// control.type = "datetime";
 		// data.formView.setControlValue(control, value);
-		// 
+		//
 		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
+		//	test.assertEquals("Value should be 'test'", control.value, value)
 		// );
 	});
 
@@ -123,9 +123,9 @@
 		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 		// control.type = "datetime";
 		// data.formView.setControlValue(control, value);
-		// 
+		//
 		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
+		//	test.assertEquals("Value should be 'test'", control.value, value)
 		// );
 	});
 
@@ -133,9 +133,9 @@
 		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 		// control.type = "datetime";
 		// data.formView.setControlValue(control, value);
-		// 
+		//
 		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
+		//	test.assertEquals("Value should be 'test'", control.value, value)
 		// );
 	});
 
@@ -143,29 +143,34 @@
 		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 		// control.type = "datetime";
 		// data.formView.setControlValue(control, value);
-		// 
+		//
 		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
+		//	test.assertEquals("Value should be 'test'", control.value, value)
 		// );
 	});
 
 	suite.createTest("setControlValue input[type=number]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		// 
-		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
+		var control = document.createElement("input");
+		var values = [34, NaN, "38", "abc"];
+		var expectedValues = ["34", "NaN", "38", "abc"];
+		var success = true;
+		control.type = "number";
+
+		for (var i = 0, length = values.length; i < length; ++i) {
+			data.formView.setControlValue(control, values[i]);
+			success = success && test.assertEquals("Value should be '" + values[i] + "'", control.value, expectedValues[i]);
+		}
+
+		return success;
 	});
 
 	suite.createTest("setControlValue input[type=range]", function(test) {
 		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 		// control.type = "datetime";
 		// data.formView.setControlValue(control, value);
-		// 
+		//
 		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
+		//	test.assertEquals("Value should be 'test'", control.value, value)
 		// );
 	});
 
@@ -173,9 +178,9 @@
 		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
 		// control.type = "datetime";
 		// data.formView.setControlValue(control, value);
-		// 
+		//
 		// return (
-		// 	test.assertEquals("Value should be 'test'", control.value, value)
+		//	test.assertEquals("Value should be 'test'", control.value, value)
 		// );
 	});
 
