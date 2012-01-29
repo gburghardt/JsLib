@@ -29,6 +29,107 @@
 		);
 	});
 
+	suite.createTest("extractControValue input[type=text]", function(test) {
+		var control = document.createElement("input"), disabledControl = document.createElement("input");
+		var value = "test";
+		control.type = disabledControl.type = "text";
+		control.value = disabledControl.value = value;
+		disabledControl.disabled = true;
+		
+		return (
+			test.assertEquals("", value, data.formView.extractControlValue(control)) &&
+			test.assertNull("", data.formView.extractControlValue(disabledControl))
+		);
+	});
+
+	suite.createTest("extractControValue input[type=checkbox]", function(test) {
+		var checkedControl = document.createElement("input"), uncheckedControl = document.createElement("input");
+		var value = "testing";
+		checkedControl.type = uncheckedControl.type = "checkbox";
+		checkedControl.value = uncheckedControl.value = value;
+		checkedControl.checked = true;
+		test.assertEquals("", value, data.formView.extractControlValue(checkedControl));
+		test.assertNull("", data.formView.extractControlValue(uncheckedControl));
+		checkedControl.disabled = uncheckedControl.disabled = true;
+		
+		return (
+			test.assertNull("", data.formView.extractControlValue(uncheckedControl)) &&
+			test.assertNull("", data.formView.extractControlValue(checkedControl))
+		);
+	});
+
+	suite.createTest("extractControValue input[type=radio]", function(test) {
+		data.form.innerHTML = [
+			'<input type="radio" name="test" value="1" checked>',
+			'<input type="radio" name="test" value="2" disabled>',
+			'<input type="radio" name="test" value="3">'
+		].join("");
+		
+		test.assertEquals("", "1", data.formView.extractControlValue(data.form.childNodes[0]));
+		test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]));
+		test.assertNull("", data.formView.extractControlValue(data.form.childNodes[2]));
+		data.form.childNodes[0].disabled = true;
+		
+		return test.assertNull("", data.formView.extractControlValue(data.form.childNodes[0]));
+	});
+
+	suite.createTest("extractControValue textarea", function(test) {
+		data.form.innerHTML = [
+			'<textarea rows="3" cols="20" name="test1">testing1</textarea>',
+			'<textarea rows="3" cols="20" name="test2" disabled>testing2</textarea>'
+		].join("");
+		
+		return (
+			test.assertEquals("", "testing1", data.formView.extractControlValue(data.form.childNodes[0])) &&
+			test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]))
+		);
+	});
+
+	suite.createTest("extractControValue select", function(test) {
+		data.form.innerHTML = [
+			'<select name="testing1">',
+				'<option value="1">1</option>',
+				'<option value="2" selected>2</option>',
+				'<option value="3">3</option>',
+			'</select>',
+			'<select name="testing2" disabled>',
+				'<option value="1">1</option>',
+				'<option value="2" selected>2</option>',
+				'<option value="3">3</option>',
+			'</select>'
+		].join("");
+		
+		return (
+			test.assertEquals("", "2", data.formView.extractControlValue(data.form.childNodes[0])) &&
+			test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]))
+		);
+	});
+
+	suite.createTest("extractControValue select[multiple]", function(test) {
+		data.form.innerHTML = [
+			'<select name="testing1" multiple>',
+				'<option value="1" selected>1</option>',
+				'<option value="2" selected>2</option>',
+				'<option value="3">3</option>',
+			'</select>',
+			'<select name="testing2" multiple disabled>',
+				'<option value="1" selected>1</option>',
+				'<option value="2" selected>2</option>',
+				'<option value="3">3</option>',
+			'</select>'
+		].join("");
+		
+		var values = data.formView.extractControlValue(data.form.childNodes[0]);
+		var disabledValue = data.formView.extractControlValue(data.form.childNodes[1]);
+		
+		return (
+			test.assertArray("", values) &&
+			test.assertEquals("", "1", values[0]) &&
+			test.assertEquals("", "2", values[1]) &&
+			test.assertNull("", disabledValue)
+		);
+	});
+
 	suite.createTest("setControlValue input[type=text]", function(test) {
 		var control = document.createElement("input"), value = "test";
 		control.type = "text";
@@ -260,21 +361,21 @@
 		var values = ["a", "b", "c", "d"];
 		var expectedValues = ["a", "b", "c", "d"];
 		var success = true;
-		var option;
+		var option, i, length;
 		control.multiple = false;
 
 		// add options
-		for (var i = 0, length = values.length; i < length; ++i) {
+		for (i = 0, length = values.length; i < length; ++i) {
 			option = document.createElement("option");
 			option.value = values[i];
 			option.text = values[i];
 			control.appendChild(option);
 		}
 
-		for (var i = 0, length = values.length; i < length; ++i) {
+		for (i = 0, length = values.length; i < length; ++i) {
 			data.formView.setControlValue(control, values[i]);
 			success = success && test.assertEquals("Selected index should be " + i, control.options.selectedIndex, i)
-			                  && test.assertEquals("Value should be '" + expectedValues[i] + "'", control.value, expectedValues[i]);
+												&& test.assertEquals("Value should be '" + expectedValues[i] + "'", control.value, expectedValues[i]);
 		}
 
 		return success;

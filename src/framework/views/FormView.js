@@ -38,7 +38,7 @@ function FormView() {
 	this.setControlValue = function(control, value) {
 		var i, length;
 
-		if (control.disabled || control.getAttribute("data-control-disabled")) {
+		if (control.disabled || control.getAttribute("data-control-disabled") || control.readonly || control.getAttribute("data-control-readonly")) {
 			return;
 		}
 
