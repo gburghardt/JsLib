@@ -736,6 +736,10 @@ Test.prototype = {
 	assertNull: function( message, testValue ) {
 		return this.assert( testValue === null, message, "null" );
 	},
+
+  assertUndefined: function(value) {
+    return this.assert( value === undefined, "Undefined expected, " + Object.prototype.toString.call(value) + " given.", "undefined" );
+  },
 	
 	/**
 	 * Assert that the test value is a Number
