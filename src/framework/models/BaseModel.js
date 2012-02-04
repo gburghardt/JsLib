@@ -27,12 +27,12 @@ BaseModel.prototype = {
 
 		var i = 0, attrs = this._validAttributes, length = attrs.length, key;
 
-    if (typeof attrs === "string") {
-      attrs = attrs.split(/\s+/g);
-    }
-    else {
-      this._validAttributes = attrs.join(" ");
-    }
+		if (typeof attrs === "string") {
+			attrs = attrs.split(/\s+/g);
+		}
+		else {
+			this._validAttributes = attrs.join(" ");
+		}
 
 		for (i; i < length; ++i) {
 			key = attrs[i];
