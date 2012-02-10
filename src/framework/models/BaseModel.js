@@ -11,11 +11,26 @@ BaseModel.prototype = {
 	constructor: function(attributes) {
 		this._attributes = {};
 		this._changedAttributes = {};
+		this.errors = {};
 		this.initAttributes();
+		var _valid = null;
 
 		if (attributes) {
 			this.attributes = attributes;
 		}
+
+		Object.defineProperty(this, "valid", {
+			get: function() {
+				return _valid;
+			},
+			set: function(valid) {
+				_valid = valid;
+
+				if (_valid !== false) {
+					this.errors = {};
+				}
+			}
+		});
 
 		attributes = null;
 	},
@@ -26,13 +41,6 @@ BaseModel.prototype = {
 		}
 
 		var i = 0, attrs = this._validAttributes, length = attrs.length, key;
-
-		if (typeof attrs === "string") {
-			attrs = attrs.split(/\s+/g);
-		}
-		else {
-			this._validAttributes = attrs.join(" ");
-		}
 
 		for (i; i < length; ++i) {
 			key = attrs[i];
@@ -49,6 +57,11 @@ BaseModel.prototype = {
 		}
 
 		this.__proto__.attributesInitialized = true;
+	},
+
+	addError: function(key, message) {
+		this.errors[key] = this.errors[key] || [];
+		this.errors[key].push(message);
 	},
 
 	get attributes() {
@@ -89,13 +102,82 @@ BaseModel.prototype = {
 
 	createSetter: function(key) {
 		return function(newValue) {
-			this._changedAttributes[key] = this._attributes[key];
+			if (!this.valueIsEmpty(this.attributes[key]) && newValue !== this.attributes[key]) {
+				this._changedAttributes[key] = this._attributes[key];
+			}
+
 			this._attributes[key] = newValue;
 		};
 	},
 
+	hasErrors: function() {
+		return !this.valid;
+	},
+
 	isValidAttributeKey: function(key) {
-		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this._validAttributes);
+		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this._validAttributes.join(" "));
+	},
+
+	validate: function() {
+		this.valid = null;
+		this.validateRequiredAttributes();
+		this.validateAttributeDataTypes();
+		this.validateAttributeLengths();
+		this.validateAttributeFormats();
+
+		return this.valid;
+	},
+
+	validateRequiredAttributes: function() {
+		if (!this.requires || this.valid === false) {
+			return;
+		}
+
+		var key, i = 0, length = this.requires.length;
+
+		for (i; i < length; i++) {
+			key = this.requires[i];
+
+			if (this.valueIsEmpty(this.attributes[key])) {
+				this.addError(key, "is required");
+			}
+		}
+	},
+
+	validateAttributeDataTypes: function() {
+		if (!this.validatesNumeric || this.valid === false) {
+			return;
+		}
+
+		var key, type, i = 0, length = this.validatesNumeric.length;
+
+		this.valid = true;
+
+		for (i; i < length; i++) {
+			key = this.validatesNumeric[i];
+			type = typeof this.attributes[key];
+
+			if (!this.valueIsEmpty(this.attributes[key]) && !this.valueIsNumeric(this.attributes[key])) {
+				this.addError(key, "must be a number");
+				this.valid = false;
+			}
+		}
+	},
+
+	validateAttributeLengths: function() {
+		
+	},
+
+	validateAttributeFormats: function() {
+		
+	},
+
+	valueIsEmpty: function(value) {
+		return (value === undefined || value === null || String(value).replace(/\s+/g, "") === "") ? true : false;
+	},
+
+	valueIsNumeric: function(value) {
+		return (/^[-.\d]+$/).test(String(value)) && !isNaN(value);
 	}
 
 };

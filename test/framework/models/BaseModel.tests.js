@@ -4,15 +4,19 @@
 
 	window.TestModel = function TestModel(attributes) {
 		this.constructor(attributes);
-	}
+	};
 	TestModel.prototype = {
 		__proto__: BaseModel.prototype,
-		_validAttributes: "firstName lastName id"
+		_validAttributes: [
+			"firstName",
+			"lastName",
+			"id"
+		]
 	};
 
 	window.Test2Model = function Test2Model(attributes) {
 		this.constructor(attributes);
-	}
+	};
 	Test2Model.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: [
@@ -21,6 +25,46 @@
 			"description",
 			"priority"
 		]
+	};
+
+	window.TestValidation = function TestValidation(attributes) {
+		this.constructor(attributes);
+	};
+	TestValidation.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: [
+			"id",
+			"name",
+			"description",
+			"price",
+			"notes",
+			"phone"
+		],
+		requires: [
+			"price",
+			"name",
+			"description",
+			"notes"
+		],
+		validatesNumeric: [
+			"price"
+		],
+		validatesMaxLength: {
+			name: 40,
+			description: 256
+		},
+		validatesFormatOf: {
+			phone: /^\s*\d{3}\s*[-.]*\s*\d{3}\s*[-.]*\s*\d{4}\s*$/
+		}
+	};
+
+	window.TestNumericValidation = function TestNumericValidation(attributes) {
+		this.constructor(attributes);
+	};
+	TestNumericValidation.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ["price"],
+		validatesNumeric: ["price"]
 	};
 
 	createTest("isValidAttribute", function(test) {
@@ -100,8 +144,57 @@
 		return (
 			test.assertEquals("", 123, o.id) &&
 			test.assertEquals("", "Green and fruity", o.changedAttributes.description) &&
-			test.assertEquals("", "Jim", o.name)
+			test.assertEquals("", "Jim", o.name) &&
+			test.assertUndefined(o.changedAttributes.name)
 		);
+	});
+
+	createTest("validation - requires", function(test) {
+		var o = new TestValidation({price: null, description: "", notes: "			"});
+		o.validateRequiredAttributes();
+
+		return (
+			test.assertTrue("", o.hasErrors()) &&
+			test.assertArray("", o.errors.price) &&
+			test.assertEquals("", "is required", o.errors.price[0]) &&
+			test.assertArray("", o.errors.name) &&
+			test.assertEquals("", "is required", o.errors.name[0]) &&
+			test.assertArray("notes should be an array", o.errors.notes) &&
+			test.assertEquals("", "is required", o.errors.notes[0])
+		);
+	});
+
+	createTest("validation - validatesNumeric", function(test) {
+		var valid = [
+			new TestNumericValidation({price: 100}),
+			new TestNumericValidation({price: "100.3"}),
+			new TestNumericValidation({price: ""}),
+			new TestNumericValidation({price: null})
+		];
+		var invalid = [
+			new TestNumericValidation({price: NaN}),
+			new TestNumericValidation({price: "abc"}),
+			new TestNumericValidation({price: "$100.35"})
+		];
+		var i, length, success = true;
+
+		for (i = 0, length = valid.length; i < length; i++) {
+			if (!valid[i].validate()) {
+				test.fail("Model " + i + "should be valid.");
+				test.info(valid[i].errors);
+				success = false;
+			}
+		}
+
+		for (i = 0, length = invalid.length; i < length; i++) {
+			if (invalid[i].validate()) {
+				test.fail("Model " + i + " should be invalid.");
+				test.info(invalid[i].attributes);
+				success = false;
+			}
+		}
+
+		return success;
 	});
 
 } )( TestController.getInstance() );
