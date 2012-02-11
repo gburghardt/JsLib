@@ -2,9 +2,9 @@
 
 	var createTest = testController.createTestSuite( "BaseModel" );
 
-	window.TestModel = function TestModel(attributes) {
+	function TestModel(attributes) {
 		this.constructor(attributes);
-	};
+	}
 	TestModel.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: [
@@ -14,9 +14,9 @@
 		]
 	};
 
-	window.Test2Model = function Test2Model(attributes) {
+	function Test2Model(attributes) {
 		this.constructor(attributes);
-	};
+	}
 	Test2Model.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: [
@@ -27,9 +27,9 @@
 		]
 	};
 
-	window.TestValidation = function TestValidation(attributes) {
+	function TestValidation(attributes) {
 		this.constructor(attributes);
-	};
+	}
 	TestValidation.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: [
@@ -58,14 +58,45 @@
 		}
 	};
 
-	window.TestNumericValidation = function TestNumericValidation(attributes) {
+	function TestNumericValidation(attributes) {
 		this.constructor(attributes);
-	};
+	}
 	TestNumericValidation.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: ["price"],
 		validatesNumeric: ["price"]
 	};
+
+	function TestMaxLengthValidation(attributes) {
+		this.constructor(attributes);
+	}
+	TestMaxLengthValidation.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ["name", "description", "notes"],
+		validatesMaxLength: {name: 10, description: 8, notes: 4}
+	};
+
+	function TestFormatValidation(attributes) {
+		this.constructor(attributes);
+	}
+	TestFormatValidation.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ["phone", "address"],
+		validatesFormatOf: {
+			phone: [
+				/^\d{3}-\d{3}-\d{4}$/,
+				/^\(\d{3}\) \d{3}-\d{4}$/
+			],
+			address: /^\d+ \w+( [.\w]+)?, \w+, [A-Z]{2} \d{5}$/
+		}
+	};
+
+	window.TestModel = TestModel;
+	window.Test2Model = Test2Model;
+	window.TestValidation = TestValidation;
+	window.TestNumericValidation = TestNumericValidation;
+	window.TestMaxLengthValidation = TestMaxLengthValidation;
+	window.TestFormatValidation = TestFormatValidation;
 
 	createTest("isValidAttribute", function(test) {
 
@@ -195,6 +226,56 @@
 		}
 
 		return success;
+	});
+
+	createTest("validation - validatesMaxLength", function(test) {
+		var o = new TestMaxLengthValidation();
+		o.name = "123456789";
+		o.description = "12345678";
+		o.notes = "12345";
+
+		return (
+			test.assertFalse("validate() should return false", o.validate()) &&
+			test.assertTrue("hasErrors() should return true", o.hasErrors()) &&
+			test.assertUndefined(o.errors.name) &&
+			test.assertUndefined(o.errors.description) &&
+			test.assertArray("errors.notes should be an array", o.errors.notes)
+		);
+	});
+
+	createTest("validation - validatesAttributeFormats - valid", function(test) {
+		var o = new TestFormatValidation();
+		o.phone = "123-555-1234";
+		o.address = "123 James St, Chicago, IL 12345";
+
+		return (
+			test.assertTrue("validate() should return true", o.validate())
+		);
+	});
+
+	createTest("validation - validatesAttributeFormats - invalid", function(test) {
+		var o = new TestFormatValidation();
+		o.phone = "5555-5-5555";
+		o.address = "123 James St, Chicago, IL";
+
+		return (
+			test.assertFalse("validate() should return false", o.validate()) &&
+			test.assertTrue("hasErrors() should return true", o.hasErrors()) &&
+			test.assertArray("errors.phone should be an array", o.errors.phone) &&
+			test.assertArray("errors.address should be an array", o.errors.address)
+		);
+	});
+
+	createTest("toXML", function(test) {
+		
+	});
+
+	createTest("toJSON", function(test) {
+		
+	});
+
+	createTest("toQueryString", function(test) {
+		
 	});
 
 } )( TestController.getInstance() );
