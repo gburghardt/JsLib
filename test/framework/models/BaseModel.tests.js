@@ -267,15 +267,84 @@
 	});
 
 	createTest("toXML", function(test) {
-		
+		var o = new TestValidation({
+			id: 1234,
+			name: "Paint",
+			description: "Red<br>matte",
+			price: 15.99,
+			notes: "Per gallon",
+			phone: null
+		});
+		var xmlCorrect1 = [
+			'<id>1234</id>',
+			'<name>Paint</name>',
+			'<description>Red&lt;br&gt;matte</description>',
+			'<price>15.99</price>',
+			'<notes>Per gallon</notes>'
+		].join("");
+		var xmlCorrect2 = '<test_validation>' + xmlCorrect1 + '</test_validation>';
+
+		return (
+			test.assertEquals("", xmlCorrect1, o.toXML()) &&
+			test.assertEquals("", xmlCorrect2, o.toXML({rootElement: "test_validation"}))
+		);
 	});
 
 	createTest("toJSON", function(test) {
-		
+		var o = new TestValidation({
+			id: 1234,
+			name: "Paint",
+			description: "Red<br>matte",
+			price: 15.99,
+			notes: "Per gallon",
+			phone: null
+		});
+		var jsonCorrect1 = [
+			'{',
+				'"id":1234,',
+				'"name":"Paint",',
+				'"description":"Red<br>matte",',
+				'"price":15.99,',
+				'"notes":"Per gallon",',
+				'"phone":null',
+			'}'
+		].join("");
+		var jsonCorrect2 = '{"test_validation":' + jsonCorrect1 + '}';
+
+		return (
+			test.assertEquals("", jsonCorrect1, o.toJSON()) &&
+			test.assertEquals("", jsonCorrect2, o.toJSON({rootElement: "test_validation"}))
+		);
 	});
 
 	createTest("toQueryString", function(test) {
-		
+		var o = new TestValidation({
+			id: 1234,
+			name: "Paint",
+			description: "Red<br>matte",
+			price: 15.99,
+			notes: "Per gallon",
+			phone: null
+		});
+		var qsCorrect1 = [
+				'id=1234',
+				'name=Paint',
+				'description=Red%3Cbr%3Ematte',
+				'price=15.99',
+				'notes=Per%20gallon'
+		].join("&");
+		var qsCorrect2 = [
+				'test_validation[id]=1234',
+				'test_validation[name]=Paint',
+				'test_validation[description]=Red%3Cbr%3Ematte',
+				'test_validation[price]=15.99',
+				'test_validation[notes]=Per%20gallon'
+		].join("&");
+
+		return (
+			test.assertEquals("qs #1", qsCorrect1, o.toQueryString()) &&
+			test.assertEquals("qs #2", qsCorrect2, o.toQueryString({rootElement: "test_validation"}))
+		);
 	});
 
 } )( TestController.getInstance() );

@@ -110,6 +110,10 @@ BaseModel.prototype = {
 		};
 	},
 
+	escapeHTML: function(x) {
+		return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	},
+
 	hasErrors: function() {
 		return !this.valid;
 	},
@@ -118,16 +122,64 @@ BaseModel.prototype = {
 		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this._validAttributes.join(" "));
 	},
 
-	toJSON: function() {
-		
+	toJSON: function(options) {
+		options = options || {};
+		var key, json = "";
+
+		if (options.rootElement) {
+			json += '{"' + options.rootElement + '":';
+		}
+
+		json += JSON.stringify(this.attributes);
+
+		if (options.rootElement) {
+			json += '}';
+		}
+
+		return json;
 	},
 
-	toQueryString: function() {
-		
+	toQueryString: function(options) {
+		options = options || {};
+		var attrs = this.attributes, key, queryString = [];
+
+		if (options.rootElement) {
+			for (key in attrs) {
+				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
+					queryString.push(options.rootElement + "[" + escape(key) + "]=" + escape(attrs[key]));
+				}
+			}
+		}
+		else {
+			for (key in attrs) {
+				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
+					queryString.push(escape(key) + "=" + escape(attrs[key]));
+				}
+			}
+		}
+
+		return queryString.join("&");
 	},
 
-	toXML: function() {
-		
+	toXML: function(options) {
+		options = options || {};
+		var attrs = this.attributes, key, xml = [];
+
+		if (options.rootElement) {
+			xml.push("<" + options.rootElement + ">");
+		}
+
+		for (key in attrs) {
+			if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
+				xml.push("<" + key + ">" + this.escapeHTML(attrs[key]) + "</" + key + ">");
+			}
+		}
+
+		if (options.rootElement) {
+			xml.push("</" + options.rootElement + ">");
+		}
+
+		return xml.join("");
 	},
 
 	validate: function() {
