@@ -186,7 +186,7 @@ BaseModel.prototype = {
 		var attrs = this.attributes, key, xml = [];
 
 		if (options.rootElement) {
-			xml.push("<" + options.rootElement + ">");
+			xml.push("<" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
 		}
 
 		for (key in attrs) {
@@ -196,7 +196,7 @@ BaseModel.prototype = {
 		}
 
 		if (options.rootElement) {
-			xml.push("</" + options.rootElement + ">");
+			xml.push("</" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
 		}
 
 		return xml.join("");
