@@ -122,6 +122,26 @@ BaseModel.prototype = {
 		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this._validAttributes.join(" "));
 	},
 
+	serialize: function(type, options) {
+		type = type || "queryString";
+		options = options || {};
+		var x = "";
+
+		switch (type) {
+			case "xml":
+				x = this.toXML(options);
+				break;
+			case "json":
+				x = this.toJSON(options);
+				break;
+			default:
+				x = this.toQueryString(options);
+				break;
+		}
+
+		return x;
+	},
+
 	toJSON: function(options) {
 		options = options || {};
 		var key, json = "";
