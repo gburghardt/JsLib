@@ -94,6 +94,19 @@ BaseModel.prototype = {
 		}
 	},
 
+	convertKeyToWords: function(key) {
+		key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
+			if (match.length > 1) {
+				return (index === 0) ? match : " " + match;
+			}
+			else {
+				return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
+			}
+		});
+
+		return key;
+	},
+
 	createGetter: function(key) {
 		return function() {
 		  if (this._attributes[key] === undefined) {
@@ -117,6 +130,31 @@ BaseModel.prototype = {
 
 	escapeHTML: function(x) {
 		return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	},
+
+	getErrorMessage: function(key) {
+		var message = "", words;
+
+		if (this.errors[key]) {
+			words = this.convertKeyToWords(key);
+			message = words + " " + this.errors[key].join("\n" + words + " ");
+		}
+
+		return message;
+	},
+
+	getErrorMessages: function() {
+		var errorMessages = {}, key;
+
+		if (this.hasErrors()) {
+			for (key in this.errors) {
+				if (this.errors.hasOwnProperty(key)) {
+					errorMessages[key] = this.getErrorMessage(key);
+				}
+			}
+		}
+
+		return errorMessages;
 	},
 
 	hasErrors: function() {
