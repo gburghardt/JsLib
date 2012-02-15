@@ -96,7 +96,12 @@ BaseModel.prototype = {
 
 	createGetter: function(key) {
 		return function() {
-			return this._attributes[key];
+		  if (this._attributes[key] === undefined) {
+		    return null;
+		  }
+		  else {
+			  return this._attributes[key];
+			}
 		};
 	},
 

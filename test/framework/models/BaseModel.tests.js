@@ -176,7 +176,8 @@
 			test.assertEquals("", 123, o.id) &&
 			test.assertEquals("", "Green and fruity", o.changedAttributes.description) &&
 			test.assertEquals("", "Jim", o.name) &&
-			test.assertUndefined(o.changedAttributes.name)
+			test.assertUndefined(o.changedAttributes.name) &&
+			test.assertNull("priority should be null", o.priority)
 		);
 	});
 
