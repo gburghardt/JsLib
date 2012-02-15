@@ -44,7 +44,8 @@
 			"price",
 			"name",
 			"description",
-			"notes"
+			"notes",
+			"phone"
 		],
 		validatesNumeric: [
 			"price"
@@ -54,6 +55,7 @@
 			description: 256
 		},
 		validatesFormatOf: {
+			name: /^testing.*$/,
 			phone: /^\s*\d{3}\s*[-.]*\s*\d{3}\s*[-.]*\s*\d{4}\s*$/
 		}
 	};
@@ -183,6 +185,25 @@
 
 	createTest("validation - requires", function(test) {
 		var o = new TestValidation({price: null, description: "", notes: "			"});
+		o.validateRequiredAttributes();
+
+		return (
+			test.assertTrue("", o.hasErrors()) &&
+			test.assertArray("", o.errors.price) &&
+			test.assertEquals("", "is required", o.errors.price[0]) &&
+			test.assertArray("", o.errors.name) &&
+			test.assertEquals("", "is required", o.errors.name[0]) &&
+			test.assertArray("notes should be an array", o.errors.notes) &&
+			test.assertEquals("", "is required", o.errors.notes[0]) &&
+			test.assertArray("description should be an array", o.errors.description) &&
+			test.assertEquals("", "is required", o.errors.description[0]) &&
+			test.assertArray("phone should be an array", o.errors.phone) &&
+			test.assertEquals("", "is required", o.errors.phone[0])
+		);
+	});
+
+	createTest("validation - requires (everything missing)", function(test) {
+		var o = new TestValidation();
 		o.validateRequiredAttributes();
 
 		return (

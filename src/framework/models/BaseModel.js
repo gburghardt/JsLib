@@ -240,8 +240,6 @@ BaseModel.prototype = {
 
 		var key, type, i = 0, length = this.validatesNumeric.length;
 
-		this.valid = true;
-
 		for (i; i < length; i++) {
 			key = this.validatesNumeric[i];
 			type = typeof this.attributes[key];
