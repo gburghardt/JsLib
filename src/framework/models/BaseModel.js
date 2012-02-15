@@ -218,7 +218,7 @@ BaseModel.prototype = {
 	},
 
 	validateRequiredAttributes: function() {
-		if (!this.requires || this.valid === false) {
+		if (!this.requires) {
 			return;
 		}
 
@@ -235,7 +235,7 @@ BaseModel.prototype = {
 	},
 
 	validateAttributeDataTypes: function() {
-		if (!this.validatesNumeric || this.valid === false) {
+		if (!this.validatesNumeric) {
 			return;
 		}
 
@@ -253,7 +253,7 @@ BaseModel.prototype = {
 	},
 
 	validateAttributeLengths: function() {
-		if (!this.validatesMaxLength || !this.valid) {
+		if (!this.validatesMaxLength) {
 			return;
 		}
 
@@ -270,7 +270,7 @@ BaseModel.prototype = {
 	},
 
 	validateAttributeFormats: function() {
-		if (!this.validatesFormatOf || !this.valid) {
+		if (!this.validatesFormatOf) {
 			return;
 		}
 
