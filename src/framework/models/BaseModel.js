@@ -229,6 +229,7 @@ BaseModel.prototype = {
 
 			if (this.valueIsEmpty(this.attributes[key])) {
 				this.addError(key, "is required");
+				this.valid = false;
 			}
 		}
 	},
