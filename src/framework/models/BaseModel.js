@@ -11,26 +11,11 @@ BaseModel.prototype = {
 	constructor: function(attributes) {
 		this._attributes = {};
 		this._changedAttributes = {};
-		this.errors = {};
 		this.initAttributes();
-		var _valid = null;
 
 		if (attributes) {
 			this.attributes = attributes;
 		}
-
-		Object.defineProperty(this, "valid", {
-			get: function() {
-				return _valid;
-			},
-			set: function(valid) {
-				_valid = valid;
-
-				if (_valid !== false) {
-					this.errors = {};
-				}
-			}
-		});
 
 		attributes = null;
 	},
@@ -57,11 +42,6 @@ BaseModel.prototype = {
 		}
 
 		this.__proto__.attributesInitialized = true;
-	},
-
-	addError: function(key, message) {
-		this.errors[key] = this.errors[key] || [];
-		this.errors[key].push(message);
 	},
 
 	get attributes() {
@@ -94,19 +74,6 @@ BaseModel.prototype = {
 		}
 	},
 
-	convertKeyToWords: function(key) {
-		key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
-			if (match.length > 1) {
-				return (index === 0) ? match : " " + match;
-			}
-			else {
-				return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
-			}
-		});
-
-		return key;
-	},
-
 	createGetter: function(key) {
 		return function() {
 		  if (this._attributes[key] === undefined) {
@@ -128,263 +95,36 @@ BaseModel.prototype = {
 		};
 	},
 
-	escapeHTML: function(x) {
-		return String(x).replace(/&/g, "&amp;")
-		                .replace(/</g, "&lt;")
-		                .replace(/>/g, "&gt;")
-		                .replace(/"/g, "&quot;")
-		                .replace(/'/g, "&apos;");
-	},
-
-	getErrorMessage: function(key) {
-		var message = "", words;
-
-		if (this.errors[key]) {
-			words = this.convertKeyToWords(key);
-			message = words + " " + this.errors[key].join("\n" + words + " ");
-		}
-
-		return message;
-	},
-
-	getErrorMessages: function() {
-		var errorMessages = {}, key;
-
-		if (this.hasErrors()) {
-			for (key in this.errors) {
-				if (this.errors.hasOwnProperty(key)) {
-					errorMessages[key] = this.getErrorMessage(key);
-				}
-			}
-		}
-
-		return errorMessages;
-	},
-
-	hasErrors: function() {
-		return !this.valid;
-	},
-
 	isValidAttributeKey: function(key) {
 		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this._validAttributes.join(" "));
 	},
 
-	serialize: function(type, options) {
-		type = type || "queryString";
-		options = options || {};
-		var x = "";
-
-		switch (type) {
-			case "xml":
-				x = this.toXML(options);
-				break;
-			case "json":
-				x = this.toJSON(options);
-				break;
-			default:
-				x = this.toQueryString(options);
-				break;
-		}
-
-		return x;
-	},
-
-	toJSON: function(options) {
-		options = options || {};
-		var key, json = "";
-
-		if (options.rootElement) {
-			json += '{"' + options.rootElement + '":';
-		}
-
-		json += JSON.stringify(this.attributes);
-
-		if (options.rootElement) {
-			json += '}';
-		}
-
-		return json;
-	},
-
-	toQueryString: function(options) {
-		options = options || {};
-		var attrs = this.attributes, key, queryString = [];
-
-		if (options.rootElement) {
-			for (key in attrs) {
-				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-					queryString.push(options.rootElement + "[" + escape(key) + "]=" + escape(attrs[key]));
-				}
-			}
-		}
-		else {
-			for (key in attrs) {
-				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-					queryString.push(escape(key) + "=" + escape(attrs[key]));
-				}
-			}
-		}
-
-		return queryString.join("&");
-	},
-
-	toXML: function(options) {
-		options = options || {};
-		var attrs = this.attributes, key, xml = [], glue = "";
-
-
-		if (options.shorthand) {
-			if (!options.rootElement) {
-				throw new Error("options.rootElement is required when converting to XML using shorthand format.");
-			}
-
-			xml.push("<" + options.rootElement);
-
-			for (key in attrs) {
-				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-					xml.push(key + '="' + this.escapeHTML(attrs[key]) + '"');
-				}
-			}
-
-			xml.push("/>");
-			glue = " ";
-		}
-		else {
-			if (options.rootElement) {
-				xml.push("<" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
-			}
-
-			for (key in attrs) {
-				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-					xml.push("<" + key + ">" + this.escapeHTML(attrs[key]) + "</" + key + ">");
-				}
-			}
-
-			if (options.rootElement) {
-				xml.push("</" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
-			}
-		}
-
-		return xml.join(glue);
-	},
-
-	validate: function() {
-		this.valid = true;
-		this.validateRequiredAttributes();
-		this.validateAttributeDataTypes();
-		this.validateAttributeLengths();
-		this.validateAttributeFormats();
-
-		return this.valid;
-	},
-
-	validateRequiredAttributes: function() {
-		if (!this.requires) {
-			return;
-		}
-
-		var key, i = 0, length = this.requires.length;
-
-		for (i; i < length; i++) {
-			key = this.requires[i];
-
-			if (this.valueIsEmpty(this.attributes[key])) {
-				this.addError(key, "is required");
-				this.valid = false;
-			}
-		}
-	},
-
-	validateAttributeDataTypes: function() {
-		if (!this.validatesNumeric) {
-			return;
-		}
-
-		var key, type, i = 0, length = this.validatesNumeric.length;
-
-		for (i; i < length; i++) {
-			key = this.validatesNumeric[i];
-			type = typeof this.attributes[key];
-
-			if (!this.valueIsEmpty(this.attributes[key]) && !this.valueIsNumeric(this.attributes[key])) {
-				this.addError(key, "must be a number");
-				this.valid = false;
-			}
-		}
-	},
-
-	validateAttributeLengths: function() {
-		if (!this.validatesMaxLength) {
-			return;
-		}
-
-		var key;
-
-		for (key in this.validatesMaxLength) {
-			if (this.validatesMaxLength.hasOwnProperty(key)) {
-				if (!this.valueIsEmpty(this.attributes[key]) && String(this.attributes[key]).length > this.validatesMaxLength[key]) {
-					this.addError(key, "cannot exceed " + this.validatesMaxLength[key] + " characters");
-					this.valid = false;
-				}
-			}
-		}
-	},
-
-	validateAttributeFormats: function() {
-		if (!this.validatesFormatOf) {
-			return;
-		}
-
-		var key, i, length;
-
-		for (key in this.validatesFormatOf) {
-			if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this.attributes[key])) {
-				if (this.validatesFormatOf[key] instanceof Array) {
-					for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
-						if (!this.validatesFormatOf[key][i].test(this.attributes[key])) {
-							this.addError(key, "is not in a valid format");
-							this.valid = false;
-						}
-						else {
-							break;
-						}
-					}
-				}
-				else if (!this.validatesFormatOf[key].test(this.attributes[key])) {
-					this.addError(key, "is not in a valid format");
-					this.valid = false;
-				}
-			}
-		}
-	},
-
 	valueIsEmpty: function(value) {
 		return (value === undefined || value === null || String(value).replace(/\s+/g, "") === "") ? true : false;
-	},
-
-	valueIsNumeric: function(value) {
-		return (/^[-.\d]+$/).test(String(value)) && !isNaN(value);
 	}
 
 };
 
-if (!Object.defineProperty) {
-	if ( ({}).__defineGetter__ ) {
-		Object.defineProperty = function(obj, property, descriptor) {
-			if (descriptor.readable) {
-				obj.__defineGetter__(property, descriptor.get);
-			}
+BaseModel.modules = {};
 
-			if (descriptor.writable) {
-				obj.__defineSetter(property, descriptor.set);
-			}
+BaseModel.includeModule = function(moduleName, forceOverride, methods) {
+	if (this.modules[moduleName]) {
+		return;
+	}
 
-			if (descriptor.value !== undefined) {
-				obj[property] = descriptor.value;
-			}
-		};
+	if (forceOverride && !methods) {
+		methods = forceOverride;
+		forceOverride = false;
 	}
-	else {
-		throw new Error("This browser is incompatible with BaseModel (" + navigator.userAgent + ").");
+
+	var key;
+
+	for (key in methods) {
+		if (methods.hasOwnProperty(key) && (!this.prototype.hasOwnProperty(key) || forceOverride)) {
+			this.prototype[key] = methods[key];
+		}
 	}
-}
+
+	this.modules[moduleName] = methods;
+	methods = null;
+};

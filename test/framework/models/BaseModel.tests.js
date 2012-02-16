@@ -185,6 +185,7 @@
 
 	createTest("validation - requires", function(test) {
 		var o = new TestValidation({price: null, description: "", notes: "			"});
+		o.errors = {};
 		o.validateRequiredAttributes();
 
 		return (
@@ -204,6 +205,7 @@
 
 	createTest("validation - requires (everything missing)", function(test) {
 		var o = new TestValidation();
+		o.errors = {};
 		o.validateRequiredAttributes();
 
 		return (
