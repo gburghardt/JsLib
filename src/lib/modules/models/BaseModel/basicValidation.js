@@ -57,6 +57,7 @@ BaseModel.includeModule("basicValidation", {
 		this.errors = {};
 		this.valid = true;
 		this.validateRequiredAttributes();
+		BaseModel.applyModuleCallbacks(this, "validate");
 
 		return this.valid;
 	},

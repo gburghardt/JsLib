@@ -6,15 +6,10 @@ BaseModel.includeModule("extendedValidation", true, {
 
 	validatesFormatOf: null,
 
-	validate: function() {
-		this.errors = {};
-		this.valid = true;
-		this.validateRequiredAttributes();
+	callback_validate: function() {
 		this.validateAttributeDataTypes();
 		this.validateAttributeLengths();
 		this.validateAttributeFormats();
-
-		return this.valid;
 	},
 
 	validateAttributeDataTypes: function() {

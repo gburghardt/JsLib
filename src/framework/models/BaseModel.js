@@ -41,6 +41,7 @@ BaseModel.prototype = {
 			}
 		}
 
+		BaseModel.applyModuleCallbacks(this, "initAttributes");
 		this.__proto__.attributesInitialized = true;
 	},
 
@@ -48,12 +49,14 @@ BaseModel.prototype = {
 		return this._attributes;
 	},
 
-	set attributes(o) {
-		for (var key in o) {
-			if (o.hasOwnProperty(key)) {
+	set attributes(attrs) {
+		BaseModel.applyModuleCallbacks(this, "attributes", [attrs]);
+
+		for (var key in attrs) {
+			if (attrs.hasOwnProperty(key)) {
 				if (this.isValidAttributeKey(key)) {
 					this._changedAttributes[key] = this._attributes[key];
-					this._attributes[key] = o[key];
+					this._attributes[key] = attrs[key];
 				}
 				else {
 					throw new Error("Failed to assign invalid attribute " + key);
@@ -127,4 +130,17 @@ BaseModel.includeModule = function(moduleName, forceOverride, methods) {
 
 	this.modules[moduleName] = methods;
 	methods = null;
+};
+
+BaseModel.applyModuleCallbacks = function(instance, callbackName, args) {
+	args = args || [];
+	var moduleName, callbackMethod = "callback_" + callbackName;
+
+	for (moduleName in this.modules) {
+		if (this.modules.hasOwnProperty(moduleName) && this.modules[moduleName][callbackMethod]) {
+			this.modules[moduleName][callbackMethod].apply(instance, args);
+		}
+	}
+
+	instance = args = null;
 };

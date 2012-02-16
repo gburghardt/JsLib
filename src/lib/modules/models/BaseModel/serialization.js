@@ -30,13 +30,18 @@ BaseModel.includeModule("serialization", {
 
 	toJSON: function(options) {
 		options = options || {};
-		var key, json = "";
+		var key, json = "", moduleCallbacksResult;
 
 		if (options.rootElement) {
 			json += '{"' + options.rootElement + '":';
 		}
 
 		json += JSON.stringify(this.attributes);
+		moduleCallbacksResult = BaseModel.applyModuleCallbacks(this, "toJSON", [options]);
+
+		if (moduleCallbacksResult) {
+			json += moduleCallbacksResult;
+		}
 
 		if (options.rootElement) {
 			json += '}';
@@ -47,7 +52,7 @@ BaseModel.includeModule("serialization", {
 
 	toQueryString: function(options) {
 		options = options || {};
-		var attrs = this.attributes, key, queryString = [];
+		var attrs = this.attributes, key, queryString = [], moduleCallbacksResult;
 
 		if (options.rootElement) {
 			for (key in attrs) {
@@ -64,12 +69,18 @@ BaseModel.includeModule("serialization", {
 			}
 		}
 
+		moduleCallbacksResult = BaseModel.applyModuleCallbacks(this, "toQueryString", [options]);
+
+		if (moduleCallbacksResult) {
+			queryString.push(moduleCallbacksResult);
+		}
+
 		return queryString.join("&");
 	},
 
 	toXML: function(options) {
 		options = options || {};
-		var attrs = this.attributes, key, xml = [], glue = "";
+		var attrs = this.attributes, key, xml = [], glue = "", moduleCallbacksResult;
 
 
 		if (options.shorthand) {
@@ -86,6 +97,13 @@ BaseModel.includeModule("serialization", {
 			}
 
 			xml.push("/>");
+
+			moduleCallbacksResult = BaseModel.applyModuleCallbacks(this, "toXML", [options]);
+
+			if (moduleCallbacksResult) {
+				xml.push(moduleCallbacksResult);
+			}
+
 			glue = " ";
 		}
 		else {
@@ -97,6 +115,12 @@ BaseModel.includeModule("serialization", {
 				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
 					xml.push("<" + key + ">" + this.escapeHTML(attrs[key]) + "</" + key + ">");
 				}
+			}
+
+			moduleCallbacksResult = BaseModel.applyModuleCallbacks(this, "toXML", [options]);
+
+			if (moduleCallbacksResult) {
+				xml.push(moduleCallbacksResult);
 			}
 
 			if (options.rootElement) {
