@@ -312,6 +312,20 @@
 		);
 	});
 
+	createTest("toXML - shorthand", function(test) {
+		var o = new TestValidation({
+			id: 1234,
+			name: "Paint",
+			description: "Red<br>\"matte\"",
+			price: 15.99,
+			notes: "Per gallon",
+			phone: null
+		});
+		var xmlCorrect = '<test_validation id="1234" name="Paint" description="Red&lt;br&gt;&quot;matte&quot;" price="15.99" notes="Per gallon" />';
+
+		return test.assertEquals("", xmlCorrect, o.toXML({shorthand: true, rootElement: "test_validation"}));
+	});
+
 	createTest("toJSON", function(test) {
 		var o = new TestValidation({
 			id: 1234,

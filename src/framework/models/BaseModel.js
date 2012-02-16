@@ -129,7 +129,11 @@ BaseModel.prototype = {
 	},
 
 	escapeHTML: function(x) {
-		return String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+		return String(x).replace(/&/g, "&amp;")
+		                .replace(/</g, "&lt;")
+		                .replace(/>/g, "&gt;")
+		                .replace(/"/g, "&quot;")
+		                .replace(/'/g, "&apos;");
 	},
 
 	getErrorMessage: function(key) {
@@ -226,23 +230,42 @@ BaseModel.prototype = {
 
 	toXML: function(options) {
 		options = options || {};
-		var attrs = this.attributes, key, xml = [];
+		var attrs = this.attributes, key, xml = [], glue = "";
 
-		if (options.rootElement) {
-			xml.push("<" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
+
+		if (options.shorthand) {
+			if (!options.rootElement) {
+				throw new Error("options.rootElement is required when converting to XML using shorthand format.");
+			}
+
+			xml.push("<" + options.rootElement);
+
+			for (key in attrs) {
+				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
+					xml.push(key + '="' + this.escapeHTML(attrs[key]) + '"');
+				}
+			}
+
+			xml.push("/>");
+			glue = " ";
 		}
+		else {
+			if (options.rootElement) {
+				xml.push("<" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
+			}
 
-		for (key in attrs) {
-			if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-				xml.push("<" + key + ">" + this.escapeHTML(attrs[key]) + "</" + key + ">");
+			for (key in attrs) {
+				if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
+					xml.push("<" + key + ">" + this.escapeHTML(attrs[key]) + "</" + key + ">");
+				}
+			}
+
+			if (options.rootElement) {
+				xml.push("</" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
 			}
 		}
 
-		if (options.rootElement) {
-			xml.push("</" + options.rootElement.replace(/\[/g, ":").replace(/\]/g, "") + ">");
-		}
-
-		return xml.join("");
+		return xml.join(glue);
 	},
 
 	validate: function() {
