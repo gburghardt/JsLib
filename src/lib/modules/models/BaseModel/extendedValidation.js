@@ -1,4 +1,4 @@
-BaseModel.includeModule("extendedValidation", true, {
+BaseModel.includeModule("extendedValidation", {
 
 	validatesNumeric: null,
 
