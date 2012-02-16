@@ -1,5 +1,11 @@
 BaseModel.includeModule("extendedValidation", true, {
 
+	validatesNumeric: null,
+
+	validatesMaxLength: null,
+
+	validatesFormatOf: null,
+
 	validate: function() {
 		this.errors = {};
 		this.valid = true;

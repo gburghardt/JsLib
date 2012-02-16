@@ -1,9 +1,11 @@
 BaseModel.includeModule("basicValidation", {
 
 	errors: null,
-	
+
 	valid: false,
-	
+
+	requires: null,
+
 	addError: function(key, message) {
 		this.errors[key] = this.errors[key] || [];
 		this.errors[key].push(message);
