@@ -1,82 +1,90 @@
 BaseModel.includeModule("extendedValidation", {
 
-	validatesNumeric: null,
+	callbacks: {
 
-	validatesMaxLength: null,
-
-	validatesFormatOf: null,
-
-	callback_validate: function() {
-		this.validateAttributeDataTypes();
-		this.validateAttributeLengths();
-		this.validateAttributeFormats();
-	},
-
-	validateAttributeDataTypes: function() {
-		if (!this.validatesNumeric) {
-			return;
+		validate: function() {
+			this.validateAttributeDataTypes();
+			this.validateAttributeLengths();
+			this.validateAttributeFormats();
 		}
 
-		var key, type, i = 0, length = this.validatesNumeric.length;
+	},
 
-		for (i; i < length; i++) {
-			key = this.validatesNumeric[i];
-			type = typeof this.attributes[key];
+	prototype: {
 
-			if (!this.valueIsEmpty(this.attributes[key]) && !this.valueIsNumeric(this.attributes[key])) {
-				this.addError(key, "must be a number");
-				this.valid = false;
+		validatesNumeric: null,
+
+		validatesMaxLength: null,
+
+		validatesFormatOf: null,
+
+		validateAttributeDataTypes: function() {
+			if (!this.validatesNumeric) {
+				return;
 			}
-		}
-	},
 
-	validateAttributeLengths: function() {
-		if (!this.validatesMaxLength) {
-			return;
-		}
+			var key, type, i = 0, length = this.validatesNumeric.length;
 
-		var key;
+			for (i; i < length; i++) {
+				key = this.validatesNumeric[i];
+				type = typeof this.attributes[key];
 
-		for (key in this.validatesMaxLength) {
-			if (this.validatesMaxLength.hasOwnProperty(key)) {
-				if (!this.valueIsEmpty(this.attributes[key]) && String(this.attributes[key]).length > this.validatesMaxLength[key]) {
-					this.addError(key, "cannot exceed " + this.validatesMaxLength[key] + " characters");
+				if (!this.valueIsEmpty(this.attributes[key]) && !this.valueIsNumeric(this.attributes[key])) {
+					this.addError(key, "must be a number");
 					this.valid = false;
 				}
 			}
-		}
-	},
+		},
 
-	validateAttributeFormats: function() {
-		if (!this.validatesFormatOf) {
-			return;
-		}
+		validateAttributeLengths: function() {
+			if (!this.validatesMaxLength) {
+				return;
+			}
 
-		var key, i, length;
+			var key;
 
-		for (key in this.validatesFormatOf) {
-			if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this.attributes[key])) {
-				if (this.validatesFormatOf[key] instanceof Array) {
-					for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
-						if (!this.validatesFormatOf[key][i].test(this.attributes[key])) {
-							this.addError(key, "is not in a valid format");
-							this.valid = false;
-						}
-						else {
-							break;
-						}
+			for (key in this.validatesMaxLength) {
+				if (this.validatesMaxLength.hasOwnProperty(key)) {
+					if (!this.valueIsEmpty(this.attributes[key]) && String(this.attributes[key]).length > this.validatesMaxLength[key]) {
+						this.addError(key, "cannot exceed " + this.validatesMaxLength[key] + " characters");
+						this.valid = false;
 					}
 				}
-				else if (!this.validatesFormatOf[key].test(this.attributes[key])) {
-					this.addError(key, "is not in a valid format");
-					this.valid = false;
+			}
+		},
+
+		validateAttributeFormats: function() {
+			if (!this.validatesFormatOf) {
+				return;
+			}
+
+			var key, i, length;
+
+			for (key in this.validatesFormatOf) {
+				if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this.attributes[key])) {
+					if (this.validatesFormatOf[key] instanceof Array) {
+						for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
+							if (!this.validatesFormatOf[key][i].test(this.attributes[key])) {
+								this.addError(key, "is not in a valid format");
+								this.valid = false;
+							}
+							else {
+								break;
+							}
+						}
+					}
+					else if (!this.validatesFormatOf[key].test(this.attributes[key])) {
+						this.addError(key, "is not in a valid format");
+						this.valid = false;
+					}
 				}
 			}
-		}
-	},
+		},
 
-	valueIsNumeric: function(value) {
-		return (/^[-.\d]+$/).test(String(value)) && !isNaN(value);
+		valueIsNumeric: function(value) {
+			return (/^[-.\d]+$/).test(String(value)) && !isNaN(value);
+		}
+		
 	}
 
 });

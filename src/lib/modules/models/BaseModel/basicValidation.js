@@ -1,82 +1,86 @@
 BaseModel.includeModule("basicValidation", {
 
-	errors: null,
+	prototype: {
 
-	valid: false,
+		errors: null,
 
-	requires: null,
+		valid: false,
 
-	addError: function(key, message) {
-		this.errors[key] = this.errors[key] || [];
-		this.errors[key].push(message);
-	},
+		requires: null,
 
-	convertKeyToWords: function(key) {
-		key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
-			if (match.length > 1) {
-				return (index === 0) ? match : " " + match;
+		addError: function(key, message) {
+			this.errors[key] = this.errors[key] || [];
+			this.errors[key].push(message);
+		},
+
+		convertKeyToWords: function(key) {
+			key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
+				if (match.length > 1) {
+					return (index === 0) ? match : " " + match;
+				}
+				else {
+					return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
+				}
+			});
+
+			return key;
+		},
+
+		getErrorMessage: function(key) {
+			var message = "", words;
+
+			if (this.errors[key]) {
+				words = this.convertKeyToWords(key);
+				message = words + " " + this.errors[key].join("\n" + words + " ");
 			}
-			else {
-				return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
+
+			return message;
+		},
+
+		getErrorMessages: function() {
+			var errorMessages = {}, key;
+
+			if (this.hasErrors()) {
+				for (key in this.errors) {
+					if (this.errors.hasOwnProperty(key)) {
+						errorMessages[key] = this.getErrorMessage(key);
+					}
+				}
 			}
-		});
 
-		return key;
-	},
+			return errorMessages;
+		},
 
-	getErrorMessage: function(key) {
-		var message = "", words;
+		hasErrors: function() {
+			return !this.valid;
+		},
 
-		if (this.errors[key]) {
-			words = this.convertKeyToWords(key);
-			message = words + " " + this.errors[key].join("\n" + words + " ");
-		}
+		validate: function() {
+			this.errors = {};
+			this.valid = true;
+			this.validateRequiredAttributes();
+			this.applyModuleCallbacks("validate");
 
-		return message;
-	},
+			return this.valid;
+		},
 
-	getErrorMessages: function() {
-		var errorMessages = {}, key;
+		validateRequiredAttributes: function() {
+			if (!this.requires) {
+				return;
+			}
 
-		if (this.hasErrors()) {
-			for (key in this.errors) {
-				if (this.errors.hasOwnProperty(key)) {
-					errorMessages[key] = this.getErrorMessage(key);
+			var key, i = 0, length = this.requires.length;
+
+			for (i; i < length; i++) {
+				key = this.requires[i];
+
+				if (this.valueIsEmpty(this.attributes[key])) {
+					this.addError(key, "is required");
+					this.valid = false;
 				}
 			}
 		}
 
-		return errorMessages;
-	},
-
-	hasErrors: function() {
-		return !this.valid;
-	},
-
-	validate: function() {
-		this.errors = {};
-		this.valid = true;
-		this.validateRequiredAttributes();
-		BaseModel.applyModuleCallbacks(this, "validate");
-
-		return this.valid;
-	},
-
-	validateRequiredAttributes: function() {
-		if (!this.requires) {
-			return;
-		}
-
-		var key, i = 0, length = this.requires.length;
-
-		for (i; i < length; i++) {
-			key = this.requires[i];
-
-			if (this.valueIsEmpty(this.attributes[key])) {
-				this.addError(key, "is required");
-				this.valid = false;
-			}
-		}
 	}
 
 });

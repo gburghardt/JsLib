@@ -41,8 +41,12 @@ BaseModel.prototype = {
 			}
 		}
 
-		BaseModel.applyModuleCallbacks(this, "initAttributes");
+		this.applyModuleCallbacks("initAttributes");
 		this.__proto__.attributesInitialized = true;
+	},
+
+	applyModuleCallbacks: function(callbackName, args) {
+		return BaseModel.applyModuleCallbacks(this, callbackName, args);
 	},
 
 	get attributes() {
@@ -50,7 +54,7 @@ BaseModel.prototype = {
 	},
 
 	set attributes(attrs) {
-		BaseModel.applyModuleCallbacks(this, "attributes", [attrs]);
+		this.applyModuleCallbacks("attributes", [attrs]);
 
 		for (var key in attrs) {
 			if (attrs.hasOwnProperty(key)) {
@@ -110,37 +114,53 @@ BaseModel.prototype = {
 
 BaseModel.modules = {};
 
-BaseModel.includeModule = function(moduleName, forceOverride, methods) {
+BaseModel.moduleCallbacks = {};
+
+BaseModel.includeModule = function(moduleName, forceOverride, module) {
 	if (this.modules[moduleName]) {
 		return;
 	}
 
-	if (forceOverride && !methods) {
-		methods = forceOverride;
+	if (forceOverride && !module) {
+		module = forceOverride;
 		forceOverride = false;
 	}
 
 	var key;
 
-	for (key in methods) {
-		if (methods.hasOwnProperty(key) && (!this.prototype.hasOwnProperty(key) || forceOverride)) {
-			this.prototype[key] = methods[key];
+	for (key in module.prototype) {
+		if (module.prototype.hasOwnProperty(key) && (!this.prototype.hasOwnProperty(key) || forceOverride)) {
+			this.prototype[key] = module.prototype[key];
 		}
 	}
 
-	this.modules[moduleName] = methods;
-	methods = null;
+	if (module.callbacks) {
+		for (key in module.callbacks) {
+			if (module.callbacks.hasOwnProperty(key)) {
+				this.moduleCallbacks[key] = this.moduleCallbacks[key] || [];
+				this.moduleCallbacks[key].push(module.callbacks[key]);
+			}
+		}
+	}
+
+	this.modules[moduleName] = module;
+	module = null;
 };
 
 BaseModel.applyModuleCallbacks = function(instance, callbackName, args) {
 	args = args || [];
-	var moduleName, callbackMethod = "callback_" + callbackName;
+	var result, results = [], i, length, callbacks = this.moduleCallbacks[callbackName];
 
-	for (moduleName in this.modules) {
-		if (this.modules.hasOwnProperty(moduleName) && this.modules[moduleName][callbackMethod]) {
-			this.modules[moduleName][callbackMethod].apply(instance, args);
+	if (callbacks) {
+		for (i = 0, length = callbacks.length; i < length; i++) {
+			result = callbacks[i].apply(instance, args);
+
+			if (result !== undefined) {
+				results.push(result);
+			}
 		}
 	}
 
-	instance = args = null;
+	instance = args = result = null;
+	return results;
 };
