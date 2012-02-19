@@ -59,13 +59,11 @@ BaseModel.prototype = {
 
 		for (var key in attrs) {
 			if (attrs.hasOwnProperty(key)) {
-				if (this.isValidAttributeKey(key)) {
+				if (this.isValidAttributeKey(key) && attrs[key] !== this._attributes[key]) {
 					this._changedAttributes[key] = this._attributes[key];
-					this._attributes[key] = attrs[key];
 				}
-				else {
-					throw new Error("Failed to assign invalid attribute " + key);
-				}
+
+				this._attributes[key] = attrs[key];
 			}
 		}
 	},
