@@ -11,6 +11,7 @@ BaseModel.prototype = {
 	constructor: function(attributes) {
 		this._attributes = {};
 		this._changedAttributes = {};
+		this.applyModuleCallbacks("__constructor", [attributes]);
 		this.initAttributes();
 
 		if (attributes) {
