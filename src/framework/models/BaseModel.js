@@ -24,9 +24,11 @@ BaseModel.prototype = {
 	},
 
 	initAttributes: function() {
-		if (this.__proto__.attributesInitialized || !this._validAttributes) {
+		if (this.__proto__.attributesInitialized) {
 			return;
 		}
+
+		this._validAttributes = this._validAttributes || [];
 
 		var i = 0, attrs = this._validAttributes, length = attrs.length, key;
 
