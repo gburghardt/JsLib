@@ -350,8 +350,8 @@
 		var jsonCorrect2 = '{"test_validation":' + jsonCorrect1 + '}';
 
 		return (
-			test.assertEquals("", jsonCorrect1, o.toJSON()) &&
-			test.assertEquals("", jsonCorrect2, o.toJSON({rootElement: "test_validation"}))
+			test.assertEquals("o.toJSON() should be equal to jsonCorrect1", jsonCorrect1, o.toJSON()) &&
+			test.assertEquals("o.toJSON({rootElement: 'test_validation'}) should be equal to jsonCorrect2", jsonCorrect2, o.toJSON({rootElement: "test_validation"}))
 		);
 	});
 

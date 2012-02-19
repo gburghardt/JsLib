@@ -32,17 +32,22 @@ BaseModel.includeModule("serialization", {
 
 		toJSON: function(options) {
 			options = options || {};
-			var key, json = "", moduleCallbacksResult;
+			var json = "", moduleCallbacksResult, attrs = {}, i, length = this._validAttributes.length, key;
 
 			if (options.rootElement) {
 				json += '{"' + options.rootElement + '":';
 			}
 
-			json += JSON.stringify(this.attributes);
+			for (i = 0; i < length; i++) {
+				key = this._validAttributes[i];
+				attrs[key] = this._attributes[key];
+			}
+
+			json += JSON.stringify(attrs);
 			moduleCallbacksResult = this.applyModuleCallbacks("toJSON", [options]);
 
-			if (moduleCallbacksResult) {
-				json += moduleCallbacksResult.join("");
+			if (moduleCallbacksResult.length) {
+				json += "," + moduleCallbacksResult.join("");
 			}
 
 			if (options.rootElement) {
