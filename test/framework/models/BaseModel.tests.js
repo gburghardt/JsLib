@@ -20,7 +20,6 @@
 	Test2Model.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: [
-			"id",
 			"name",
 			"description",
 			"priority"
@@ -33,7 +32,6 @@
 	TestValidation.prototype = {
 		__proto__: BaseModel.prototype,
 		_validAttributes: [
-			"id",
 			"name",
 			"description",
 			"price",
@@ -339,12 +337,12 @@
 		});
 		var jsonCorrect1 = [
 			'{',
-				'"id":1234,',
 				'"name":"Paint",',
 				'"description":"Red<br>matte",',
 				'"price":15.99,',
 				'"notes":"Per gallon",',
-				'"phone":null',
+				'"phone":null,',
+				'"id":1234',
 			'}'
 		].join("");
 		var jsonCorrect2 = '{"test_validation":' + jsonCorrect1 + '}';

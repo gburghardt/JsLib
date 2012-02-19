@@ -8,6 +8,8 @@ BaseModel.prototype = {
 	_changedAttributes: null,
 	_validAttributes: null,
 
+	primaryKey: "id",
+
 	constructor: function(attributes) {
 		this._attributes = {};
 		this._changedAttributes = {};
@@ -27,6 +29,10 @@ BaseModel.prototype = {
 		}
 
 		var i = 0, attrs = this._validAttributes, length = attrs.length, key;
+
+		if (this._validAttributes.indexOf(this.primaryKey) < 0) {
+			this._validAttributes.push(this.primaryKey);
+		}
 
 		for (i; i < length; ++i) {
 			key = attrs[i];
