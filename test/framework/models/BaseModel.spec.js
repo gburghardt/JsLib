@@ -170,4 +170,12 @@ describe("BaseModel", function() {
 
 	});
 
+	describe("toJSON", function() {});
+
+	describe("toQueryString", function() {});
+
+	describe("toXML", function() {});
+
+	describe("getClassReference", function() {});
+
 });
