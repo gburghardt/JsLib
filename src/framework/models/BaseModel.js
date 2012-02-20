@@ -30,19 +30,20 @@ BaseModel.prototype = {
 
 		this._validAttributes = this._validAttributes || [];
 
-		var i = 0, attrs = this._validAttributes, length = attrs.length, key;
+		var i = 0, attrs = this._validAttributes, length, key;
 
-		if (this._validAttributes.indexOf(this.primaryKey) < 0) {
-			this._validAttributes.push(this.primaryKey);
+		if (attrs.indexOf(this.primaryKey) < 0) {
+			attrs.push(this.primaryKey);
 		}
 
-		for (i; i < length; ++i) {
+		for (i, length = attrs.length; i < length; ++i) {
 			key = attrs[i];
 
 			try {
 				Object.defineProperty(this.__proto__, key, {
 					get: this.createGetter(key),
-					set: this.createSetter(key)
+					set: this.createSetter(key),
+					enumerable: true
 				});
 			}
 			catch (error) {
@@ -114,7 +115,7 @@ BaseModel.prototype = {
 	},
 
 	valueIsEmpty: function(value) {
-		return (value === undefined || value === null || String(value).replace(/\s+/g, "") === "") ? true : false;
+		return (value === undefined || value === null || (typeof value === "number" && isNaN(value)) || String(value).replace(/\s+/g, "") === "") ? true : false;
 	}
 
 };
