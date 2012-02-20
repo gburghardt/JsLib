@@ -181,74 +181,74 @@
 	// 	);
 	// });
 
-	createTest("validation - requires", function(test) {
-		var o = new TestValidation({price: null, description: "", notes: "			"});
-		o.errors = {};
-		o.validateRequiredAttributes();
+	// createTest("validation - requires", function(test) {
+	// 	var o = new TestValidation({price: null, description: "", notes: "			"});
+	// 	o.errors = {};
+	// 	o.validateRequiredAttributes();
+	// 
+	// 	return (
+	// 		test.assertTrue("", o.hasErrors()) &&
+	// 		test.assertArray("", o.errors.price) &&
+	// 		test.assertEquals("", "is required", o.errors.price[0]) &&
+	// 		test.assertArray("", o.errors.name) &&
+	// 		test.assertEquals("", "is required", o.errors.name[0]) &&
+	// 		test.assertArray("notes should be an array", o.errors.notes) &&
+	// 		test.assertEquals("", "is required", o.errors.notes[0]) &&
+	// 		test.assertArray("description should be an array", o.errors.description) &&
+	// 		test.assertEquals("", "is required", o.errors.description[0]) &&
+	// 		test.assertArray("phone should be an array", o.errors.phone) &&
+	// 		test.assertEquals("", "is required", o.errors.phone[0])
+	// 	);
+	// });
 
-		return (
-			test.assertTrue("", o.hasErrors()) &&
-			test.assertArray("", o.errors.price) &&
-			test.assertEquals("", "is required", o.errors.price[0]) &&
-			test.assertArray("", o.errors.name) &&
-			test.assertEquals("", "is required", o.errors.name[0]) &&
-			test.assertArray("notes should be an array", o.errors.notes) &&
-			test.assertEquals("", "is required", o.errors.notes[0]) &&
-			test.assertArray("description should be an array", o.errors.description) &&
-			test.assertEquals("", "is required", o.errors.description[0]) &&
-			test.assertArray("phone should be an array", o.errors.phone) &&
-			test.assertEquals("", "is required", o.errors.phone[0])
-		);
-	});
+	// createTest("validation - requires (everything missing)", function(test) {
+	// 	var o = new TestValidation();
+	// 	o.errors = {};
+	// 	o.validateRequiredAttributes();
+	// 
+	// 	return (
+	// 		test.assertTrue("", o.hasErrors()) &&
+	// 		test.assertArray("", o.errors.price) &&
+	// 		test.assertEquals("", "is required", o.errors.price[0]) &&
+	// 		test.assertArray("", o.errors.name) &&
+	// 		test.assertEquals("", "is required", o.errors.name[0]) &&
+	// 		test.assertArray("notes should be an array", o.errors.notes) &&
+	// 		test.assertEquals("", "is required", o.errors.notes[0])
+	// 	);
+	// });
 
-	createTest("validation - requires (everything missing)", function(test) {
-		var o = new TestValidation();
-		o.errors = {};
-		o.validateRequiredAttributes();
-
-		return (
-			test.assertTrue("", o.hasErrors()) &&
-			test.assertArray("", o.errors.price) &&
-			test.assertEquals("", "is required", o.errors.price[0]) &&
-			test.assertArray("", o.errors.name) &&
-			test.assertEquals("", "is required", o.errors.name[0]) &&
-			test.assertArray("notes should be an array", o.errors.notes) &&
-			test.assertEquals("", "is required", o.errors.notes[0])
-		);
-	});
-
-	createTest("validation - validatesNumeric", function(test) {
-		var valid = [
-			new TestNumericValidation({price: 100}),
-			new TestNumericValidation({price: "100.3"}),
-			new TestNumericValidation({price: ""}),
-			new TestNumericValidation({price: null})
-		];
-		var invalid = [
-			new TestNumericValidation({price: NaN}),
-			new TestNumericValidation({price: "abc"}),
-			new TestNumericValidation({price: "$100.35"})
-		];
-		var i, length, success = true;
-
-		for (i = 0, length = valid.length; i < length; i++) {
-			if (!valid[i].validate()) {
-				test.fail("Model " + i + "should be valid.");
-				test.info(valid[i].errors);
-				success = false;
-			}
-		}
-
-		for (i = 0, length = invalid.length; i < length; i++) {
-			if (invalid[i].validate()) {
-				test.fail("Model " + i + " should be invalid.");
-				test.info(invalid[i].attributes);
-				success = false;
-			}
-		}
-
-		return success;
-	});
+	// createTest("validation - validatesNumeric", function(test) {
+	// 	var valid = [
+	// 		new TestNumericValidation({price: 100}),
+	// 		new TestNumericValidation({price: "100.3"}),
+	// 		new TestNumericValidation({price: ""}),
+	// 		new TestNumericValidation({price: null})
+	// 	];
+	// 	var invalid = [
+	// 		new TestNumericValidation({price: NaN}),
+	// 		new TestNumericValidation({price: "abc"}),
+	// 		new TestNumericValidation({price: "$100.35"})
+	// 	];
+	// 	var i, length, success = true;
+	// 
+	// 	for (i = 0, length = valid.length; i < length; i++) {
+	// 		if (!valid[i].validate()) {
+	// 			test.fail("Model " + i + "should be valid.");
+	// 			test.info(valid[i].errors);
+	// 			success = false;
+	// 		}
+	// 	}
+	// 
+	// 	for (i = 0, length = invalid.length; i < length; i++) {
+	// 		if (invalid[i].validate()) {
+	// 			test.fail("Model " + i + " should be invalid.");
+	// 			test.info(invalid[i].attributes);
+	// 			success = false;
+	// 		}
+	// 	}
+	// 
+	// 	return success;
+	// });
 
 	createTest("validation - validatesMaxLength", function(test) {
 		var o = new TestMaxLengthValidation();
