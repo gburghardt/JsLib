@@ -27,9 +27,8 @@ BaseModel.includeModule("extendedValidation", {
 
 			for (i; i < length; i++) {
 				key = this.validatesNumeric[i];
-				type = typeof this.attributes[key];
 
-				if (!this.valueIsEmpty(this.attributes[key]) && !this.valueIsNumeric(this.attributes[key])) {
+				if (!this.valueIsEmpty(this._attributes[key]) && !this.valueIsNumeric(this._attributes[key])) {
 					this.addError(key, "must be a number");
 					this.valid = false;
 				}
@@ -45,7 +44,7 @@ BaseModel.includeModule("extendedValidation", {
 
 			for (key in this.validatesMaxLength) {
 				if (this.validatesMaxLength.hasOwnProperty(key)) {
-					if (!this.valueIsEmpty(this.attributes[key]) && String(this.attributes[key]).length > this.validatesMaxLength[key]) {
+					if (!this.valueIsEmpty(this._attributes[key]) && String(this._attributes[key]).length > this.validatesMaxLength[key]) {
 						this.addError(key, "cannot exceed " + this.validatesMaxLength[key] + " characters");
 						this.valid = false;
 					}
@@ -61,10 +60,10 @@ BaseModel.includeModule("extendedValidation", {
 			var key, i, length;
 
 			for (key in this.validatesFormatOf) {
-				if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this.attributes[key])) {
+				if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this._attributes[key])) {
 					if (this.validatesFormatOf[key] instanceof Array) {
 						for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
-							if (!this.validatesFormatOf[key][i].test(this.attributes[key])) {
+							if (!this.validatesFormatOf[key][i].test(this._attributes[key])) {
 								this.addError(key, "is not in a valid format");
 								this.valid = false;
 							}
@@ -73,7 +72,7 @@ BaseModel.includeModule("extendedValidation", {
 							}
 						}
 					}
-					else if (!this.validatesFormatOf[key].test(this.attributes[key])) {
+					else if (!this.validatesFormatOf[key].test(this._attributes[key])) {
 						this.addError(key, "is not in a valid format");
 						this.valid = false;
 					}

@@ -115,7 +115,7 @@ BaseModel.prototype = {
 	},
 
 	valueIsEmpty: function(value) {
-		return (value === undefined || value === null || (typeof value === "number" && isNaN(value)) || String(value).replace(/\s+/g, "") === "") ? true : false;
+		return (value === undefined || value === null || String(value).replace(/\s+/g, "") === "") ? true : false;
 	}
 
 };
