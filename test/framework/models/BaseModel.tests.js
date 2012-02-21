@@ -250,20 +250,20 @@
 	// 	return success;
 	// });
 
-	createTest("validation - validatesMaxLength", function(test) {
-		var o = new TestMaxLengthValidation();
-		o.name = "123456789";
-		o.description = "12345678";
-		o.notes = "12345";
-
-		return (
-			test.assertFalse("validate() should return false", o.validate()) &&
-			test.assertTrue("hasErrors() should return true", o.hasErrors()) &&
-			test.assertUndefined(o.errors.name) &&
-			test.assertUndefined(o.errors.description) &&
-			test.assertArray("errors.notes should be an array", o.errors.notes)
-		);
-	});
+	// createTest("validation - validatesMaxLength", function(test) {
+	// 	var o = new TestMaxLengthValidation();
+	// 	o.name = "123456789";
+	// 	o.description = "12345678";
+	// 	o.notes = "12345";
+	// 
+	// 	return (
+	// 		test.assertFalse("validate() should return false", o.validate()) &&
+	// 		test.assertTrue("hasErrors() should return true", o.hasErrors()) &&
+	// 		test.assertUndefined(o.errors.name) &&
+	// 		test.assertUndefined(o.errors.description) &&
+	// 		test.assertArray("errors.notes should be an array", o.errors.notes)
+	// 	);
+	// });
 
 	createTest("validation - validatesAttributeFormats - valid", function(test) {
 		var o = new TestFormatValidation();

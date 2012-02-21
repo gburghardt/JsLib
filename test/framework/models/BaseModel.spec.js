@@ -55,6 +55,15 @@ describe("BaseModel", function() {
 		}
 	};
 
+	function TestMaxLengthValidation(attributes) {
+		this.constructor(attributes);
+	}
+	TestMaxLengthValidation.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ["name", "description", "notes"],
+		validatesMaxLength: {name: 10, description: 8, notes: 4}
+	};
+
 	function TestNumericValidation(attributes) {
 		this.constructor(attributes);
 	}
@@ -333,7 +342,37 @@ describe("BaseModel", function() {
 
 		});
 
-		describe("max length", function() {});
+		describe("max length", function() {
+
+			beforeEach(function() {
+				this.model = new TestMaxLengthValidation();
+			});
+
+			it("returns true for string lengths equal to or lesser than the max length", function() {
+				this.model.name = "123456789";
+				this.model.description = "12345678";
+				this.model.notes = "1234";
+				expect(this.model.validate()).toBeTrue();
+			});
+
+			it("returns false for values greater than the max length", function() {
+				this.model.name = "1234567890abc";
+				this.model.description = "123456789";
+				this.model.notes = "12345";
+				expect(this.model.validate()).toBeFalse();
+				expect(this.model.errors.name).toBeArray();
+				expect(this.model.errors.description).toBeArray();
+				expect(this.model.errors.notes).toBeArray();
+			});
+
+			it("returns true for empty values", function() {
+				this.model.name = undefined;
+				this.model.descrition = null;
+				this.model.notes = "                   ";
+				expect(this.model.validate()).toBeTrue();
+			});
+
+		});
 
 		describe("atribute formats", function() {});
 
