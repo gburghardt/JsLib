@@ -472,6 +472,12 @@ describe("BaseModel", function() {
 				expect(this.model.toXML({rootElement: "test_validation"})).toEqual(xml);
 			});
 
+			it("converts attributes to XML using shorthand syntax", function() {
+				var xml = '<test_validation id="1234" name="Paint" description="Red&lt;br&gt;&quot;matte&quot;" price="15.99" notes="Per gallon" />';
+
+				expect(this.model.toXML({rootElement: 'test_validation', shorthand: true})).toEqual(xml);
+			});
+
 		});
 
 	});
