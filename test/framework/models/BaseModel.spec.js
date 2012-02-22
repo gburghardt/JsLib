@@ -73,6 +73,21 @@ describe("BaseModel", function() {
 		validatesNumeric: ["price"]
 	};
 
+	function TestFormatValidation(attributes) {
+		this.constructor(attributes);
+	}
+	TestFormatValidation.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ["phone", "address"],
+		validatesFormatOf: {
+			phone: [
+				/^\d{3}-\d{3}-\d{4}$/,
+				/^\(\d{3}\) \d{3}-\d{4}$/
+			],
+			address: /^\d+ \w+( [.\w]+)?, \w+, [A-Z]{2} \d{5}$/
+		}
+	};
+
 	it("defines a primary key by default", function() {
 		var o = new TestModel();
 		expect(o.isValidAttributeKey("id")).toEqual(true);
@@ -374,7 +389,41 @@ describe("BaseModel", function() {
 
 		});
 
-		describe("atribute formats", function() {});
+		describe("validateAttributeFormats", function() {
+
+			beforeEach(function() {
+				this.model = new TestFormatValidation();
+				this.model.valid = true;
+				this.model.errors = {};
+			});
+
+			it("is valid if one of many regular expressions are valid", function() {
+				this.model.phone = "123-555-1234";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeTrue();
+			});
+
+			it("is valid only if a single regular expression is valid", function() {
+				this.model.address = "123 James St, Chicago, IL 12345";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeTrue();
+			});
+
+			it("is invalid if all regular expressions fail", function() {
+				this.model.phone = "5555-5-5555";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeFalse();
+				expect(this.model.errors.phone).toBeArray();
+			});
+
+			it("is invalid if the regular expression fails", function() {
+				this.model.address = "123 James St, Chicago, IL";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeFalse();
+				expect(this.model.errors.address).toBeArray();
+			});
+
+		});
 
 	});
 

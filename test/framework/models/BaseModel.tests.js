@@ -265,28 +265,28 @@
 	// 	);
 	// });
 
-	createTest("validation - validatesAttributeFormats - valid", function(test) {
-		var o = new TestFormatValidation();
-		o.phone = "123-555-1234";
-		o.address = "123 James St, Chicago, IL 12345";
+	// createTest("validation - validatesAttributeFormats - valid", function(test) {
+	// 	var o = new TestFormatValidation();
+	// 	o.phone = "123-555-1234";
+	// 	o.address = "123 James St, Chicago, IL 12345";
+	// 
+	// 	return (
+	// 		test.assertTrue("validate() should return true", o.validate())
+	// 	);
+	// });
 
-		return (
-			test.assertTrue("validate() should return true", o.validate())
-		);
-	});
-
-	createTest("validation - validatesAttributeFormats - invalid", function(test) {
-		var o = new TestFormatValidation();
-		o.phone = "5555-5-5555";
-		o.address = "123 James St, Chicago, IL";
-
-		return (
-			test.assertFalse("validate() should return false", o.validate()) &&
-			test.assertTrue("hasErrors() should return true", o.hasErrors()) &&
-			test.assertArray("errors.phone should be an array", o.errors.phone) &&
-			test.assertArray("errors.address should be an array", o.errors.address)
-		);
-	});
+	// createTest("validation - validatesAttributeFormats - invalid", function(test) {
+	// 	var o = new TestFormatValidation();
+	// 	o.phone = "5555-5-5555";
+	// 	o.address = "123 James St, Chicago, IL";
+	// 
+	// 	return (
+	// 		test.assertFalse("validate() should return false", o.validate()) &&
+	// 		test.assertTrue("hasErrors() should return true", o.hasErrors()) &&
+	// 		test.assertArray("errors.phone should be an array", o.errors.phone) &&
+	// 		test.assertArray("errors.address should be an array", o.errors.address)
+	// 	);
+	// });
 
 	createTest("toXML", function(test) {
 		var o = new TestValidation({
