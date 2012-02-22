@@ -427,11 +427,54 @@ describe("BaseModel", function() {
 
 	});
 
-	describe("toJSON", function() {});
+	describe("serialization", function() {
 
-	describe("toQueryString", function() {});
+		describe("toJSON", function() {});
 
-	describe("toXML", function() {});
+		describe("toQueryString", function() {});
+
+		describe("toXML", function() {
+
+			beforeEach(function() {
+				this.model = new TestValidation({
+					id: 1234,
+					name: "Paint",
+					description: "Red<br>\"matte\"",
+					price: 15.99,
+					notes: "Per gallon",
+					phone: null
+				});
+			});
+
+			it("converts attributes to XML with no root element", function() {
+				var xml = [
+					'<id>1234</id>',
+					'<name>Paint</name>',
+					'<description>Red&lt;br&gt;&quot;matte&quot;</description>',
+					'<price>15.99</price>',
+					'<notes>Per gallon</notes>'
+				].join("");
+
+				expect(this.model.toXML()).toEqual(xml);
+			});
+
+			it("converts attributes to XML with a root element", function() {
+				var xml = [
+					'<test_validation>',
+						'<id>1234</id>',
+						'<name>Paint</name>',
+						'<description>Red&lt;br&gt;&quot;matte&quot;</description>',
+						'<price>15.99</price>',
+						'<notes>Per gallon</notes>',
+					'</test_validation>'
+				].join("");
+
+				expect(this.model.toXML({rootElement: "test_validation"})).toEqual(xml);
+			});
+
+		});
+
+	});
 
 	describe("relations", function() {
 
