@@ -353,35 +353,35 @@
 	// 	);
 	// });
 
-	createTest("toQueryString", function(test) {
-		var o = new TestValidation({
-			id: 1234,
-			name: "Paint",
-			description: "Red<br>matte",
-			price: 15.99,
-			notes: "Per gallon",
-			phone: null
-		});
-		var qsCorrect1 = [
-				'id=1234',
-				'name=Paint',
-				'description=Red%3Cbr%3Ematte',
-				'price=15.99',
-				'notes=Per%20gallon'
-		].join("&");
-		var qsCorrect2 = [
-				'test_validation[id]=1234',
-				'test_validation[name]=Paint',
-				'test_validation[description]=Red%3Cbr%3Ematte',
-				'test_validation[price]=15.99',
-				'test_validation[notes]=Per%20gallon'
-		].join("&");
-
-		return (
-			test.assertEquals("qs #1", qsCorrect1, o.toQueryString()) &&
-			test.assertEquals("qs #2", qsCorrect2, o.toQueryString({rootElement: "test_validation"}))
-		);
-	});
+	// createTest("toQueryString", function(test) {
+	// 	var o = new TestValidation({
+	// 		id: 1234,
+	// 		name: "Paint",
+	// 		description: "Red<br>matte",
+	// 		price: 15.99,
+	// 		notes: "Per gallon",
+	// 		phone: null
+	// 	});
+	// 	var qsCorrect1 = [
+	// 			'id=1234',
+	// 			'name=Paint',
+	// 			'description=Red%3Cbr%3Ematte',
+	// 			'price=15.99',
+	// 			'notes=Per%20gallon'
+	// 	].join("&");
+	// 	var qsCorrect2 = [
+	// 			'test_validation[id]=1234',
+	// 			'test_validation[name]=Paint',
+	// 			'test_validation[description]=Red%3Cbr%3Ematte',
+	// 			'test_validation[price]=15.99',
+	// 			'test_validation[notes]=Per%20gallon'
+	// 	].join("&");
+	// 
+	// 	return (
+	// 		test.assertEquals("qs #1", qsCorrect1, o.toQueryString()) &&
+	// 		test.assertEquals("qs #2", qsCorrect2, o.toQueryString({rootElement: "test_validation"}))
+	// 	);
+	// });
 
 	createTest = testController.createTestSuite("BaseModel (relations)");
 
