@@ -566,7 +566,24 @@ describe("BaseModel", function() {
 
 	describe("relations", function() {
 
-		describe("getClassReference", function() {});
+		describe("getClassReference", function() {
+
+			window.__classReferenceTest__ = {
+				foo: {
+					bar: {
+						Test: function() {}
+					}
+				}
+			};
+
+			it("gets a class reference by a String class name", function() {
+				expect(BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.Test")).toBeFunction();
+			});
+
+			it("throws an error when an invalid String class name is provided", function() {
+				expect(function() {BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.InvalidClassName");}).toThrowError();
+			});
+		});
 
 	});
 

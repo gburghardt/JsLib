@@ -385,35 +385,35 @@
 
 	createTest = testController.createTestSuite("BaseModel (relations)");
 
-	createTest("getClassReference", function(test) {
-		window.__classReferenceTest__ = {
-			foo: {
-				bar: {
-					Test: function() {}
-				}
-			}
-		};
-
-		return (
-			test.assertFunction("", BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.Test"))
-		);
-	});
-
-	createTest("getClassReference - invalid", function(test) {
-		var e;
-
-		try {
-			test.assertFunction("", BaseModel.modules.relations.self.getClassReference("non.existent.Class"));
-			test.fail("A non existent class name should throw an error");
-		}
-		catch (error) {
-			e = error;
-		}
-
-		return (
-			test.assertError("", e)
-		);
-	});
+	// createTest("getClassReference", function(test) {
+	// 	window.__classReferenceTest__ = {
+	// 		foo: {
+	// 			bar: {
+	// 				Test: function() {}
+	// 			}
+	// 		}
+	// 	};
+	// 
+	// 	return (
+	// 		test.assertFunction("", BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.Test"))
+	// 	);
+	// });
+	// 
+	// createTest("getClassReference - invalid", function(test) {
+	// 	var e;
+	// 
+	// 	try {
+	// 		test.assertFunction("", BaseModel.modules.relations.self.getClassReference("non.existent.Class"));
+	// 		test.fail("A non existent class name should throw an error");
+	// 	}
+	// 	catch (error) {
+	// 		e = error;
+	// 	}
+	// 
+	// 	return (
+	// 		test.assertError("", e)
+	// 	);
+	// });
 
 	function TestRelations(attributes) {
 		this.constructor(attributes);
