@@ -326,32 +326,32 @@
 	// 	return test.assertEquals("", xmlCorrect, o.toXML({shorthand: true, rootElement: "test_validation"}));
 	// });
 
-	createTest("toJSON", function(test) {
-		var o = new TestValidation({
-			id: 1234,
-			name: "Paint",
-			description: "Red<br>matte",
-			price: 15.99,
-			notes: "Per gallon",
-			phone: null
-		});
-		var jsonCorrect1 = [
-			'{',
-				'"name":"Paint",',
-				'"description":"Red<br>matte",',
-				'"price":15.99,',
-				'"notes":"Per gallon",',
-				'"phone":null,',
-				'"id":1234',
-			'}'
-		].join("");
-		var jsonCorrect2 = '{"test_validation":' + jsonCorrect1 + '}';
-
-		return (
-			test.assertEquals("o.toJSON() should be equal to jsonCorrect1", jsonCorrect1, o.toJSON()) &&
-			test.assertEquals("o.toJSON({rootElement: 'test_validation'}) should be equal to jsonCorrect2", jsonCorrect2, o.toJSON({rootElement: "test_validation"}))
-		);
-	});
+	// createTest("toJSON", function(test) {
+	// 	var o = new TestValidation({
+	// 		id: 1234,
+	// 		name: "Paint",
+	// 		description: "Red<br>matte",
+	// 		price: 15.99,
+	// 		notes: "Per gallon",
+	// 		phone: null
+	// 	});
+	// 	var jsonCorrect1 = [
+	// 		'{',
+	// 			'"name":"Paint",',
+	// 			'"description":"Red<br>matte",',
+	// 			'"price":15.99,',
+	// 			'"notes":"Per gallon",',
+	// 			'"phone":null,',
+	// 			'"id":1234',
+	// 		'}'
+	// 	].join("");
+	// 	var jsonCorrect2 = '{"test_validation":' + jsonCorrect1 + '}';
+	// 
+	// 	return (
+	// 		test.assertEquals("o.toJSON() should be equal to jsonCorrect1", jsonCorrect1, o.toJSON()) &&
+	// 		test.assertEquals("o.toJSON({rootElement: 'test_validation'}) should be equal to jsonCorrect2", jsonCorrect2, o.toJSON({rootElement: "test_validation"}))
+	// 	);
+	// });
 
 	createTest("toQueryString", function(test) {
 		var o = new TestValidation({
