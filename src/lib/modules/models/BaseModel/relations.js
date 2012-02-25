@@ -11,10 +11,6 @@ BaseModel.includeModule("relations", {
 			this.initOneToManyRelationships();
 		},
 
-		attributes: function(attrs) {
-			// TODO: instantiate relationships
-		},
-
 		toJSON: function(options) {
 			
 		},
