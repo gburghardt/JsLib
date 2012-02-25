@@ -43,3 +43,7 @@ jasmine.Matchers.prototype.toThrowError = function(errorKlass) {
 
 	return result;
 };
+
+jasmine.Matchers.prototype.toBeInstanceof = function(klass) {
+	return (this.actual instanceof klass) ? true : false;
+};
