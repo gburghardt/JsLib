@@ -605,68 +605,68 @@ describe("BaseModel", function() {
 			});
 		});
 
-	});
+		describe("hasOne", function() {
 
-	describe("hasOne", function() {
+			beforeEach(function() {
+				this.attributes = {
+					id: 1234,
+					name: "Chainsaw",
+					description: "Cuts wood",
+					price: 135.99,
+					quantity: 8,
+					category_id: 98,
+					category: {
+						id: 98,
+						name: "Outdoors"
+					}
+				};
+			});
 
-		beforeEach(function() {
-			this.attributes = {
-				id: 1234,
-				name: "Chainsaw",
-				description: "Cuts wood",
-				price: 135.99,
-				quantity: 8,
-				category_id: 98,
-				category: {
-					id: 98,
-					name: "Outdoors"
-				}
-			};
-		});
+			it("returns null when no attributes exist for a relation", function() {
+				var model = new TestRelations();
+				expect(model.category).toBeNull();
+			});
 
-		it("returns null when no attributes exist for a relation", function() {
-			var model = new TestRelations();
-			expect(model.category).toBeNull();
-		});
+			it("instantiates a relation when attributes exist", function() {
+				var model = new TestRelations(this.attributes);
+				expect(model.category).toBeDefined();
+				expect(model.category).toBeInstanceof(Category);
+				expect(model.category.name).toEqual("Outdoors");
+				expect(model.category.id).toEqual(98);
+			});
 
-		it("instantiates a relation when attributes exist", function() {
-			var model = new TestRelations(this.attributes);
-			expect(model.category).toBeDefined();
-			expect(model.category).toBeInstanceof(Category);
-			expect(model.category.name).toEqual("Outdoors");
-			expect(model.category.id).toEqual(98);
-		});
+			it("lazily instantiates a relation when attributes exist", function() {
+				var model = new TestRelations();
+				expect(model.category).toBeNull();
+				model.attributes = this.attributes;
+				expect(model.category).toBeDefined();
+				expect(model.category).toBeInstanceof(Category);
+				expect(model.category.name).toEqual("Outdoors");
+				expect(model.category.id).toEqual(98);
+				expect(model.category_id).toEqual(model.category.id);
+			});
 
-		it("lazily instantiates a relation when attributes exist", function() {
-			var model = new TestRelations();
-			expect(model.category).toBeNull();
-			model.attributes = this.attributes;
-			expect(model.category).toBeDefined();
-			expect(model.category).toBeInstanceof(Category);
-			expect(model.category.name).toEqual("Outdoors");
-			expect(model.category.id).toEqual(98);
-			expect(model.category_id).toEqual(model.category.id);
-		});
+			it("sets relationship Id attribute to null when setting relationship to null", function() {
+				var model = new TestRelations(this.attributes);
+				expect(model.category).toBeInstanceof(Category);
+				expect(model.category.id).toEqual(model.category_id);
+				expect(model.category_id).toEqual(98);
+				model.category = null;
+				expect(model.category).toBeNull();
+				expect(model.category_id).toBeNull();
+				expect(model.changedAttributes.category_id).toEqual(98);
+			});
 
-		it("sets relationship Id attribute to null when setting relationship to null", function() {
-			var model = new TestRelations(this.attributes);
-			expect(model.category).toBeInstanceof(Category);
-			expect(model.category.id).toEqual(model.category_id);
-			expect(model.category_id).toEqual(98);
-			model.category = null;
-			expect(model.category).toBeNull();
-			expect(model.category_id).toBeNull();
-			expect(model.changedAttributes.category_id).toEqual(98);
-		});
+			it("assigning a relationship by object instance changes relationship Id", function() {
+				var model = new TestRelations();
+				var category = new Category({id: 98, name: "Outdoors"});
+				expect(model.category_id).toBeNull();
+				model.category = category;
+				expect(model.category).toEqual(category);
+				expect(model.category.id).toEqual(98);
+				expect(model.category_id).toEqual(category.id);
+			});
 
-		it("assigning a relationship by object instance changes relationship Id", function() {
-			var model = new TestRelations();
-			var category = new Category({id: 98, name: "Outdoors"});
-			expect(model.category_id).toBeNull();
-			model.category = category;
-			expect(model.category).toEqual(category);
-			expect(model.category.id).toEqual(98);
-			expect(model.category_id).toEqual(category.id);
 		});
 
 	});
