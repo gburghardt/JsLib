@@ -12,21 +12,21 @@ BaseModel.includeModule("relations", {
 		},
 
 		toJSON: function(options) {
-			
+
 		},
 
 		toQueryString: function(options) {
-			
+
 		},
 
 		toXML: function(options) {
-			
+
 		},
 
 		validate: function() {
-			
+
 		}
-		
+
 	},
 
 	prototype: {
@@ -104,9 +104,9 @@ BaseModel.includeModule("relations", {
 	},
 
 	self: {
-		
+
 		classReferenceCache: {},
-		
+
 		getClassReference: function(className) {
 			if (!this.classReferenceCache.hasOwnProperty(className)) {
 				var context = window;
@@ -139,7 +139,7 @@ BaseModel.includeModule("relations", {
 
 			return this.classReferenceCache[className];
 		}
-		
+
 	}
 
 });
