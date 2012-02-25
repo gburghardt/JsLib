@@ -437,69 +437,69 @@
 	window.TestRelations = TestRelations;
 	window.Category = Category;
 
-	createTest("hasOne - no attributes", function(test) {
-		var o = new TestRelations();
+	// createTest("hasOne - no attributes", function(test) {
+	// 	var o = new TestRelations();
+	// 
+	// 	return (
+	// 		test.assertNull("o.category should be null", o.category)
+	// 	);
+	// });
 
-		return (
-			test.assertNull("o.category should be null", o.category)
-		);
-	});
+	// createTest("hasOne - with attributes", function(test) {
+	// 	var o = new TestRelations({
+	// 		id: 1234,
+	// 		name: "Chainsaw",
+	// 		description: "Cuts wood",
+	// 		price: 135.99,
+	// 		quantity: 8,
+	// 		category_id: 98,
+	// 		category: {
+	// 			id: 98,
+	// 			name: "Outdoors"
+	// 		}
+	// 	});
+	// 
+	// 	var category = o.category;
+	// 
+	// 	return (
+	// 		test.assertInstanceof("o.category should be an isntance of Category", o.category, Category) &&
+	// 		test.assertEquals("o.category.id should be 98", 98, o.category.id) &&
+	// 		test.assertEquals("o.category.name should be 'Outdoors'", "Outdoors", o.category.name)
+	// 	);
+	// });
 
-	createTest("hasOne - with attributes", function(test) {
-		var o = new TestRelations({
-			id: 1234,
-			name: "Chainsaw",
-			description: "Cuts wood",
-			price: 135.99,
-			quantity: 8,
-			category_id: 98,
-			category: {
-				id: 98,
-				name: "Outdoors"
-			}
-		});
+	// createTest("hasOne - setting to null", function(test) {
+	// 	var o = new TestRelations({
+	// 		id: 1234,
+	// 		name: "Chainsaw",
+	// 		description: "Cuts wood",
+	// 		price: 135.99,
+	// 		quantity: 8,
+	// 		category_id: 98,
+	// 		category: {
+	// 			id: 98,
+	// 			name: "Outdoors"
+	// 		}
+	// 	});
+	// 	
+	// 	o.category = null;
+	// 
+	// 	return (
+	// 		test.assertNull("o.category should be null", o.category) &&
+	// 		test.assertNull("o.category_id should be null", o.category_id) &&
+	// 		test.assertEquals("o.changedAttributes.category_id should be 98", 98, o.changedAttributes.category_id)
+	// 	);
+	// });
 
-		var category = o.category;
-
-		return (
-			test.assertInstanceof("o.category should be an isntance of Category", o.category, Category) &&
-			test.assertEquals("o.category.id should be 98", 98, o.category.id) &&
-			test.assertEquals("o.category.name should be 'Outdoors'", "Outdoors", o.category.name)
-		);
-	});
-
-	createTest("hasOne - setting to null", function(test) {
-		var o = new TestRelations({
-			id: 1234,
-			name: "Chainsaw",
-			description: "Cuts wood",
-			price: 135.99,
-			quantity: 8,
-			category_id: 98,
-			category: {
-				id: 98,
-				name: "Outdoors"
-			}
-		});
-		
-		o.category = null;
-
-		return (
-			test.assertNull("o.category should be null", o.category) &&
-			test.assertNull("o.category_id should be null", o.category_id) &&
-			test.assertEquals("o.changedAttributes.category_id should be 98", 98, o.changedAttributes.category_id)
-		);
-	});
-
-	createTest("hasOne - assigning by instance, originally null", function(test) {
-		var o = new TestRelations();
-		var category = new Category({id: 123, name: "Pets"});
-		o.category = category;
-
-		return (
-			test.assertEquals("o.category_id should be 123", 123, o.category_id) &&
-			test.assertEquals("o.category should be the same object as category", category, o.category)
-		);
-	});
+	// createTest("hasOne - assigning by instance, originally null", function(test) {
+	// 	var o = new TestRelations();
+	// 	var category = new Category({id: 123, name: "Pets"});
+	// 	o.category = category;
+	// 
+	// 	return (
+	// 		test.assertEquals("o.category_id should be 123", 123, o.category_id) &&
+	// 		test.assertEquals("o.category should be the same object as category", category, o.category)
+	// 	);
+	// });
 
 } )( TestController.getInstance() );

@@ -88,6 +88,26 @@ describe("BaseModel", function() {
 		}
 	};
 
+	function TestRelations(attributes) {
+		this.constructor(attributes);
+	}
+	TestRelations.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ['name', 'description', 'price', 'quantity', 'category_id'],
+		hasOne: {
+			category: {className: 'Category'}
+		}
+	};
+
+	function Category(attributes) {
+		this.constructor(attributes);
+	}
+	Category.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ['id', 'name']
+	};
+	window.Category = Category;
+
 	it("defines a primary key by default", function() {
 		var o = new TestModel();
 		expect(o.isValidAttributeKey("id")).toEqual(true);
@@ -583,6 +603,70 @@ describe("BaseModel", function() {
 			it("throws an error when an invalid String class name is provided", function() {
 				expect(function() {BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.InvalidClassName");}).toThrowError();
 			});
+		});
+
+	});
+
+	describe("hasOne", function() {
+
+		beforeEach(function() {
+			this.attributes = {
+				id: 1234,
+				name: "Chainsaw",
+				description: "Cuts wood",
+				price: 135.99,
+				quantity: 8,
+				category_id: 98,
+				category: {
+					id: 98,
+					name: "Outdoors"
+				}
+			};
+		});
+
+		it("returns null when no attributes exist for a relation", function() {
+			var model = new TestRelations();
+			expect(model.category).toBeNull();
+		});
+
+		it("instantiates a relation when attributes exist", function() {
+			var model = new TestRelations(this.attributes);
+			expect(model.category).toBeDefined();
+			expect(model.category).toBeInstanceof(Category);
+			expect(model.category.name).toEqual("Outdoors");
+			expect(model.category.id).toEqual(98);
+		});
+
+		it("lazily instantiates a relation when attributes exist", function() {
+			var model = new TestRelations();
+			expect(model.category).toBeNull();
+			model.attributes = this.attributes;
+			expect(model.category).toBeDefined();
+			expect(model.category).toBeInstanceof(Category);
+			expect(model.category.name).toEqual("Outdoors");
+			expect(model.category.id).toEqual(98);
+			expect(model.category_id).toEqual(model.category.id);
+		});
+
+		it("sets relationship Id attribute to null when setting relationship to null", function() {
+			var model = new TestRelations(this.attributes);
+			expect(model.category).toBeInstanceof(Category);
+			expect(model.category.id).toEqual(model.category_id);
+			expect(model.category_id).toEqual(98);
+			model.category = null;
+			expect(model.category).toBeNull();
+			expect(model.category_id).toBeNull();
+			expect(model.changedAttributes.category_id).toEqual(98);
+		});
+
+		it("assigning a relationship by object instance changes relationship Id", function() {
+			var model = new TestRelations();
+			var category = new Category({id: 98, name: "Outdoors"});
+			expect(model.category_id).toBeNull();
+			model.category = category;
+			expect(model.category).toEqual(category);
+			expect(model.category.id).toEqual(98);
+			expect(model.category_id).toEqual(category.id);
 		});
 
 	});
