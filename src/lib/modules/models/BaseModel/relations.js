@@ -60,9 +60,13 @@ BaseModel.includeModule("relations", {
 
 			for (key in this.hasOne) {
 				if (this.hasOne.hasOwnProperty(key)) {
+					if (!this.hasOne[key].foreignKey) {
+						this.hasOne[key].foreignKey = key + "_id";
+					}
+
 					Object.defineProperty(this.__proto__, key, {
 						get: this.createOneToOneRelationshipGetter(key, this.hasOne[key]),
-						set: this.createOneToOneRelationshipSetter(key)
+						set: this.createOneToOneRelationshipSetter(key, this.hasOne[key])
 					})
 				}
 			}
@@ -85,16 +89,16 @@ BaseModel.includeModule("relations", {
 			};
 		},
 
-		createOneToOneRelationshipSetter: function(key) {
+		createOneToOneRelationshipSetter: function(key, relationInfo) {
 			return function(newValue) {
 				this._relations[key] = newValue;
 
 				if (newValue === null) {
-					this[key + "_id"] = null;
+					this[ relationInfo.foreignKey ] = null;
 					this._attributes[key] = null;
 				}
 				else {
-					this[key + "_id"] = newValue[newValue.primaryKey];
+					this[ relationInfo.foreignKey ] = newValue[ newValue.primaryKey ];
 				}
 
 				newValue = null;
