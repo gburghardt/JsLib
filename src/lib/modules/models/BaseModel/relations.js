@@ -31,6 +31,12 @@ BaseModel.includeModule("relations", {
 
 	prototype: {
 
+		/*
+			{
+				foos: {className: "a.b.ClassName"} (assume foreign key is "foos_id")
+				bars: {className: "a.b.ClassName", foreignKey: "abc"}
+			}
+		*/
 		hasMany: null,
 
 		/*
@@ -44,7 +50,25 @@ BaseModel.includeModule("relations", {
 		_relations: null,
 
 		initOneToManyRelationships: function() {
-			
+			if (!this.hasMany) {
+				return;
+			}
+
+			var key;
+
+			for (key in this.hasMany) {
+				if (this.hasMany.hasOwnProperty(key)) {
+					if (!this.hasMany[key].foreignKey) {
+						this.hasMany[key].foreignKey = key + "_id";
+					}
+
+					Object.defineProperty(this.__proto__, key, {
+						get: this.createOneToManyRelationshipGetter(key, this.hasMany[key]),
+						set: this.createOneToManyRelationshipSetter(key, this.hasMany[key]),
+						enumerable: true
+					});
+				}
+			}
 		},
 
 		initOneToOneRelationships: function() {
@@ -62,10 +86,42 @@ BaseModel.includeModule("relations", {
 
 					Object.defineProperty(this.__proto__, key, {
 						get: this.createOneToOneRelationshipGetter(key, this.hasOne[key]),
-						set: this.createOneToOneRelationshipSetter(key, this.hasOne[key])
-					})
+						set: this.createOneToOneRelationshipSetter(key, this.hasOne[key]),
+						enumerable: true
+					});
 				}
 			}
+		},
+
+		createOneToManyRelationshipGetter: function(key, relationInfo) {
+			return function() {
+				if (this._relations[key]) {
+					return this._relations[key];
+				}
+				else if (this._attributes[key]) {
+					var i = 0, length = this._attributes[key].length, classReference;
+
+					this._relations[key] = [];
+
+					for (i; i < length; i++) {
+						classReference = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
+						this._relations[key].push( new classReference( this._attributes[key][i] ) );
+					}
+
+					classReference = null;
+					return this._relations[key];
+				}
+				else {
+					return null;
+				}
+			};
+		},
+
+		createOneToManyRelationshipSetter: function(key, relationInfo) {
+			return function(newValue) {
+				this._relations[key] = newValue;
+				newValue = null;
+			};
 		},
 
 		createOneToOneRelationshipGetter: function(key, relationInfo) {

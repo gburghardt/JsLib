@@ -99,6 +99,17 @@ describe("BaseModel", function() {
 		}
 	};
 
+	function Store(attributes) {
+		this.constructor(attributes);
+	}
+	Store.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ["id", "name"],
+		hasMany: {
+			deals: {className: "Deal", foreignKey: "store_id"}
+		}
+	};
+
 	function Category(attributes) {
 		this.constructor(attributes);
 	}
@@ -107,6 +118,15 @@ describe("BaseModel", function() {
 		_validAttributes: ['id', 'name']
 	};
 	window.Category = Category;
+
+	function Deal(attributes) {
+		this.constructor(attributes);
+	}
+	Deal.prototype = {
+		__proto__: BaseModel.prototype,
+		_validAttributes: ['id', 'store_id', 'name', 'description', 'start_date', 'end_date']
+	};
+	window.Deal = Deal;
 
 	it("defines a primary key by default", function() {
 		var o = new TestModel();
@@ -638,6 +658,7 @@ describe("BaseModel", function() {
 			it("lazily instantiates a relation when attributes exist", function() {
 				var model = new TestRelations();
 				expect(model.category).toBeNull();
+				expect(model._relations.category).toBeUndefined();
 				model.attributes = this.attributes;
 				expect(model.category).toBeDefined();
 				expect(model.category).toBeInstanceof(Category);
@@ -665,6 +686,72 @@ describe("BaseModel", function() {
 				expect(model.category).toEqual(category);
 				expect(model.category.id).toEqual(98);
 				expect(model.category_id).toEqual(category.id);
+			});
+
+		});
+
+		describe("hasMany", function() {
+
+			beforeEach(function() {
+				this.attributes = {
+					id: 1234,
+					name: "Chainsaw",
+					description: "Cuts wood",
+					price: 135.99,
+					quantity: 8,
+					deals: [{
+						id: 1,
+						store_id: 1234,
+						name: "New Year's Blowout",
+						description: "Take 50% off everything in store!",
+						start_date: "January 1, 2012",
+						end_date: "February 1, 2012"
+					},{
+						id: 2,
+						store_id: 1234,
+						name: "Valentine's Day Sale",
+						description: "45% off all chocolates",
+						start_date: "February 15, 2012",
+						end_date: "February 16, 2012"
+					}]
+				};
+			});
+
+			it("returns null when no attributes exist for a relation", function() {
+				var model = new Store();
+				expect(model.deals).toBeNull();
+				expect(model._relations.deals).toBeUndefined();
+			});
+
+			it("instantiates a relation when attributes exist", function() {
+				var model = new Store(this.attributes);
+				expect(model.deals).toBeArray();
+				expect(model.deals.length).toEqual(2);
+				expect(model._relations.deals).toBeArray();
+				expect(model.deals[0]).toBeInstanceof(Deal);
+				expect(model.deals[1]).toBeInstanceof(Deal);
+			});
+
+			it("lazily instantiates a relation when attributes exist", function() {
+				var model = new Store();
+				expect(model.deals).toBeNull();
+				expect(model._relations.deals).toBeUndefined();
+				model.attributes = this.attributes;
+				expect(model.deals).toBeArray();
+				expect(model.deals.length).toEqual(2);
+				expect(model._relations.deals).toBeArray();
+				expect(model.deals[0]).toBeInstanceof(Deal);
+				expect(model.deals[1]).toBeInstanceof(Deal);
+			});
+
+			it("assigns a relationship by object instance", function() {
+				var model = new Store(this.attributes);
+				var oldDeals = model.deals;
+				var newDeals = [new Deal({id: 3, store_id: 1234})];
+				model.deals = newDeals;
+				expect(model.changedAttributes.deals).toBeUndefined();
+				expect(model.deals).toEqual(newDeals);
+				expect(model.deals.length).toEqual(1);
 			});
 
 		});
