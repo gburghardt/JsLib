@@ -6,7 +6,7 @@ BaseModel.prototype = {
 
 	_attributes: null,
 	_changedAttributes: null,
-	_validAttributes: null,
+	validAttributes: null,
 
 	primaryKey: "id",
 
@@ -28,9 +28,9 @@ BaseModel.prototype = {
 			return;
 		}
 
-		this._validAttributes = this._validAttributes || [];
+		this.validAttributes = this.validAttributes || [];
 
-		var i = 0, attrs = this._validAttributes, length, key;
+		var i = 0, attrs = this.validAttributes, length, key;
 
 		if (attrs.indexOf(this.primaryKey) < 0) {
 			attrs.push(this.primaryKey);
@@ -111,7 +111,7 @@ BaseModel.prototype = {
 	},
 
 	isValidAttributeKey: function(key) {
-		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this._validAttributes.join(" "));
+		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 	},
 
 	valueIsEmpty: function(value) {

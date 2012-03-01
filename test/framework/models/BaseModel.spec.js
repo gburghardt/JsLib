@@ -19,7 +19,7 @@ function TestModelAttributes(attributes) {
 }
 TestModelAttributes.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ["firstName", "lastName"]
+	validAttributes: ["firstName", "lastName"]
 };
 
 function TestValidation(attributes) {
@@ -27,7 +27,7 @@ function TestValidation(attributes) {
 }
 TestValidation.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: [
+	validAttributes: [
 		"name",
 		"description",
 		"price",
@@ -59,7 +59,7 @@ function TestMaxLengthValidation(attributes) {
 }
 TestMaxLengthValidation.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ["name", "description", "notes"],
+	validAttributes: ["name", "description", "notes"],
 	validatesMaxLength: {name: 10, description: 8, notes: 4}
 };
 
@@ -68,7 +68,7 @@ function TestNumericValidation(attributes) {
 }
 TestNumericValidation.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ["price"],
+	validAttributes: ["price"],
 	validatesNumeric: ["price"]
 };
 
@@ -77,7 +77,7 @@ function TestFormatValidation(attributes) {
 }
 TestFormatValidation.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ["phone", "address"],
+	validAttributes: ["phone", "address"],
 	validatesFormatOf: {
 		phone: [
 			/^\d{3}-\d{3}-\d{4}$/,
@@ -92,7 +92,7 @@ function TestRelations(attributes) {
 }
 TestRelations.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ['name', 'description', 'price', 'quantity', 'category_id'],
+	validAttributes: ['name', 'description', 'price', 'quantity', 'category_id'],
 	hasOne: {
 		category: {className: 'Category'}
 	}
@@ -103,7 +103,7 @@ function Store(attributes) {
 }
 Store.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ["id", "name"],
+	validAttributes: ["id", "name"],
 	requires: ["id", "name"],
 	hasMany: {
 		deals: {className: "Deal", foreignKey: "store_id"}
@@ -115,7 +115,7 @@ function Category(attributes) {
 }
 Category.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ['id', 'name']
+	validAttributes: ['id', 'name']
 };
 
 function Deal(attributes) {
@@ -123,7 +123,7 @@ function Deal(attributes) {
 }
 Deal.prototype = {
 	__proto__: BaseModel.prototype,
-	_validAttributes: ['id', 'store_id', 'name', 'description', 'start_date', 'end_date'],
+	validAttributes: ['id', 'store_id', 'name', 'description', 'start_date', 'end_date'],
 	requires: ['id', 'store_id']
 };
 
