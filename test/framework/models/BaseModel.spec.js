@@ -104,6 +104,7 @@ function Store(attributes) {
 Store.prototype = {
 	__proto__: BaseModel.prototype,
 	_validAttributes: ["id", "name"],
+	requires: ["id", "name"],
 	hasMany: {
 		deals: {className: "Deal", foreignKey: "store_id"}
 	}
@@ -164,7 +165,7 @@ describe("BaseModel", function() {
 		});
 
 		it("returns true for strings containing only white space characters", function() {
-			expect(this.model.valueIsEmpty("  \t  ")).toEqual(true);
+			expect(this.model.valueIsEmpty("	\t	")).toEqual(true);
 		});
 
 		it("returns true for empty arrays", function() {
@@ -423,7 +424,7 @@ describe("BaseModel", function() {
 			it("returns true for empty values", function() {
 				this.model.name = undefined;
 				this.model.descrition = null;
-				this.model.notes = "                   ";
+				this.model.notes = "									 ";
 				expect(this.model.validate()).toBeTrue();
 			});
 
@@ -752,6 +753,74 @@ describe("BaseModel", function() {
 				expect(model.changedAttributes.deals).toBeUndefined();
 				expect(model.deals).toEqual(newDeals);
 				expect(model.deals.length).toEqual(1);
+			});
+
+		});
+
+		describe("validation", function() {
+
+			it("sets valid to false when a relationship is invalid", function() {
+				var model = new Store({
+					id: 1234,
+					name: "Expo World",
+					deals: [{
+						name: "I am not valid"
+					},{
+						id: 5,
+						store_id: 1234,
+						name: "I am valid"
+					}]
+				});
+
+				expect(model.validate()).toBeFalse();
+				expect(model.deals[0].valid).toBeFalse();
+				expect(model.deals[1].valid).toBeTrue();
+				expect(model.errors.deals[0]).toEqual("has errors");
+			});
+
+			it("sets valid to true when all relations are valid", function() {
+				var model = new Store({
+					id: 1234,
+					name: "Expo World",
+					deals: [{
+						id: 6,
+						store_id: 1234,
+						name: "I am valid"
+					},{
+						id: 5,
+						store_id: 1234,
+						name: "I am valid too"
+					}]
+				});
+
+				expect(model.validate()).toBeTrue();
+			});
+
+			it("sets valid to true when there are no relations", function() {
+				var model = new Store({
+					id: 1234,
+					name: "Expo World"
+				});
+
+				expect(model.validate()).toBeTrue();
+			});
+
+			it("sets valid to false when relations are valid, but main attributes are not", function() {
+				var model = new Store({
+					id: 1234,
+					deals: [{
+						id: 6,
+						store_id: 1234,
+						name: "I am valid"
+					},{
+						id: 5,
+						store_id: 1234,
+						name: "I am valid too"
+					}]
+				});
+
+				expect(model.validate()).toBeFalse();
+				expect(model.errors.name).toBeArray();
 			});
 
 		});

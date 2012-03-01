@@ -24,7 +24,8 @@ BaseModel.includeModule("relations", {
 		},
 
 		validate: function() {
-
+			this.validateOneToOneRelationships();
+			this.validateOneToManyRelationships();
 		}
 
 	},
@@ -155,6 +156,54 @@ BaseModel.includeModule("relations", {
 
 				newValue = null;
 			};
+		},
+
+		validateOneToOneRelationships: function(key) {
+			if (!this.hasOne) {
+				return;
+			}
+
+			var key, relations = this.hasOne, relationship;
+
+			for (key in relations) {
+				if (relations.hasOwnProperty(key)) {
+					relationship = this[key];
+					this.validateRelationship(key, relationship);
+				}
+			}
+
+			relations = relationship = null;
+		},
+
+		validateOneToManyRelationships: function(key) {
+			if (!this.hasMany) {
+				return;
+			}
+
+			var key, relations = this.hasMany, relationship, i, length;
+
+			for (key in relations) {
+				if (relations.hasOwnProperty(key) && this[key]) {
+					relationship = this[key];
+
+					for (i = 0, length = relationship.length; i < length; i++) {
+						this.validateRelationship(key, relationship[i]);
+					}
+				}
+			}
+
+			relations = relationship = null;
+		},
+
+		validateRelationship: function(key, relationship) {
+			relationship.validate();
+
+			if (!relationship.valid) {
+				this.valid = false;
+				this.addError(key, "has errors");
+			}
+
+			relationship = null;
 		}
 
 	},
