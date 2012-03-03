@@ -515,6 +515,23 @@ describe("BaseModel", function() {
 				expect(this.model.toJSON({rootElement: "test_validation"})).toEqual(json);
 			});
 
+			it("serializes changed attributes", function() {
+				var json = [
+					'{',
+						'"name":"Stain",',
+						'"id":1234',
+					'}'
+				].join("");
+				this.model.name = "Stain";
+				expect(this.model.changedAttributes.name).toEqual("Paint");
+				expect(this.model.toJSON({changedAttributesOnly: true})).toEqual(json);
+			});
+
+			it("serializes only the primary key when no changed attributes exist", function() {
+				var json = '{"id":1234}';
+				expect(this.model.toJSON({changedAttributesOnly: true})).toEqual(json);
+			});
+
 		});
 
 		describe("toQueryString", function() {
