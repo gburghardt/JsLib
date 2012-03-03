@@ -4,10 +4,10 @@ BaseModel.includeModule("serialization", {
 
 		escapeHTML: function(x) {
 			return String(x).replace(/&/g, "&amp;")
-											.replace(/</g, "&lt;")
-											.replace(/>/g, "&gt;")
-											.replace(/"/g, "&quot;")
-											.replace(/'/g, "&apos;");
+			                .replace(/</g, "&lt;")
+			                .replace(/>/g, "&gt;")
+			                .replace(/"/g, "&quot;")
+			                .replace(/'/g, "&apos;");
 		},
 
 		serialize: function(type, options) {
