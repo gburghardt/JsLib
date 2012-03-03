@@ -115,8 +115,22 @@ BaseModel.includeModule("serialization", {
 
 		toXML: function(options) {
 			options = options || {};
-			var attrs = this.attributes, key, xml = [], glue = "", moduleCallbacksResult;
+			var attrs, key, xml = [], glue = "", moduleCallbacksResult;
 
+			if (options.changedAttributesOnly) {
+				attrs = {};
+
+				for (key in this._changedAttributes) {
+					if (this._changedAttributes.hasOwnProperty(key) && this._changedAttributes[key]) {
+						attrs[key] = this._attributes[key];
+					}
+				}
+
+				attrs[this.primaryKey] = this.attributes[this.primaryKey];
+			}
+			else {
+				attrs = this._attributes;
+			}
 
 			if (options.shorthand) {
 				if (!options.rootElement) {

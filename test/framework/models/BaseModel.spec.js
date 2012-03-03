@@ -627,6 +627,15 @@ describe("BaseModel", function() {
 				expect(this.model.toXML({rootElement: 'test_validation', shorthand: true})).toEqual(xml);
 			});
 
+			it("converts changed attributes to xml", function() {
+				var xml = [
+					'<name>Stain</name>',
+					'<id>1234</id>'
+				].join("");
+				this.model.name = "Stain";
+				expect(this.model.toXML({changedAttributesOnly: true})).toEqual(xml);
+			});
+
 		});
 
 	});
