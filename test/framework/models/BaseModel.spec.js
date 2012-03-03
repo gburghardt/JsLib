@@ -571,6 +571,15 @@ describe("BaseModel", function() {
 				expect(this.model.toQueryString({rootElement: "test_validation"})).toEqual(queryString);
 			});
 
+			it("serializes changed attributes", function() {
+				var queryString = [
+					'name=Stain',
+					'id=1234'
+				].join("&");
+				this.model.name = "Stain";
+				expect(this.model.toQueryString({changedAttributesOnly: true})).toEqual(queryString);
+			});
+
 		});
 
 		describe("toXML", function() {
