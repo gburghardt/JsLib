@@ -3,6 +3,7 @@ BaseModel.includeModule("relations", {
 	callbacks: {
 
 		__constructor: function(attributes) {
+			this.relationsAttributes = {};
 			this._relations = {};
 		},
 
@@ -11,12 +12,70 @@ BaseModel.includeModule("relations", {
 			this.initOneToManyRelationships();
 		},
 
+		attributes: function(attrs) {
+			for (var key in attrs) {
+				if (attrs.hasOwnProperty(key)) {
+					if (( this.hasOne && this.hasOne.hasOwnProperty(key) ) || ( this.hasMany && this.hasMany.hasOwnProperty(key) )) {
+						this.relationsAttributes[key] = attrs[key];
+						attrs[key] = null;
+						delete attrs[key];
+					}
+				}
+			}
+		},
+
 		toJSON: function(options) {
 
 		},
 
 		toQueryString: function(options) {
+			var key;
+			var i;
+			var length;
+			var relation;
+			var queryString = [];
+			var origRootElement = options.rootElement || "";
+			var currentRootElement = "";
+			var relationQueryString;
 
+			for (key in this.hasOne) {
+				if (this.hasOne.hasOwnProperty(key)) {
+					relation = this[key];
+
+					if (relation) {
+						options.rootElement = (origRootElement) ? origRootElement + "[" + key + "]" : key;
+						relationQueryString = relation.toQueryString(options);
+
+						if (relationQueryString) {
+							queryString.push(relationQueryString);
+						}
+					}
+				}
+			}
+
+			for (key in this.hasMany) {
+				if (this.hasMany.hasOwnProperty(key)) {
+					relation = this[key];
+
+					if (relation) {
+						currentRootElement = (origRootElement) ? origRootElement + "[" + key + "]" : key;
+
+						for (i = 0, length = relation.length; i < length; i++) {
+							options.rootElement = currentRootElement + "[" + i + "]";
+							relationQueryString = relation[i].toQueryString(options);
+							console.log(options.rootElement + " - relationQueryString = " + relationQueryString);
+
+							if (relationQueryString) {
+								queryString.push(relationQueryString);
+							}
+						}
+					}
+				}
+			}
+
+			console.log(origRootElement + " - queryString = " + queryString.join("&"));
+
+			return queryString.length ? queryString.join("&") : undefined;
 		},
 
 		toXML: function(options) {
@@ -47,6 +106,8 @@ BaseModel.includeModule("relations", {
 			}
 		*/
 		hasOne: null,
+
+		relationsAttributes: null,
 
 		_relations: null,
 
@@ -99,14 +160,14 @@ BaseModel.includeModule("relations", {
 				if (this._relations[key]) {
 					return this._relations[key];
 				}
-				else if (this._attributes[key]) {
-					var i = 0, length = this._attributes[key].length, classReference;
+				else if (this.relationsAttributes[key]) {
+					var i = 0, length = this.relationsAttributes[key].length, classReference;
 
 					this._relations[key] = [];
 
 					for (i; i < length; i++) {
 						classReference = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
-						this._relations[key].push( new classReference( this._attributes[key][i] ) );
+						this._relations[key].push( new classReference( this.relationsAttributes[key][i] ) );
 					}
 
 					classReference = null;
@@ -130,9 +191,9 @@ BaseModel.includeModule("relations", {
 				if (this._relations[key]) {
 					return this._relations[key];
 				}
-				else if (this._attributes[key]) {
+				else if (this.relationsAttributes[key]) {
 					var classReference = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
-					this._relations[key] = new classReference(this._attributes[key]);
+					this._relations[key] = new classReference(this.relationsAttributes[key]);
 					classReference = null;
 					return this._relations[key];
 				}
@@ -148,7 +209,7 @@ BaseModel.includeModule("relations", {
 
 				if (newValue === null) {
 					this[ relationInfo.foreignKey ] = null;
-					this._attributes[key] = null;
+					this.relationsAttributes[key] = null;
 				}
 				else {
 					this[ relationInfo.foreignKey ] = newValue[ newValue.primaryKey ];
@@ -168,7 +229,10 @@ BaseModel.includeModule("relations", {
 			for (key in relations) {
 				if (relations.hasOwnProperty(key)) {
 					relationship = this[key];
-					this.validateRelationship(key, relationship);
+
+					if (relationship) {
+						this.validateRelationship(key, relationship);
+					}
 				}
 			}
 
@@ -186,8 +250,10 @@ BaseModel.includeModule("relations", {
 				if (relations.hasOwnProperty(key) && this[key]) {
 					relationship = this[key];
 
-					for (i = 0, length = relationship.length; i < length; i++) {
-						this.validateRelationship(key, relationship[i]);
+					if (relationship) {
+						for (i = 0, length = relationship.length; i < length; i++) {
+							this.validateRelationship(key, relationship[i]);
+						}
 					}
 				}
 			}
