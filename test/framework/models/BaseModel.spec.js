@@ -107,6 +107,9 @@ Store.prototype = {
 	requires: ["id", "name"],
 	hasMany: {
 		deals: {className: "Deal", foreignKey: "store_id"}
+	},
+	hasOne: {
+		distribution_center: {className: "DistributionCenter"}
 	}
 };
 
@@ -125,6 +128,21 @@ Deal.prototype = {
 	__proto__: BaseModel.prototype,
 	validAttributes: ['id', 'store_id', 'name', 'description', 'start_date', 'end_date'],
 	requires: ['id', 'store_id']
+};
+
+function DistributionCenter(attributes) {
+	this.constructor(attributes);
+}
+DistributionCenter.prototype = {
+	__proto__: BaseModel.prototype,
+	validAttributes: [
+		'address',
+		'address2',
+		'postal_code',
+		'region',
+		'country',
+		'phone'
+	]
 };
 
 describe("BaseModel", function() {
@@ -858,6 +876,65 @@ describe("BaseModel", function() {
 				expect(model.errors.name).toBeArray();
 			});
 
+		});
+
+		describe("serialization", function() {
+			it("serializes relations into a query string", function() {
+				var model = new Store({
+					id: 1234,
+					deals: [{
+						id: 4,
+						store_id: 1234,
+						name: "Testing1"
+					},{
+						id: 78,
+						store_id: 1234,
+						name: "Testing2"
+					}],
+					distribution_center: {
+						id: 9876,
+						address: "123 South St",
+						postal_code: "12345-1234",
+						region: "NE",
+						country: "United States of America"
+					}
+				});
+				var queryString = [
+					'store[id]=1234',
+					'store[deals][0][id]=4',
+					'store[deals][0][store_id]=1234',
+					'store[deals][0][name]=Testing1',
+					'store[deals][1][id]=78',
+					'store[deals][1][store_id]=1234',
+					'store[deals][1][name]=Testing2',
+					'store[distribution_center][id]=9876',
+					'store[distribution_center][address]=123%20South%20St',
+					'store[distribution_center][postal_code]=12345-1234',
+					'store[distribution_center][region]=NE',
+					'store[distribution_center][country]=United%20States%20of%20America'
+				].sort().join("&");
+				var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
+				expect(actual).toEqual(queryString);
+			});
+
+			it("skips relations that do not exist", function() {
+				var model = new Store({
+					id: 1234,
+					deals: [{
+						id: 4,
+						store_id: 1234,
+						name: "Testing1"
+					}]
+				});
+				var queryString = [
+					'store[id]=1234',
+					'store[deals][0][id]=4',
+					'store[deals][0][store_id]=1234',
+					'store[deals][0][name]=Testing1'
+				].sort().join("&");
+				var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
+				expect(actual).toEqual(queryString);
+			});
 		});
 
 	});
