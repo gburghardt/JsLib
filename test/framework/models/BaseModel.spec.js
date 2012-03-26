@@ -737,6 +737,7 @@ describe("BaseModel", function() {
 				var category = new Category({id: 98, name: "Outdoors"});
 				expect(model.category_id).toBeNull();
 				model.category = category;
+				expect(model.relationsAttributes.category).toBeNull();
 				expect(model.category).toEqual(category);
 				expect(model.category.id).toEqual(98);
 				expect(model.category_id).toEqual(category.id);
@@ -803,6 +804,7 @@ describe("BaseModel", function() {
 				var oldDeals = model.deals;
 				var newDeals = [new Deal({id: 3, store_id: 1234})];
 				model.deals = newDeals;
+				expect(model.relationsAttributes.deals).toBeNull();
 				expect(model.changedAttributes.deals).toBeUndefined();
 				expect(model.deals).toEqual(newDeals);
 				expect(model.deals.length).toEqual(1);
@@ -936,7 +938,6 @@ describe("BaseModel", function() {
 				expect(actual).toEqual(queryString);
 			});
 		});
-
 	});
 
 });

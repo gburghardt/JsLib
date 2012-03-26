@@ -181,6 +181,7 @@ BaseModel.includeModule("relations", {
 
 		createOneToManyRelationshipSetter: function(key, relationInfo) {
 			return function(newValue) {
+				this.relationsAttributes[key] = null;
 				this._relations[key] = newValue;
 				newValue = null;
 			};
@@ -206,10 +207,10 @@ BaseModel.includeModule("relations", {
 		createOneToOneRelationshipSetter: function(key, relationInfo) {
 			return function(newValue) {
 				this._relations[key] = newValue;
+				this.relationsAttributes[key] = null;
 
 				if (newValue === null) {
 					this[ relationInfo.foreignKey ] = null;
-					this.relationsAttributes[key] = null;
 				}
 				else {
 					this[ relationInfo.foreignKey ] = newValue[ newValue.primaryKey ];
