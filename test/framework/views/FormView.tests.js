@@ -14,64 +14,64 @@
 		data.formView = null;
 	});
 
-	suite.createTest("getControlsByName", function(test) {
-		data.form.innerHTML = [
-			'<input type="text" name="test1" size="10">',
-			'<select name="test2"></select>',
-			'<select name="test2"></select>'
-		].join("\n");
-		var controls1 = data.formView.getControlsByName("test1"),
-				controls2 = data.formView.getControlsByName("test2");
+	// suite.createTest("getControlsByName", function(test) {
+	// 	data.form.innerHTML = [
+	// 		'<input type="text" name="test1" size="10">',
+	// 		'<select name="test2"></select>',
+	// 		'<select name="test2"></select>'
+	// 	].join("\n");
+	// 	var controls1 = data.formView.getControlsByName("test1"),
+	// 			controls2 = data.formView.getControlsByName("test2");
+	// 
+	// 	return (
+	// 		test.assertEquals("Should be 1", controls1.length, 1) &&
+	// 		test.assertEquals("Should be 2", controls2.length, 2)
+	// 	);
+	// });
 
-		return (
-			test.assertEquals("Should be 1", controls1.length, 1) &&
-			test.assertEquals("Should be 2", controls2.length, 2)
-		);
-	});
+	// suite.createTest("extractControValue input[type=text]", function(test) {
+	// 	var control = document.createElement("input"), disabledControl = document.createElement("input");
+	// 	var value = "test";
+	// 	control.type = disabledControl.type = "text";
+	// 	control.value = disabledControl.value = value;
+	// 	disabledControl.disabled = true;
+	// 	
+	// 	return (
+	// 		test.assertEquals("", value, data.formView.extractControlValue(control)) &&
+	// 		test.assertNull("", data.formView.extractControlValue(disabledControl))
+	// 	);
+	// });
 
-	suite.createTest("extractControValue input[type=text]", function(test) {
-		var control = document.createElement("input"), disabledControl = document.createElement("input");
-		var value = "test";
-		control.type = disabledControl.type = "text";
-		control.value = disabledControl.value = value;
-		disabledControl.disabled = true;
-		
-		return (
-			test.assertEquals("", value, data.formView.extractControlValue(control)) &&
-			test.assertNull("", data.formView.extractControlValue(disabledControl))
-		);
-	});
+	// suite.createTest("extractControValue input[type=checkbox]", function(test) {
+	// 	var checkedControl = document.createElement("input"), uncheckedControl = document.createElement("input");
+	// 	var value = "testing";
+	// 	checkedControl.type = uncheckedControl.type = "checkbox";
+	// 	checkedControl.value = uncheckedControl.value = value;
+	// 	checkedControl.checked = true;
+	// 	test.assertEquals("", value, data.formView.extractControlValue(checkedControl));
+	// 	test.assertNull("", data.formView.extractControlValue(uncheckedControl));
+	// 	checkedControl.disabled = uncheckedControl.disabled = true;
+	// 	
+	// 	return (
+	// 		test.assertNull("", data.formView.extractControlValue(uncheckedControl)) &&
+	// 		test.assertNull("", data.formView.extractControlValue(checkedControl))
+	// 	);
+	// });
 
-	suite.createTest("extractControValue input[type=checkbox]", function(test) {
-		var checkedControl = document.createElement("input"), uncheckedControl = document.createElement("input");
-		var value = "testing";
-		checkedControl.type = uncheckedControl.type = "checkbox";
-		checkedControl.value = uncheckedControl.value = value;
-		checkedControl.checked = true;
-		test.assertEquals("", value, data.formView.extractControlValue(checkedControl));
-		test.assertNull("", data.formView.extractControlValue(uncheckedControl));
-		checkedControl.disabled = uncheckedControl.disabled = true;
-		
-		return (
-			test.assertNull("", data.formView.extractControlValue(uncheckedControl)) &&
-			test.assertNull("", data.formView.extractControlValue(checkedControl))
-		);
-	});
-
-	suite.createTest("extractControValue input[type=radio]", function(test) {
-		data.form.innerHTML = [
-			'<input type="radio" name="test" value="1" checked>',
-			'<input type="radio" name="test" value="2" disabled>',
-			'<input type="radio" name="test" value="3">'
-		].join("");
-		
-		test.assertEquals("", "1", data.formView.extractControlValue(data.form.childNodes[0]));
-		test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]));
-		test.assertNull("", data.formView.extractControlValue(data.form.childNodes[2]));
-		data.form.childNodes[0].disabled = true;
-		
-		return test.assertNull("", data.formView.extractControlValue(data.form.childNodes[0]));
-	});
+	// suite.createTest("extractControValue input[type=radio]", function(test) {
+	// 	data.form.innerHTML = [
+	// 		'<input type="radio" name="test" value="1" checked>',
+	// 		'<input type="radio" name="test" value="2" disabled>',
+	// 		'<input type="radio" name="test" value="3">'
+	// 	].join("");
+	// 	
+	// 	test.assertEquals("", "1", data.formView.extractControlValue(data.form.childNodes[0]));
+	// 	test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]));
+	// 	test.assertNull("", data.formView.extractControlValue(data.form.childNodes[2]));
+	// 	data.form.childNodes[0].disabled = true;
+	// 	
+	// 	return test.assertNull("", data.formView.extractControlValue(data.form.childNodes[0]));
+	// });
 
 	suite.createTest("extractControValue textarea", function(test) {
 		data.form.innerHTML = [
