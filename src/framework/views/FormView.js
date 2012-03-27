@@ -105,7 +105,7 @@ function FormView() {
 					value = [];
 
 					for (i = 0, length = control.options.length; i < length; ++i) {
-						if (!control.options[i].disabled && control.options[i].selected) {
+						if (!control.options[i].disabled && control.options[i].selected && control.options[i].value) {
 							value.push(control.options[i].value);
 						}
 					}
