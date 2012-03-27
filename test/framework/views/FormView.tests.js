@@ -73,62 +73,62 @@
 	// 	return test.assertNull("", data.formView.extractControlValue(data.form.childNodes[0]));
 	// });
 
-	suite.createTest("extractControValue textarea", function(test) {
-		data.form.innerHTML = [
-			'<textarea rows="3" cols="20" name="test1">testing1</textarea>',
-			'<textarea rows="3" cols="20" name="test2" disabled>testing2</textarea>'
-		].join("");
-		
-		return (
-			test.assertEquals("", "testing1", data.formView.extractControlValue(data.form.childNodes[0])) &&
-			test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]))
-		);
-	});
+	// suite.createTest("extractControValue textarea", function(test) {
+	// 	data.form.innerHTML = [
+	// 		'<textarea rows="3" cols="20" name="test1">testing1</textarea>',
+	// 		'<textarea rows="3" cols="20" name="test2" disabled>testing2</textarea>'
+	// 	].join("");
+	// 	
+	// 	return (
+	// 		test.assertEquals("", "testing1", data.formView.extractControlValue(data.form.childNodes[0])) &&
+	// 		test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]))
+	// 	);
+	// });
 
-	suite.createTest("extractControValue select", function(test) {
-		data.form.innerHTML = [
-			'<select name="testing1">',
-				'<option value="1">1</option>',
-				'<option value="2" selected>2</option>',
-				'<option value="3">3</option>',
-			'</select>',
-			'<select name="testing2" disabled>',
-				'<option value="1">1</option>',
-				'<option value="2" selected>2</option>',
-				'<option value="3">3</option>',
-			'</select>'
-		].join("");
-		
-		return (
-			test.assertEquals("", "2", data.formView.extractControlValue(data.form.childNodes[0])) &&
-			test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]))
-		);
-	});
+	// suite.createTest("extractControValue select", function(test) {
+	// 	data.form.innerHTML = [
+	// 		'<select name="testing1">',
+	// 			'<option value="1">1</option>',
+	// 			'<option value="2" selected>2</option>',
+	// 			'<option value="3">3</option>',
+	// 		'</select>',
+	// 		'<select name="testing2" disabled>',
+	// 			'<option value="1">1</option>',
+	// 			'<option value="2" selected>2</option>',
+	// 			'<option value="3">3</option>',
+	// 		'</select>'
+	// 	].join("");
+	// 	
+	// 	return (
+	// 		test.assertEquals("", "2", data.formView.extractControlValue(data.form.childNodes[0])) &&
+	// 		test.assertNull("", data.formView.extractControlValue(data.form.childNodes[1]))
+	// 	);
+	// });
 
-	suite.createTest("extractControValue select[multiple]", function(test) {
-		data.form.innerHTML = [
-			'<select name="testing1" multiple>',
-				'<option value="1" selected>1</option>',
-				'<option value="2" selected>2</option>',
-				'<option value="3">3</option>',
-			'</select>',
-			'<select name="testing2" multiple disabled>',
-				'<option value="1" selected>1</option>',
-				'<option value="2" selected>2</option>',
-				'<option value="3">3</option>',
-			'</select>'
-		].join("");
-		
-		var values = data.formView.extractControlValue(data.form.childNodes[0]);
-		var disabledValue = data.formView.extractControlValue(data.form.childNodes[1]);
-		
-		return (
-			test.assertArray("", values) &&
-			test.assertEquals("", "1", values[0]) &&
-			test.assertEquals("", "2", values[1]) &&
-			test.assertNull("", disabledValue)
-		);
-	});
+	// suite.createTest("extractControValue select[multiple]", function(test) {
+	// 	data.form.innerHTML = [
+	// 		'<select name="testing1" multiple>',
+	// 			'<option value="1" selected>1</option>',
+	// 			'<option value="2" selected>2</option>',
+	// 			'<option value="3">3</option>',
+	// 		'</select>',
+	// 		'<select name="testing2" multiple disabled>',
+	// 			'<option value="1" selected>1</option>',
+	// 			'<option value="2" selected>2</option>',
+	// 			'<option value="3">3</option>',
+	// 		'</select>'
+	// 	].join("");
+	// 	
+	// 	var values = data.formView.extractControlValue(data.form.childNodes[0]);
+	// 	var disabledValue = data.formView.extractControlValue(data.form.childNodes[1]);
+	// 	
+	// 	return (
+	// 		test.assertArray("", values) &&
+	// 		test.assertEquals("", "1", values[0]) &&
+	// 		test.assertEquals("", "2", values[1]) &&
+	// 		test.assertNull("", disabledValue)
+	// 	);
+	// });
 
 	suite.createTest("setControlValue input[type=text]", function(test) {
 		var control = document.createElement("input"), value = "test";

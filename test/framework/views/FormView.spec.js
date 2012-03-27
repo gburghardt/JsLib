@@ -88,6 +88,111 @@ describe("FormView", function() {
 				expect(this.formView.extractControlValue(this.form.childNodes[2])).toBeNull();
 			});
 		});
+
+		describe("textarea", function() {
+			beforeEach(function() {
+				this.textarea = document.createElement("textarea");
+				this.textarea.value = "test";
+			});
+
+			it("returns the value for an enabled textarea", function() {
+				expect(this.formView.extractControlValue(this.textarea)).toEqual("test");
+			});
+
+			it("returns null for a disabled textarea", function() {
+				this.textarea.disabled = true;
+				expect(this.formView.extractControlValue(this.textarea)).toBeNull();
+			});
+
+			it("returns null for an enabled textarea with no value", function() {
+				this.textarea.value = "";
+				expect(this.formView.extractControlValue(this.textarea)).toBeNull();
+			});
+		});
+
+		describe("select", function() {
+			beforeEach(function() {
+				this.select = document.createElement("select");
+				this.select.innerHTML = [
+					'<option value="">Choose</option>',
+					'<option value="1">1</option>',
+					'<option value="2">2</option>',
+					'<option value="3">3</option>'
+				].join("");
+			});
+
+			it("returns the value of the selected option", function() {
+				this.select.options[1].selected = true;
+				this.select.options.selectedIndex = 1;
+				expect(this.formView.extractControlValue(this.select)).toEqual("1");
+			});
+
+			it("returns null when an option with no value is selected", function() {
+				this.select.options[0].selected = true;
+				this.select.options.selectedIndex = 0;
+				expect(this.formView.extractControlValue(this.select)).toBeNull();
+			});
+
+			it("returns null for a disabled select box", function() {
+				this.select.disabled = true;
+				expect(this.formView.extractControlValue(this.select)).toBeNull();
+			});
+		});
+
+		describe("select[multiple]", function() {
+			beforeEach(function() {
+				this.select = document.createElement("select");
+				this.select.multiple = true;
+				this.select.innerHTML = [
+					'<option value="">Choose</option>',
+					'<option value="1">1</option>',
+					'<option value="2">2</option>',
+					'<option value="3">3</option>'
+				].join("");
+			});
+
+			it("returns an array of selected values", function() {
+				this.select.options[1].selected = true;
+				this.select.options[2].selected = true;
+				var values = this.formView.extractControlValue(this.select);
+				expect(values).toBeArray();
+				expect(values.length).toEqual(2);
+				expect(values[0]).toEqual("1");
+				expect(values[1]).toEqual("2");
+			});
+
+			it("returns an empty array when nothing is selected", function() {
+				var values = this.formView.extractControlValue(this.select);
+				expect(values).toBeArray();
+				expect(values.length).toEqual(0);
+			});
+
+			it("returns null for a disabled select box", function() {
+				this.select.options[1].selected = true;
+				this.select.options[2].selected = true;
+				this.select.disabled = true;
+				var values = this.formView.extractControlValue(this.select);
+				expect(values).toBeNull();
+			});
+
+			it("does not return values for options with no value", function() {
+				this.select.options[0].selected = true;
+				this.select.options[1].selected = true;
+				this.select.options[2].selected = true;
+				var values = this.formView.extractControlValue(this.select);
+				expect(values).toBeArray();
+				expect(values.length).toEqual(2);
+				expect(values[0]).toEqual("1");
+				expect(values[1]).toEqual("2");
+			});
+
+			it("returns empty array if the only option selected has no value", function() {
+				this.select.options[0].selected = true;
+				var values = this.formView.extractControlValue(this.select);
+				expect(values).toBeArray();
+				expect(values.length).toEqual(0);
+			});
+		});
 	});
 
 });
