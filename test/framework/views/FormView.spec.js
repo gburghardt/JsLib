@@ -38,6 +38,11 @@ describe("FormView", function() {
 				this.textField.disabled = true;
 				expect(this.formView.extractControlValue(this.textField)).toBeNull();
 			});
+
+			it("returns null for an enabled text field with no value", function() {
+				this.textField.value = "";
+				expect(this.formView.extractControlValue(this.textField)).toBeNull();
+			});
 		});
 
 		describe("input[type=checkbox]", function() {
