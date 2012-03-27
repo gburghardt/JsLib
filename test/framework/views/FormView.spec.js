@@ -52,8 +52,9 @@ describe("FormView", function() {
 				this.checkbox.value = "test";
 			});
 
-			xit("returns the value for an enabled, checked check box", function() {
-				
+			it("returns the value for an enabled, checked check box", function() {
+				this.checkbox.checked = true;
+				expect(this.formView.extractControlValue(this.checkbox)).toEqual("test");
 			});
 
 			it("returns null for an unchecked, enabled check box", function() {
