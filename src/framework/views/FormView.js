@@ -119,7 +119,7 @@ function FormView() {
 			}
 		}
 
-		return value;
+		return (value === "") ? null : value;
 	};
 
 	this.extractControlValues = function(controls) {
