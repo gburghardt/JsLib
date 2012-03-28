@@ -89,6 +89,15 @@ describe("FormView", function() {
 			});
 		});
 
+		xit("input[type=datetime]");
+		xit("input[type=date]");
+		xit("input[type=month]");
+		xit("input[type=week]");
+		xit("input[type=time]");
+		xit("input[type=datetime-local]");
+		xit("input[type=range]");
+		xit("input[type=color]");
+
 		describe("textarea", function() {
 			beforeEach(function() {
 				this.textarea = document.createElement("textarea");
