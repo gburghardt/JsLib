@@ -130,182 +130,182 @@
 	// 	);
 	// });
 
-	suite.createTest("setControlValue input[type=text]", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "text";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=text]", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "text";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=hidden]", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "hidden";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-	suite.createTest("setControlValue input[type=hidden]", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "hidden";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=search]", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "search";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=tel]", function(test) {
+	// 	var control = document.createElement("input"), value = "555-555-5555";
+	// 	control.type = "tel";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-	suite.createTest("setControlValue input[type=search]", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "search";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=url]", function(test) {
+	// 	var control = document.createElement("input"), value = "http://www.example.com/";
+	// 	control.type = "url";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=email]", function(test) {
+	// 	var control = document.createElement("input"), value = "example@example.com";
+	// 	control.type = "email";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-	suite.createTest("setControlValue input[type=tel]", function(test) {
-		var control = document.createElement("input"), value = "555-555-5555";
-		control.type = "tel";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=datetime]", function(test) {
+	// 	var control = document.createElement("input"), value = new Date().toUTCString();
+	// 	control.type = "datetime";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=date]", function(test) {
+	// 	var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	control.type = "datetime";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertEquals("Value should be 'test'", control.value, value)
+	// 	);
+	// });
 
-	suite.createTest("setControlValue input[type=url]", function(test) {
-		var control = document.createElement("input"), value = "http://www.example.com/";
-		control.type = "url";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=month]", function(test) {
+	// 	// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	// control.type = "datetime";
+	// 	// data.formView.setControlValue(control, value);
+	// 	//
+	// 	// return (
+	// 	//	test.assertEquals("Value should be 'test'", control.value, value)
+	// 	// );
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=week]", function(test) {
+	// 	// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	// control.type = "datetime";
+	// 	// data.formView.setControlValue(control, value);
+	// 	//
+	// 	// return (
+	// 	//	test.assertEquals("Value should be 'test'", control.value, value)
+	// 	// );
+	// });
 
-	suite.createTest("setControlValue input[type=email]", function(test) {
-		var control = document.createElement("input"), value = "example@example.com";
-		control.type = "email";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=time]", function(test) {
+	// 	// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	// control.type = "datetime";
+	// 	// data.formView.setControlValue(control, value);
+	// 	//
+	// 	// return (
+	// 	//	test.assertEquals("Value should be 'test'", control.value, value)
+	// 	// );
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=datetime-local]", function(test) {
+	// 	// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	// control.type = "datetime";
+	// 	// data.formView.setControlValue(control, value);
+	// 	//
+	// 	// return (
+	// 	//	test.assertEquals("Value should be 'test'", control.value, value)
+	// 	// );
+	// });
 
-	suite.createTest("setControlValue input[type=datetime]", function(test) {
-		var control = document.createElement("input"), value = new Date().toUTCString();
-		control.type = "datetime";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=number]", function(test) {
+	// 	var control = document.createElement("input");
+	// 	var values = [34, NaN, "38", "abc"];
+	// 	var expectedValues = ["34", "NaN", "38", "abc"];
+	// 	var success = true;
+	// 	control.type = "number";
+	// 
+	// 	for (var i = 0, length = values.length; i < length; ++i) {
+	// 		data.formView.setControlValue(control, values[i]);
+	// 		success = success && test.assertEquals("Value should be '" + values[i] + "'", control.value, expectedValues[i]);
+	// 	}
+	// 
+	// 	return success;
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=range]", function(test) {
+	// 	// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	// control.type = "datetime";
+	// 	// data.formView.setControlValue(control, value);
+	// 	//
+	// 	// return (
+	// 	//	test.assertEquals("Value should be 'test'", control.value, value)
+	// 	// );
+	// });
 
-	suite.createTest("setControlValue input[type=date]", function(test) {
-		var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		control.type = "datetime";
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=color]", function(test) {
+	// 	// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
+	// 	// control.type = "datetime";
+	// 	// data.formView.setControlValue(control, value);
+	// 	//
+	// 	// return (
+	// 	//	test.assertEquals("Value should be 'test'", control.value, value)
+	// 	// );
+	// });
 
-		return (
-			test.assertEquals("Value should be 'test'", control.value, value)
-		);
-	});
+	// suite.createTest("setControlValue input[type=checkbox] matches value", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "checkbox";
+	// 	control.value = value;
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertTrue("Should be checked", control.checked)
+	// 	);
+	// });
 
-	suite.createTest("setControlValue input[type=month]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		//
-		// return (
-		//	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
-	});
-
-	suite.createTest("setControlValue input[type=week]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		//
-		// return (
-		//	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
-	});
-
-	suite.createTest("setControlValue input[type=time]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		//
-		// return (
-		//	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
-	});
-
-	suite.createTest("setControlValue input[type=datetime-local]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		//
-		// return (
-		//	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
-	});
-
-	suite.createTest("setControlValue input[type=number]", function(test) {
-		var control = document.createElement("input");
-		var values = [34, NaN, "38", "abc"];
-		var expectedValues = ["34", "NaN", "38", "abc"];
-		var success = true;
-		control.type = "number";
-
-		for (var i = 0, length = values.length; i < length; ++i) {
-			data.formView.setControlValue(control, values[i]);
-			success = success && test.assertEquals("Value should be '" + values[i] + "'", control.value, expectedValues[i]);
-		}
-
-		return success;
-	});
-
-	suite.createTest("setControlValue input[type=range]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		//
-		// return (
-		//	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
-	});
-
-	suite.createTest("setControlValue input[type=color]", function(test) {
-		// var control = document.createElement("input"), date = new Date(), value = date.getFullYear() + "/" + (date.getMonth() + 1) + "/" + date.getDate();
-		// control.type = "datetime";
-		// data.formView.setControlValue(control, value);
-		//
-		// return (
-		//	test.assertEquals("Value should be 'test'", control.value, value)
-		// );
-	});
-
-	suite.createTest("setControlValue input[type=checkbox] matches value", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "checkbox";
-		control.value = value;
-		data.formView.setControlValue(control, value);
-
-		return (
-			test.assertTrue("Should be checked", control.checked)
-		);
-	});
-
-	suite.createTest("setControlValue input[type=checkbox] does not match value", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "checkbox";
-		control.value = "abc123";
-		data.formView.setControlValue(control, value);
-
-		return (
-			test.assertFalse("Should not be checked", control.checked)
-		);
-	});
+	// suite.createTest("setControlValue input[type=checkbox] does not match value", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "checkbox";
+	// 	control.value = "abc123";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertFalse("Should not be checked", control.checked)
+	// 	);
+	// });
 
 	suite.createTest("setControlValue input[type=radio] matches value", function(test) {
 		var control = document.createElement("input"), value = "test";

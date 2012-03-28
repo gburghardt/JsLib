@@ -204,4 +204,113 @@ describe("FormView", function() {
 		});
 	});
 
+	describe("setControlValue", function() {
+		describe("input - common", function() {
+			var types = ["text", "hidden", "search", "tel", "url", "email"], i = 0, length = types.length;
+
+			for (i; i < length; i++) {
+				(function(type) {
+					describe("input[type=" + type + "]", function() {
+						beforeEach(function() {
+							this.textfield = document.createElement("input");
+							this.textfield.type = type;
+						});
+						
+						it("sets the value when enabled", function() {
+							this.formView.setControlValue(this.textfield, "test");
+							expect(this.textfield.value).toEqual("test");
+						});
+
+						it("does not set the value when read-only", function() {
+							this.textfield.readonly = true;
+							this.formView.setControlValue(this.textfield, "test");
+							expect(this.textfield.value).toEqual("");
+						});
+
+						it("does not set the value when disabled", function() {
+							this.textfield.disabled = true;
+							this.formView.setControlValue(this.textfield, "test");
+							expect(this.textfield.value).toEqual("");
+						});
+					});
+				})(types[i]);
+			}
+		});
+
+		xit("input[type=datetime]");
+		xit("input[type=date]");
+		xit("input[type=month]");
+		xit("input[type=week]");
+		xit("input[type=time]");
+		xit("input[type=datetime-local]");
+		xit("input[type=range]");
+		xit("input[type=color]");
+
+		describe("input[type=number]", function() {
+			beforeEach(function() {
+				this.field = document.createElement("input");
+				this.field.type = "number";
+			});
+
+			it("returns a number as a string", function() {
+				this.formView.setControlValue(this.field, 34);
+				expect(this.field.value).toEqual("34");
+			});
+
+			it("returns a NaN value as a string", function() {
+				this.formView.setControlValue(this.field, NaN);
+				expect(this.field.value).toEqual("NaN");
+			});
+
+			it("returns a non numeric value as a string", function() {
+				this.formView.setControlValue(this.field, "abc");
+				expect(this.field.value).toEqual("abc");
+			});
+		});
+
+		describe("input[type=checkbox]", function() {
+			beforeEach(function() {
+				this.checkbox = document.createElement("input");
+				this.checkbox.type = "checkbox";
+				this.checkbox.value = "testing";
+			});
+
+			it("checks the checkbox when the value matches", function() {
+				this.formView.setControlValue(this.checkbox, "testing");
+				expect(this.checkbox.checked).toBeTrue();
+			});
+
+			it("unchecks the checkbox when the value does not match", function() {
+				this.formView.setControlValue(this.checkbox, "foo");
+				expect(this.checkbox.checked).toBeFalse();
+			});
+
+			it("does not check a read-only checkbox", function() {
+				this.checkbox.readonly = true;
+				this.formView.setControlValue(this.checkbox, "testing");
+				expect(this.checkbox.checked).toBeFalse();
+			});
+
+			it("does not uncheck a read-only checkbox", function() {
+				this.checkbox.checked = true;
+				this.checkbox.readonly = true;
+				this.formView.setControlValue(this.checkbox, "foo");
+				expect(this.checkbox.checked).toBeTrue();
+			});
+
+			it("does not check a disabled checkbox", function() {
+				this.checkbox.disabled = true;
+				this.formView.setControlValue(this.checkbox, "testing");
+				expect(this.checkbox.checked).toBeFalse();
+			});
+
+			it("does not uncheck a disabled checkbox", function() {
+				this.checkbox.checked = true;
+				this.checkbox.disabled = true;
+				this.formView.setControlValue(this.checkbox, "foo");
+				expect(this.checkbox.checked).toBeTrue();
+			});
+		});
+	});
+
 });
