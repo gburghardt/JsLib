@@ -307,27 +307,27 @@
 	// 	);
 	// });
 
-	suite.createTest("setControlValue input[type=radio] matches value", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "radio";
-		control.value = value;
-		data.formView.setControlValue(control, value);
+	// suite.createTest("setControlValue input[type=radio] matches value", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "radio";
+	// 	control.value = value;
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertTrue("Should be checked", control.checked)
+	// 	);
+	// });
 
-		return (
-			test.assertTrue("Should be checked", control.checked)
-		);
-	});
-
-	suite.createTest("setControlValue input[type=radio] does not match value", function(test) {
-		var control = document.createElement("input"), value = "test";
-		control.type = "radio";
-		control.value = "abc123";
-		data.formView.setControlValue(control, value);
-
-		return (
-			test.assertFalse("Should not be checked", control.checked)
-		);
-	});
+	// suite.createTest("setControlValue input[type=radio] does not match value", function(test) {
+	// 	var control = document.createElement("input"), value = "test";
+	// 	control.type = "radio";
+	// 	control.value = "abc123";
+	// 	data.formView.setControlValue(control, value);
+	// 
+	// 	return (
+	// 		test.assertFalse("Should not be checked", control.checked)
+	// 	);
+	// });
 
 	suite.createTest("setControlValue select[multiple=true]", function(test) {
 		var control = document.createElement("select");
@@ -356,30 +356,30 @@
 		return test.assertEquals("Selected values should be: " + valuesToSelect.join(", "), valuesToSelect.join(", "), selectedValues.join(", "));
 	});
 
-	suite.createTest("setControlValue select[multiple=false]", function(test) {
-		var control = document.createElement("select");
-		var values = ["a", "b", "c", "d"];
-		var expectedValues = ["a", "b", "c", "d"];
-		var success = true;
-		var option, i, length;
-		control.multiple = false;
-
-		// add options
-		for (i = 0, length = values.length; i < length; ++i) {
-			option = document.createElement("option");
-			option.value = values[i];
-			option.text = values[i];
-			control.appendChild(option);
-		}
-
-		for (i = 0, length = values.length; i < length; ++i) {
-			data.formView.setControlValue(control, values[i]);
-			success = success && test.assertEquals("Selected index should be " + i, control.options.selectedIndex, i)
-												&& test.assertEquals("Value should be '" + expectedValues[i] + "'", control.value, expectedValues[i]);
-		}
-
-		return success;
-	});
+	// suite.createTest("setControlValue select[multiple=false]", function(test) {
+	// 	var control = document.createElement("select");
+	// 	var values = ["a", "b", "c", "d"];
+	// 	var expectedValues = ["a", "b", "c", "d"];
+	// 	var success = true;
+	// 	var option, i, length;
+	// 	control.multiple = false;
+	// 
+	// 	// add options
+	// 	for (i = 0, length = values.length; i < length; ++i) {
+	// 		option = document.createElement("option");
+	// 		option.value = values[i];
+	// 		option.text = values[i];
+	// 		control.appendChild(option);
+	// 	}
+	// 
+	// 	for (i = 0, length = values.length; i < length; ++i) {
+	// 		data.formView.setControlValue(control, values[i]);
+	// 		success = success && test.assertEquals("Selected index should be " + i, control.options.selectedIndex, i)
+	// 											&& test.assertEquals("Value should be '" + expectedValues[i] + "'", control.value, expectedValues[i]);
+	// 	}
+	// 
+	// 	return success;
+	// });
 
 	suite.createTest("setControlValue textarea", function(test) {
 		var control = document.createElement("textarea");

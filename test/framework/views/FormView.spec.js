@@ -311,6 +311,156 @@ describe("FormView", function() {
 				expect(this.checkbox.checked).toBeTrue();
 			});
 		});
+
+		describe("input[type=radio]", function() {
+			beforeEach(function() {
+				this.radio = document.createElement("input");
+				this.radio.type = "radio";
+				this.radio.value = "test";
+			});
+
+			it("checks the button when the value matches", function() {
+				this.formView.setControlValue(this.radio, "test");
+				expect(this.radio.checked).toBeTrue();
+			});
+
+			it("unchecks the button when the value doesn't match", function() {
+				this.formView.setControlValue(this.radio, "foo");
+				expect(this.radio.checked).toBeFalse();
+			});
+
+			describe("when read only", function() {
+				beforeEach(function() {
+					this.radio.readonly = true;
+				});
+
+				it("doesn't check a read only button", function() {
+					this.formView.setControlValue(this.radio, "test");
+					expect(this.radio.checked).toBeFalse();
+				});
+
+				it("doesn't uncheck a read only button", function() {
+					this.radio.checked = true;
+					this.formView.setControlValue(this.radio, "foo");
+					expect(this.radio.checked).toBeTrue();
+				});
+			});
+
+			describe("when disabled", function() {
+				beforeEach(function() {
+					this.radio.disabled = true;
+				});
+				
+				it("doesn't check a disabled button", function() {
+					this.formView.setControlValue(this.radio, "test");
+					expect(this.radio.checked).toBeFalse();
+				});
+
+				it("doesn't uncheck a disabled button", function() {
+					this.radio.checked = true;
+					this.formView.setControlValue(this.radio, "foo");
+					expect(this.radio.checked).toBeTrue();
+				});
+			});
+		});
+
+		describe("select", function() {
+			beforeEach(function() {
+				this.select = document.createElement("select");
+				this.select.innerHTML = [
+					'<option value="">Choose</option>',
+					'<option value="1">1</option>',
+					'<option value="2">2</option>',
+					'<option value="3">3</option>'
+				].join("");
+			});
+
+			it("sets the value, selected index, and selects the option when the value matches", function() {
+				this.formView.setControlValue(this.select, "1");
+				expect(this.select.value).toEqual("1");
+				expect(this.select.options.selectedIndex).toEqual(1);
+				expect(this.select.options[1].selected).toBeTrue();
+			});
+
+			it("selects the first option with an empty value when the value doesn't match any option", function() {
+				this.formView.setControlValue(this.select, "bad-value");
+				expect(this.select.value).toEqual("");
+				expect(this.select.options.selectedIndex).toEqual(0);
+				expect(this.select.options[0].selected).toBeTrue();
+			});
+
+			describe("when readonly", function() {
+				beforeEach(function() {
+					this.select.options[1].selected = true;
+					this.select.options.selectedIndex = 1;
+					this.select.readonly = true;
+				});
+
+				it("does not select anything if the value matches one option", function() {
+					this.formView.setControlValue(this.select, "2");
+					expect(this.select.value).toEqual("1");
+					expect(this.select.options.selectedIndex).toEqual(1);
+					expect(this.select.options[1].selected).toBeTrue();
+				});
+
+				it("does not deselect anything if the value matches nothing", function() {
+					this.formView.setControlValue(this.select, "bad-value");
+					expect(this.select.value).toEqual("1");
+					expect(this.select.options.selectedIndex).toEqual(1);
+					expect(this.select.options[1].selected).toBeTrue();
+				});
+			});
+
+			describe("when disabled", function() {
+				beforeEach(function() {
+					this.select.options[1].selected = true;
+					this.select.options.selectedIndex = 1;
+					this.select.disabled = true;
+				});
+
+				it("does not select anything if the value matches one option", function() {
+					this.formView.setControlValue(this.select, "2");
+					expect(this.select.value).toEqual("1");
+					expect(this.select.options.selectedIndex).toEqual(1);
+					expect(this.select.options[1].selected).toBeTrue();
+				});
+
+				it("does not deselect anything if the value matches nothing", function() {
+					this.formView.setControlValue(this.select, "bad-value");
+					expect(this.select.value).toEqual("1");
+					expect(this.select.options.selectedIndex).toEqual(1);
+					expect(this.select.options[1].selected).toBeTrue();
+				});
+			});
+		});
+
+		describe("select[multiple]", function() {
+			beforeEach(function() {
+				this.select = document.createElement("select");
+				this.select.multiple = true;
+				this.select.innerHTML = [
+					'<option value="1">1</option>',
+					'<option value="2">2</option>',
+					'<option value="3">3</option>'
+				].join("");
+			});
+
+			xit("selects multiple options when passed an array of values", function() {
+				
+			});
+
+			xit("deselects options not included in the array of values", function() {
+				
+			});
+
+			xit("deselects all options when passed an empty array", function() {
+				
+			});
+
+			xit("deselects all options when passed null", function() {
+				
+			});
+		});
 	});
 
 });
