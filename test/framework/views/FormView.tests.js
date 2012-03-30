@@ -381,11 +381,11 @@
 	// 	return success;
 	// });
 
-	suite.createTest("setControlValue textarea", function(test) {
-		var control = document.createElement("textarea");
-		var value = "foo";
-		data.formView.setControlValue(control, value);
-		return test.assertEquals("failed", value, control.value);
-	});
+	// suite.createTest("setControlValue textarea", function(test) {
+	// 	var control = document.createElement("textarea");
+	// 	var value = "foo";
+	// 	data.formView.setControlValue(control, value);
+	// 	return test.assertEquals("failed", value, control.value);
+	// });
 
 } )( TestController.getInstance() );

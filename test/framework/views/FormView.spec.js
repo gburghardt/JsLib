@@ -489,6 +489,32 @@ describe("FormView", function() {
 				expect(this.select.options[2].selected).toBeFalse();
 			});
 		});
+
+		describe("textarea", function() {
+			beforeEach(function() {
+				this.textarea = document.createElement("textarea");
+				this.textarea.cols = 60;
+				this.textarea.rows = 8;
+				this.textarea.value = "testing";
+			});
+
+			it("sets the value", function() {
+				this.formView.setControlValue(this.textarea, "foo");
+				expect(this.textarea.value).toEqual("foo");
+			});
+
+			it("does not set the value when read-only", function() {
+				this.textarea.readonly = true;
+				this.formView.setControlValue(this.textarea, "foo");
+				expect(this.textarea.value).toEqual("testing");
+			});
+
+			it("does not set the value when disabled", function() {
+				this.textarea.disabled = true;
+				this.formView.setControlValue(this.textarea, "foo");
+				expect(this.textarea.value).toEqual("testing");
+			});
+		});
 	});
 
 });
