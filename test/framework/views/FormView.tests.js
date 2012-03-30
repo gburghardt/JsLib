@@ -329,32 +329,32 @@
 	// 	);
 	// });
 
-	suite.createTest("setControlValue select[multiple=true]", function(test) {
-		var control = document.createElement("select");
-		var options = ["a", "b", "c", "d"];
-		var valuesToSelect = ["a", "c"];
-		var selectedValues = [];
-		var option, i, length;
-		control.multiple = true;
-
-		// add options
-		for (i = 0, length = options.length; i < length; ++i) {
-			option = document.createElement("option");
-			option.value = options[i];
-			option.text = options[i];
-			control.appendChild(option);
-		}
-
-		data.formView.setControlValue(control, valuesToSelect);
-
-		for (i = 0, length = control.options.length; i < length; ++i) {
-			if (control.options[i].selected) {
-				selectedValues.push(control.options[i].value);
-			}
-		}
-
-		return test.assertEquals("Selected values should be: " + valuesToSelect.join(", "), valuesToSelect.join(", "), selectedValues.join(", "));
-	});
+	// suite.createTest("setControlValue select[multiple=true]", function(test) {
+	// 	var control = document.createElement("select");
+	// 	var options = ["a", "b", "c", "d"];
+	// 	var valuesToSelect = ["a", "c"];
+	// 	var selectedValues = [];
+	// 	var option, i, length;
+	// 	control.multiple = true;
+	// 
+	// 	// add options
+	// 	for (i = 0, length = options.length; i < length; ++i) {
+	// 		option = document.createElement("option");
+	// 		option.value = options[i];
+	// 		option.text = options[i];
+	// 		control.appendChild(option);
+	// 	}
+	// 
+	// 	data.formView.setControlValue(control, valuesToSelect);
+	// 
+	// 	for (i = 0, length = control.options.length; i < length; ++i) {
+	// 		if (control.options[i].selected) {
+	// 			selectedValues.push(control.options[i].value);
+	// 		}
+	// 	}
+	// 
+	// 	return test.assertEquals("Selected values should be: " + valuesToSelect.join(", "), valuesToSelect.join(", "), selectedValues.join(", "));
+	// });
 
 	// suite.createTest("setControlValue select[multiple=false]", function(test) {
 	// 	var control = document.createElement("select");

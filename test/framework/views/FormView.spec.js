@@ -445,20 +445,48 @@ describe("FormView", function() {
 				].join("");
 			});
 
-			xit("selects multiple options when passed an array of values", function() {
-				
+			it("selects multiple options when passed an array of values", function() {
+				var values = ['1', '2'];
+				this.formView.setControlValue(this.select, values);
+				expect(this.select.options[0].selected).toBeTrue();
+				expect(this.select.options[1].selected).toBeTrue();
+				expect(this.select.options[2].selected).toBeFalse();
 			});
 
-			xit("deselects options not included in the array of values", function() {
-				
+			it("selects a single option when not passed an array", function() {
+				this.formView.setControlValue(this.select, "1");
+				expect(this.select.options[0].selected).toBeTrue();
+				expect(this.select.options[1].selected).toBeFalse();
+				expect(this.select.options[2].selected).toBeFalse();
 			});
 
-			xit("deselects all options when passed an empty array", function() {
-				
+			it("deselects options not included in the array of values", function() {
+				var values = ['1', '2'];
+				this.select.options[2].selected = true;
+				this.formView.setControlValue(this.select, values);
+				expect(this.select.options[0].selected).toBeTrue();
+				expect(this.select.options[1].selected).toBeTrue();
+				expect(this.select.options[2].selected).toBeFalse();
 			});
 
-			xit("deselects all options when passed null", function() {
-				
+			it("deselects all options when passed an empty array", function() {
+				this.select.options[0].selected = true;
+				this.select.options[1].selected = true;
+				this.select.options[2].selected = true;
+				this.formView.setControlValue(this.select, []);
+				expect(this.select.options[0].selected).toBeFalse();
+				expect(this.select.options[1].selected).toBeFalse();
+				expect(this.select.options[2].selected).toBeFalse();
+			});
+
+			it("deselects all options when passed null", function() {
+				this.select.options[0].selected = true;
+				this.select.options[1].selected = true;
+				this.select.options[2].selected = true;
+				this.formView.setControlValue(this.select, null);
+				expect(this.select.options[0].selected).toBeFalse();
+				expect(this.select.options[1].selected).toBeFalse();
+				expect(this.select.options[2].selected).toBeFalse();
 			});
 		});
 	});
