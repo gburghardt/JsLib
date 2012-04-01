@@ -38,7 +38,7 @@ function FormView() {
 	this.setControlValue = function(control, value) {
 		var i, length;
 
-		if (control.disabled || control.getAttribute("data-control-disabled") || control.readonly || control.getAttribute("data-control-readonly")) {
+		if (control.disabled || control.readonly) {
 			return;
 		}
 
@@ -72,9 +72,6 @@ function FormView() {
 		}
 		else if (control.nodeName === "TEXTAREA") {
 			control.value = value;
-		}
-		else {
-			control.setAttribute("data-control-value", value);
 		}
 	};
 
