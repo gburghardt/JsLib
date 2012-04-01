@@ -71,7 +71,7 @@ BasePresenter.prototype = {
 		
 		for (i; i < length; ++i) {
 			handlerName = this.eventHandlers[i];
-			this[ handlerName ] = this[ handlerNamer ].bind(this);
+			this[ handlerName ] = this[ handlerName ].bind(this);
 		}
 	},
 
