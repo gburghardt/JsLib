@@ -4,6 +4,8 @@ events.Dispatcher = function() {
 	this.subscribers = {};
 };
 
+events.Dispatcher.logger = null;
+
 events.Dispatcher.prototype = {
 
 	subscribers: null,
@@ -22,7 +24,19 @@ events.Dispatcher.prototype = {
 			}
 
 			subscriber = subscribers[i];
-			subscriber.instance[ subscriber.method ](event);
+
+			try {
+				subscriber.instance[ subscriber.method ](event);
+			}
+			catch (error) {
+				if (events.Dispatcher.logger) {
+					events.Dispatcher.logger.error("events.Dispatcher#publish - An error was thrown while publishing event " + type);
+					events.Dispatcher.logger.error(error);
+				}
+				else {
+					throw error;
+				}
+			}
 		}
 
 		return true;
@@ -30,7 +44,7 @@ events.Dispatcher.prototype = {
 
 	subscribe: function(type, instance, method) {
 		this.subscribers[type] = this.subscribers[type] || [];
-		this.subscribers[type].push({instance: instance, method: method});
+		this.subscribers[type].push({instance: instance, method: method || "handleEvent"});
 	},
 
 	unsubscribe: function(type, instance) {
