@@ -31,6 +31,23 @@ function FormView() {
 		}
 	};
 
+	this.getFormData = function(force) {
+		if (force || !this.currentData) {
+			var inputs = this.rootNode.getElementsByTagName("input");
+			var selects = this.rootNode.getElementsByTagName("select");
+			var textareas = this.rootNode.getElementsByTagName("textarea");
+
+			this.currentData = {};
+			this.extractFormControlsData(inputs, this.currentData);
+			this.extractFormControlsData(selects, this.currentData);
+			this.extractFormControlsData(textareas, this.currentData);
+
+			inputs = selects = textareas = null;
+		}
+
+		return this.currentData;
+	};
+
 	this.getLabelValue = function(idSuffix) {
 		return this.getNode(idSuffix).innerHTML;
 	};
@@ -80,6 +97,8 @@ function FormView() {
 	};
 
 // Access: Protected
+
+	this.currentData = null;
 
 	this.extractControlValue = function(control) {
 		var nodeName = control.nodeName.toLowerCase(),
@@ -131,6 +150,36 @@ function FormView() {
 		}
 
 		return values;
+	};
+
+	this.extractFormControlsData = function(controls, data) {
+		var name = (controls.length) ? controls[0].name : "";
+		var i = 0;
+		var length = controls.length;
+		var value;
+
+		for (i; i < length; i++) {
+			value = this.extractControlValue(controls[i]);
+
+			if (value === null) {
+				continue;
+			}
+			else if (data.hasOwnProperty(name)) {
+				if (data[name] instanceof Array) {
+					data[name].push(value);
+				}
+				else {
+					data[name] = [data[name], value];
+				}
+			}
+			else {
+				data[name] = value;
+			}
+		}
+
+		controls = null;
+
+		return data;
 	};
 
 	this.getControlsByName = function(name) {

@@ -517,4 +517,13 @@ describe("FormView", function() {
 		});
 	});
 
+	describe("getFormData", function() {
+		it("returns an empty object when no form fields exist", function() {
+			this.form.innerHTML = '<p>Non form fields only</p>';
+			var data = this.formView.getFormData();
+		});
+
+		xit("returns an object of form field names and values as strings");
+	});
+
 });
