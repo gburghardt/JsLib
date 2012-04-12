@@ -34,10 +34,13 @@ events.Dispatcher.prototype = {
 					events.Dispatcher.logger.error(error);
 				}
 				else {
+					event = publisher = data = subscribers = null;
 					throw error;
 				}
 			}
 		}
+
+		event = publisher = data = subscribers = null;
 
 		return true;
 	},
@@ -45,6 +48,7 @@ events.Dispatcher.prototype = {
 	subscribe: function(type, instance, method) {
 		this.subscribers[type] = this.subscribers[type] || [];
 		this.subscribers[type].push({instance: instance, method: method || "handleEvent"});
+		instance = null;
 	},
 
 	unsubscribe: function(type, instance) {
