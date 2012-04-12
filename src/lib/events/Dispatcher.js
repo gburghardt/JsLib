@@ -10,6 +10,26 @@ events.Dispatcher.prototype = {
 
 	subscribers: null,
 
+	destructor: function() {
+		var type, i, length, subscribers;
+
+		if (this.subscribers) {
+			for (type in this.subscribers) {
+				if (this.subscribers.hasOwnProperty(type)) {
+					subscribers = this.subscribers[type];
+
+					for (i = 0, length = subscribers.length; i < length; i++) {
+						subcribers[i] = null;
+					}
+
+					this.subscribers[type] = null;
+				}
+			}
+
+			this.subscribers = null;
+		}
+	},
+
 	publish: function(type, publisher, data) {
 		if (!this.subscribers[type]) {
 			return false;
