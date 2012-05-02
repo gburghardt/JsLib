@@ -53,7 +53,82 @@ describe("http.Request", function() {
 			expect(actual).toEqual(expected);
 		});
 
-		xit("converts an arbitrarily deep object into a namespaced query string", function() {
+		it("converts arrays to a query string", function() {
+			var o = {
+				colors: ["green", "blue"]
+			};
+
+			var expected = [
+				'colors[0]=green',
+				'colors[1]=blue'
+			].sort().join("&");
+
+			var actual = this.request.serializeData(o);
+
+			expect(actual).toEqual(expected);
+		});
+
+		it("converts an array of objects into a namespaced query string", function() {
+			var o = {
+				history: [
+					{
+						id: 1,
+						description: "Started work",
+						date: "1/1/2003"
+					},{
+						id: 2,
+						description: "Vacation",
+						date: "3/5/2004"
+					}
+				]
+			};
+
+			var expected = [
+				'history[0][id]=1',
+				'history[0][description]=Started%20work',
+				'history[0][date]=1/1/2003',
+				'history[1][id]=2',
+				'history[1][description]=Vacation',
+				'history[1][date]=3/5/2004'
+			].sort().join("&");
+
+			var actual = this.request.serializeData(o).split(/&/g).sort().join("&");
+
+			expect(actual).toEqual(expected);
+		});
+
+		it("converts an array multiple levels deep into a namespaced query string", function() {
+			var o = {
+				employee: {
+					history: [
+						{
+							id: 1,
+							description: "Started work",
+							date: "1/1/2003"
+						},{
+							id: 2,
+							description: "Vacation",
+							date: "3/5/2004"
+						}
+					]
+				}
+			};
+
+			var expected = [
+				'employee[history][0][id]=1',
+				'employee[history][0][description]=Started%20work',
+				'employee[history][0][date]=1/1/2003',
+				'employee[history][1][id]=2',
+				'employee[history][1][description]=Vacation',
+				'employee[history][1][date]=3/5/2004'
+			].sort().join("&");
+
+			var actual = this.request.serializeData(o).split(/&/g).sort().join("&");
+
+			expect(actual).toEqual(expected);
+		});
+
+		it("converts an arbitrarily deep object into a namespaced query string", function() {
 			var o = {
 				employee: {
 					id: 123,
@@ -89,7 +164,7 @@ describe("http.Request", function() {
 				'employee[history][1][date]=3/5/2004'
 			].sort().join("&");
 
-			var actual = this.request.serializeData(o).split(/&/g).join("&");
+			var actual = this.request.serializeData(o).split(/&/g).sort().join("&");
 
 			expect(actual).toEqual(expected);
 		});

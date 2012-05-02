@@ -44,8 +44,12 @@ http.Request = function(xhr, client, options) {
 								keySuffix = "[" + i + "]";
 
 								if (data[key][i] instanceof Object) {
-									// TODO: top level prefix not perpetuated
-									params.push(this.serializeData(data[key][i], "[" + key + "]" + keySuffix + "[", "]"));
+									if (!keyPrefix) {
+										params.push(this.serializeData(data[key][i], key + keySuffix + "[", "]"));
+									}
+									else {
+										params.push(this.serializeData(data[key][i], keyPrefix + key + "]" + keySuffix + "[", "]"));
+									}
 								}
 								else if (data[key][i]) {
 									params.push(keyPrefix + escape(key) + keySuffix + "=" + escape(data[key][i]));
