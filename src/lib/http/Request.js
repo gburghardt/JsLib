@@ -53,7 +53,12 @@ http.Request = function(xhr, client, options) {
 							}
 						}
 						else {
-							params.push(this.serializeData(data[key], keyPrefix + key + "][", "]"));
+							if (!keyPrefix) {
+								params.push(this.serializeData(data[key], keyPrefix + key + "[", "]"));
+							}
+							else {
+								params.push(this.serializeData(data[key], keyPrefix + key + "][", "]"));
+							}
 						}
 					}
 					else {

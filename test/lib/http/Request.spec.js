@@ -31,7 +31,29 @@ describe("http.Request", function() {
 			expect(actual).toEqual(expected);
 		});
 
-		it("converts an arbitrarily deep object into a namespaced query string", function() {
+		it("converts an object into a namespaced query string", function() {
+			var o = {
+				employee: {
+					id: 123,
+					name: "Dave",
+					position: {
+						id: 3,
+						title: "Handyman"
+					}
+				}
+			};
+			var expected = [
+				'employee[id]=123',
+				'employee[name]=Dave',
+				'employee[position][id]=3',
+				'employee[position][title]=Handyman'
+			].sort().join("&");
+			var actual = this.request.serializeData(o).split(/&/g).sort().join("&");
+
+			expect(actual).toEqual(expected);
+		});
+
+		xit("converts an arbitrarily deep object into a namespaced query string", function() {
 			var o = {
 				employee: {
 					id: 123,
