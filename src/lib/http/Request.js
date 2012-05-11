@@ -7,7 +7,6 @@ http.Request = function(transport, client, options) {
 	this.options = options;
 	this.timer = null;
 	this.transport = transport;
-	this.transport.setRequestHeader("X-Requested-With", "XMLHTTPRequest");
 
 	this.destructor = function() {
 		if (this.transport) {
@@ -25,7 +24,7 @@ http.Request = function(transport, client, options) {
 
 	this.getRequestHeader = function(header) {
 		this.transport.getRequestHeader(header);
-	},
+	};
 
 	this.handleReadyStateChange = function() {
 		var readyState = this.readyState, status = this.status;
@@ -88,6 +87,7 @@ http.Request = function(transport, client, options) {
 	this.open = function() {
 		if (!this.transport.onreadystatechange) {
 			this.transport.onreadystatechange = this.handleReadyStateChange;
+			this.transport.setRequestHeader("X-Requested-With", "XMLHTTPRequest");
 			this.transport.open(this.options.method, this.options.url, this.options.async, this.options.user, this.options.password);
 		}
 	};
