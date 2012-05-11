@@ -2,6 +2,8 @@ window.http = window.http || {};
 
 http.ScriptTransport = function() {
 
+	var _callbackName = null;
+
 	var _headers = {
 		"content-type": "text/json"
 	};
@@ -33,9 +35,8 @@ http.ScriptTransport = function() {
 	};
 
 	this.getRequestHeader = function getRequestHeader(header) {
-		return (_headers.hasOwnProperty(header)) ? _headers[header] : null;
+		return (_headers.hasOwnProperty(header.toLowerCase())) ? _headers[header.toLowerCase()] : null;
 	};
-
 
 	this.open = function open(method, url, async, user, password) {
 		if (_readyState === 0) {
@@ -43,9 +44,15 @@ http.ScriptTransport = function() {
 			_url = url;
 			_user = user;
 			_password = password;
-			http.ScriptTransport.addCallback(handleScriptLoaded);
+			_callbackName = http.ScriptTransport.addCallback(handleScriptLoaded);
 			self.readyState = 1;
 		}
+	};
+
+	this.getRequestURL = function getRequestURL(params) {
+		var url = _url + (_url.indexOf("?") > -1) ? "&" + params : "?" + params;
+		url = url.replace(/callback=[^&]*/, "callback=" + encodeURIComponent(_callbackName));
+		return url;
 	};
 
 	// getter/setter for this.readyState
@@ -122,7 +129,7 @@ http.ScriptTransport = function() {
 	}
 
 	// getter for this.response
-	Object.defineProperty(this, "response", {get: getReponse});
+	Object.defineProperty(this, "response", {get: getResponse});
 
 	function getResponseText() {
 		if (_responseType == "" || _responseType == "text") {
@@ -156,8 +163,8 @@ http.ScriptTransport = function() {
 
 	this.send = function send(params) {
 		if (_readyState === 1) {
-			this.readyState = 3;
-			_script.setAttribute("src", _url + (_url.indexOf("?") > -1) ? "&" + params : "?" + params);
+			self.readyState = 3;
+			_script.setAttribute("src", getRequestURL(params));
 		}
 	};
 
@@ -189,6 +196,8 @@ http.ScriptTransport.addCallback = function(fn) {
 		delete this.callbacks[name];
 		fn = data = null;
 	};
+
+	return name;
 };
 
 http.ScriptTransport.scriptNodeQueueSize = -1;
@@ -199,7 +208,7 @@ http.ScriptTransport.getScriptNode = function() {
 
 	if (this.scriptNodeQueueSize < 0) {
 		script = document.createElement("script");
-		script.type = "text/javascript";
+		script.setAttribute("type", "text/javascript");
 	}
 	else if (this.scriptNodeQueue.length < this.scriptNodeQueueSize) {
 		for (i = 0, length = this.scriptNodeQueue.length; i < length; i++) {
@@ -211,7 +220,7 @@ http.ScriptTransport.getScriptNode = function() {
 
 		if (!script) {
 			script = document.createElement("script");
-			script.type = "text/javascript";
+			script.setAttribute("type", "text/javascript");
 			script.setAttribute("data-http-scriptTransport-pending", "true");
 			this.scriptNodeQueue.push(script);
 		}
