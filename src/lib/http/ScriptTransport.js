@@ -1,111 +1,99 @@
 window.http = window.http || {};
 
 http.ScriptTransport = function() {
-	this.script = http.ScriptTransport.getScriptNode();
-	this.headers = {
+
+	var _headers = {
 		"content-type": "text/json"
 	};
 
-	if (!this.script) {
-		throw new Error("Too many pending ScriptTransports exist. Only " + http.ScriptTransport.scriptNodeQueueSize + " allowed and " + http.ScriptTransport.scriptNodeQueue.length + " detected.");
-	}
-};
+	var _lastResponse = null;
 
-http.ScriptTransport.prototype = {
+	var _lastResponseDecoded = null;
 
-	headers: null,
+	var _method = null;
 
-	lastResponse: null,
+	var _password = null;
 
-	lastResponseDecoded: null,
+	var _readyState = 0;
 
-	method: null,
+	var _responseType = "";
 
-	password: null,
+	var _script = null;
 
-	_readyState: 0,
+	var _status = null;
 
-	responseType: "",
+	var _url = "";
 
-	script: null,
+	var _user = null;
 
-	status: null,
+	var self = this;
 
-	url: "",
-
-	user: null,
-
-	abort: function() {
+	this.abort = function abort() {
 		
-	},
+	};
 
-	getRequestHeader: function(header) {
-		return (this.headers.hasOwnProperty(header)) ? this.headers[header] : null;
-	},
+	this.getRequestHeader = function getRequestHeader(header) {
+		return (_headers.hasOwnProperty(header)) ? _headers[header] : null;
+	};
 
-	getResponseHeader: function(header) {
-		// this is not supported for script transports
-		return null;
-	},
 
-	onreadystatechange: function() {
-		// http.Request will inject this method
-	},
-
-	open: function(method, url, async, user, password) {
-		if (this.readyState === 0) {
-			this.method = method;
-			this.url = url;
-			this.user = user;
-			this.password = password;
-			this.readyState = 1;
+	this.open = function open(method, url, async, user, password) {
+		if (_readyState === 0) {
+			_method = method;
+			_url = url;
+			_user = user;
+			_password = password;
+			http.ScriptTransport.addCallback(handleScriptLoaded);
+			self.readyState = 1;
 		}
-	},
+	};
 
-	get readyState() {
-		return this._readyState;
-	},
+	// getter/setter for this.readyState
+	Object.defineProperty(this, "readyState", {
+		get: function() {
+			return _readyState;
+		},
+		set: function(readyState) {
+			_readyState = readyState;
+			this.onreadystatechange();
+		}
+	});
 
-	set readyState(readyState) {
-		this._readyState = readyState;
-		this.onreadystatechange();
-	},
-
-	get response() {
-		if (this.lastResponseDecoded === null) {
-			if (this.responseType === "" || this.responseType === "text") {
-				this.lastReponseDecoded = this.lastResponse;
+	function getResponse() {
+		if (_lastResponseDecoded === null) {
+			if (_responseType === "" || _responseType === "text") {
+				_lastReponseDecoded = _lastResponse;
 			}
-			else if (this.responseType === "json") {
-				if (!this.lastResponseDecoded) {
+			else if (_responseType === "json") {
+				if (!_lastResponseDecoded) {
 					try {
-						this.lastResponseDecoded = JSON.parse(this.lastResponse);
+						_lastResponseDecoded = JSON.parse(_lastResponse);
 					}
 					catch (error) {
-						this.lastResponseDecoded = null;
+						_lastResponseDecoded = null;
 					}
 				}
 			}
-			else if (this.responseType === "document") {
+			else if (_responseType === "document") {
 				var parser;
 
-				if (this.getRequestHeader("content-type") === "text/xml") {
+				if (getRequestHeader("content-type") === "text/xml") {
 					parser = new DOMParser();
 
 					try {
-						this.lastResponseDecoded = parser.parseFromString(this.lastResponse, "text/xml");
+						_lastResponseDecoded = parser.parseFromString(_lastResponse, "text/xml");
 					}
 					catch (error) {
-						this.lastResponseDecoded = null;
+						_lastResponseDecoded = null;
 					}
 				}
 				else {
 					var i, length, nodes;
 					parser = document.createElement("div");
-					parser.innerHTML = this.lastResponse.replace(/^\s+|\s+$/g, "");
+					parser.innerHTML = _lastResponse.replace(/^\s+|\s+$/g, "");
 
 					if (parser.childNodes.length === 1) {
-						this.lastResponseDecoded = parser.childNodes[0];
+						_lastResponseDecoded = parser.childNodes[0];
 						parser.removeChild(parser.childNodes[0]);
 					}
 					else {
@@ -117,7 +105,7 @@ http.ScriptTransport.prototype = {
 							parser.removeChild(parser.childNodes[i]);
 						}
 
-						this.lastResponseDecoded = nodes;
+						_lastResponseDecoded = nodes;
 						nodes = null;
 					}
 
@@ -126,42 +114,81 @@ http.ScriptTransport.prototype = {
 				parser = null;
 			}
 			else {
-				throw new Error("The " + this.responseType + " is not supported for ScriptTransport requests");
+				throw new Error("The " + _responseType + " is not supported for ScriptTransport requests");
 			}
 		}
 
-		return this.lastResponseDecoded;
-	},
-
-	get responseText() {
-		if (this.responseType == "" || this.responseType == "text") {
-			return this.response;
-		}
-		else {
-			return null;
-		}
-	},
-
-	get responseXML() {
-		if (this.responseType === "document") {
-			return this.response;
-		}
-		else {
-			return null;
-		}
-	},
-
-	send: function(params) {
-		if (this.readyState === 1) {
-			this.readyState = 3;
-			this.script.src = this.url + (this.url.indexOf("?") > -1) ? "&" + params : "?" + params;
-		}
-	},
-
-	setRequestHeader: function(header, value) {
-		this.headers[header.toLowerCase()] = value;
+		return _lastResponseDecoded;
 	}
 
+	// getter for this.response
+	Object.defineProperty(this, "response", {get: getReponse});
+
+	function getResponseText() {
+		if (_responseType == "" || _responseType == "text") {
+			return _response;
+		}
+		else {
+			return null;
+		}
+	}
+
+	// getter for this.responseText
+	Object.defineProperty(this, "responseText", {get: getResponseText});
+
+	function getResponseXML() {
+		if (_responseType === "document") {
+			return getReponse();
+		}
+		else {
+			return null;
+		}
+	}
+
+	// getter for this.responseXML
+	Object.defineProperty(this, "responseXML", {get: getResponseXML});
+
+	function handleScriptLoaded(data) {
+		_lastResponse = data;
+		data = null;
+		self.readyState = 4;
+	}
+
+	this.send = function send(params) {
+		if (_readyState === 1) {
+			this.readyState = 3;
+			_script.setAttribute("src", _url + (_url.indexOf("?") > -1) ? "&" + params : "?" + params);
+		}
+	};
+
+	this.setRequestHeader = function setRequestHeader(header, value) {
+		_headers[header.toLowerCase()] = value;
+	};
+
+};
+
+http.ScriptTransport.prototype = {
+	getResponseHeader: function(header) {
+		// this is not supported for script transports
+		return null;
+	},
+
+	onreadystatechange: function() {
+		// http.Request will inject this method
+	}
+};
+
+http.ScriptTransport.callbacks = {};
+http.ScriptTransport.callbackCount = 0;
+
+http.ScriptTransport.addCallback = function(fn) {
+	var name = "_" + (this.callbackCount++);
+	this.callbacks[name] = function(data) {
+		fn(data);
+		this.callbacks[name] = null;
+		delete this.callbacks[name];
+		fn = data = null;
+	};
 };
 
 http.ScriptTransport.scriptNodeQueueSize = -1;
