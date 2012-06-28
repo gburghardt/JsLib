@@ -159,8 +159,58 @@ describe("BaseModel", function() {
 		expect(o.foo_id).toBeNull();
 	});
 
-	describe("valueIsEmpty", function() {
+	describe("getAttribute", function() {
+		beforeEach(function() {
+			this.model = new TestModelAttributes();
+		});
 
+		it("returns null when the key is undefined", function() {
+			expect(this.model.firstName).toBeNull();
+		});
+
+		it("returns null when the key is null", function() {
+			this.model.firstName = null;
+			expect(this.model.firstName).toBeNull();
+		});
+
+		it("returns the attribute value at the given key", function() {
+			this.model.firstName = "Joe";
+			expect(this.model.firstName).toEqual("Joe");
+		});
+	});
+
+	describe("setAttribute", function() {
+		beforeEach(function() {
+			this.model = new TestModelAttributes();
+		});
+
+		it("sets a null value", function() {
+			this.model.setAttribute("firstName", null);
+			expect(this.model.getAttribute("firstName")).toBeNull();
+			expect(this.model.changedAttributes.firstName).toBeUndefined();
+		});
+
+		it("sets a non null value", function() {
+			this.model.setAttribute("firstName", "Joey");
+			expect(this.model.getAttribute("firstName")).toEqual("Joey");
+			expect(this.model.changedAttributes.firstName).toBeUndefined();
+		});
+
+		it("sets the changed attributes for non null values", function() {
+			this.model.setAttribute("firstName", "Joey");
+			this.model.setAttribute("firstName", "Eddy");
+			expect(this.model.getAttribute("firstName")).toEqual("Eddy");
+			expect(this.model.changedAttributes.firstName).toEqual("Joey");
+		});
+
+		it("sets the changed attributes to null", function() {
+			this.model.setAttribute("firstName", null);
+			this.model.setAttribute("firstName", "Billy");
+			expect(this.model.changedAttributes.firstName).toBeNull();
+		});
+	});
+
+	describe("valueIsEmpty", function() {
 		beforeEach(function() {
 			this.model = new TestModel();
 		});
@@ -200,11 +250,9 @@ describe("BaseModel", function() {
 			expect(this.model.valueIsEmpty( true )).toEqual(false);
 			expect(this.model.valueIsEmpty( false )).toEqual(false);
 		});
-
 	});
 
 	describe("valid attributes", function() {
-
 		it("returns false for invalid attributes", function() {
 			var o = new TestModelAttributes();
 			expect(o.isValidAttributeKey("non_existent")).toEqual(false);
@@ -217,11 +265,9 @@ describe("BaseModel", function() {
 			expect(o.isValidAttributeKey("lastName")).toEqual(true);
 			expect(o.isValidAttributeKey("id")).toEqual(true);
 		});
-
 	});
 
 	describe("constructor", function() {
-
 		it("assigns attributes", function() {
 			var o = new TestModelAttributes({id: 123, firstName: "John", lastName: "Doe"});
 			expect(o.id).toEqual(123);
@@ -240,13 +286,11 @@ describe("BaseModel", function() {
 				var o = new TestModelAttributes();
 			}).not.toThrow(Error);
 		});
-
 	});
 
 	describe("attributes", function() {
 
 		describe("getters", function() {
-
 			it("return null when no attribute was given", function() {
 				var o = new TestModelAttributes();
 				expect(o.id).toBeNull();
@@ -261,11 +305,9 @@ describe("BaseModel", function() {
 				expect(o.lastName).toBeNull();
 
 			});
-
 		});
 
 		describe("setters", function() {
-
 			it("put entries in the changedAttributes", function() {
 				var o = new TestModelAttributes({firstName: "Fred"});
 				expect(o.changedAttributes.id).toBeUndefined();
@@ -277,7 +319,6 @@ describe("BaseModel", function() {
 				expect(o.changedAttributes.id).toBeUndefined();
 				expect(o.changedAttributes.firstName).toEqual("Fred");
 			});
-
 		});
 
 	});
@@ -285,7 +326,6 @@ describe("BaseModel", function() {
 	describe("basicValidation module", function() {
 
 		describe("validateRequiredAttributes", function() {
-
 			it("marks fields with 'empty'-like values as required", function() {
 				var o = new TestValidation({price: null, description: "", notes: "			"});
 				o.errors = {};
@@ -329,7 +369,6 @@ describe("BaseModel", function() {
 				expect(o.errors.phone).toBeArray();
 				expect(o.errors.phone[0]).toEqual("is required");
 			});
-
 		});
 
 	});
@@ -337,7 +376,6 @@ describe("BaseModel", function() {
 	describe("extendedValidation", function() {
 
 		describe("valueIsNumeric", function() {
-
 			beforeEach(function() {
 				this.model = new TestNumericValidation();
 			});
@@ -373,11 +411,9 @@ describe("BaseModel", function() {
 			it ("returns false for strings with numbers and non numeric characters", function() {
 				expect(this.model.valueIsNumeric("$10.05")).toBeFalse();
 			});
-
 		});
 
 		describe("numeric", function() {
-
 			beforeEach(function() {
 				this.model = new TestNumericValidation();
 				this.model.errors = {};
@@ -413,11 +449,9 @@ describe("BaseModel", function() {
 				this.model.validateAttributeDataTypes();
 				expect(this.model.valid).toBeFalse();
 			});
-
 		});
 
 		describe("max length", function() {
-
 			beforeEach(function() {
 				this.model = new TestMaxLengthValidation();
 			});
@@ -445,11 +479,9 @@ describe("BaseModel", function() {
 				this.model.notes = "									 ";
 				expect(this.model.validate()).toBeTrue();
 			});
-
 		});
 
 		describe("validateAttributeFormats", function() {
-
 			beforeEach(function() {
 				this.model = new TestFormatValidation();
 				this.model.valid = true;
@@ -481,7 +513,6 @@ describe("BaseModel", function() {
 				expect(this.model.valid).toBeFalse();
 				expect(this.model.errors.address).toBeArray();
 			});
-
 		});
 
 	});
@@ -489,7 +520,6 @@ describe("BaseModel", function() {
 	describe("serialization", function() {
 
 		describe("toJSON", function() {
-
 			beforeEach(function() {
 				this.model = new TestValidation({
 					id: 1234,
@@ -549,11 +579,9 @@ describe("BaseModel", function() {
 				var json = '{"id":1234}';
 				expect(this.model.toJSON({changedAttributesOnly: true})).toEqual(json);
 			});
-
 		});
 
 		describe("toQueryString", function() {
-
 			beforeEach(function() {
 				this.model = new TestValidation({
 					id: 1234,
@@ -597,11 +625,9 @@ describe("BaseModel", function() {
 				this.model.name = "Stain";
 				expect(this.model.toQueryString({changedAttributesOnly: true})).toEqual(queryString);
 			});
-
 		});
 
 		describe("toXML", function() {
-
 			beforeEach(function() {
 				this.model = new TestValidation({
 					id: 1234,
@@ -653,7 +679,6 @@ describe("BaseModel", function() {
 				this.model.name = "Stain";
 				expect(this.model.toXML({changedAttributesOnly: true})).toEqual(xml);
 			});
-
 		});
 
 	});
@@ -661,7 +686,6 @@ describe("BaseModel", function() {
 	describe("relations", function() {
 
 		describe("getClassReference", function() {
-
 			window.__classReferenceTest__ = {
 				foo: {
 					bar: {
@@ -680,7 +704,6 @@ describe("BaseModel", function() {
 		});
 
 		describe("hasOne", function() {
-
 			beforeEach(function() {
 				this.attributes = {
 					id: 1234,
@@ -742,11 +765,9 @@ describe("BaseModel", function() {
 				expect(model.category.id).toEqual(98);
 				expect(model.category_id).toEqual(category.id);
 			});
-
 		});
 
 		describe("hasMany", function() {
-
 			beforeEach(function() {
 				this.attributes = {
 					id: 1234,
@@ -809,11 +830,9 @@ describe("BaseModel", function() {
 				expect(model.deals).toEqual(newDeals);
 				expect(model.deals.length).toEqual(1);
 			});
-
 		});
 
 		describe("validation", function() {
-
 			it("sets valid to false when a relationship is invalid", function() {
 				var model = new Store({
 					id: 1234,
@@ -877,7 +896,6 @@ describe("BaseModel", function() {
 				expect(model.validate()).toBeFalse();
 				expect(model.errors.name).toBeArray();
 			});
-
 		});
 
 		describe("serialization", function() {

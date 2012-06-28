@@ -68,11 +68,7 @@ BaseModel.prototype = {
 
 		for (var key in attrs) {
 			if (attrs.hasOwnProperty(key)) {
-				if (this.isValidAttributeKey(key) && attrs[key] !== this._attributes[key]) {
-					this._changedAttributes[key] = this._attributes[key];
-				}
-
-				this._attributes[key] = attrs[key];
+				this.setAttribute(key, attrs[key]);
 			}
 		}
 	},
@@ -91,27 +87,30 @@ BaseModel.prototype = {
 
 	createGetter: function(key) {
 		return function() {
-			if (this._attributes[key] === undefined) {
-				return null;
-			}
-			else {
-				return this._attributes[key];
-			}
+			return this.getAttribute(key);
 		};
 	},
 
 	createSetter: function(key) {
 		return function(newValue) {
-			if (!this.valueIsEmpty(this.attributes[key]) && newValue !== this.attributes[key]) {
-				this._changedAttributes[key] = this._attributes[key];
-			}
-
-			this._attributes[key] = newValue;
+			this.setAttribute(key, newValue);
 		};
+	},
+
+	getAttribute: function(key) {
+		return (this._attributes[key] === undefined) ? null : this._attributes[key];
 	},
 
 	isValidAttributeKey: function(key) {
 		return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
+	},
+
+	setAttribute: function(key, value) {
+		if (this.isValidAttributeKey(key) && value !== this._attributes[key] && this._attributes[key] !== undefined) {
+			this._changedAttributes[key] = this._attributes[key];
+		}
+
+		this._attributes[key] = value;
 	},
 
 	valueIsEmpty: function(value) {
