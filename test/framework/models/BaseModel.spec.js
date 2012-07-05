@@ -159,6 +159,11 @@ describe("BaseModel", function() {
 		expect(o.foo_id).toBeNull();
 	});
 
+	it("sets newRecord to true when instantiated with no primary key", function() {
+		var model = new TestModelAttributes();
+		expect(model.newRecord).toBeTrue();
+	});
+
 	describe("getAttribute", function() {
 		beforeEach(function() {
 			this.model = new TestModelAttributes();
@@ -207,6 +212,19 @@ describe("BaseModel", function() {
 			this.model.setAttribute("firstName", null);
 			this.model.setAttribute("firstName", "Billy");
 			expect(this.model.changedAttributes.firstName).toBeNull();
+		});
+
+		it("publishes attribute:<key>:changed", function() {
+			spyOn(this.model, "publish");
+			this.model.setAttribute("firstName", "Bob");
+			this.model.setAttribute("firstName", "Jane");
+			expect(this.model.publish).toHaveBeenCalledWith("attribute:firstName:changed");
+		});
+
+		it("sets newRecord to false when setting the primary key for the first time", function() {
+			expect(this.model.newRecord).toBeTrue();
+			this.model.setAttribute("id", 1234);
+			expect(this.model.newRecord).toBeFalse();
 		});
 	});
 
@@ -321,6 +339,180 @@ describe("BaseModel", function() {
 			});
 		});
 
+		it("publishes attributes:changed", function() {
+			var o = new TestModelAttributes();
+			spyOn(o, "publish");
+			o.attributes = {firstName: "Joey"};
+			expect(o.publish).wasNotCalled();
+			o.attributes = {firstName: "Billy"};
+			expect(o.publish).toHaveBeenCalledWith("attribute:firstName:changed");
+			expect(o.publish).toHaveBeenCalledWith("attributes:changed");
+		});
+
+		it("sets newRecord to false when the primary key is added", function() {
+			var o = new TestModelAttributes();
+			expect(o.newRecord).toBeTrue();
+			o.attributes = {id: 1234};
+			expect(o.newRecord).toBeFalse();
+		});
+	});
+
+	describe("destroy", function() {
+		beforeEach(function() {
+			this.model = new TestModelAttributes();
+		});
+
+		it("sets the destroyed flag to true", function() {
+			this.model.destroy();
+			expect(this.model.destroyed).toBeTrue();
+		});
+
+		it("publishes the destroyed event", function() {
+			spyOn(this.model, "publish");
+			this.model.destroy();
+			this.model.destroy();
+			expect(this.model.publish).wasCalledWith("destroyed");
+			expect(this.model.publish.callCount).toEqual(1);
+		});
+
+		it("applies module callbacks", function() {
+			spyOn(this.model, "applyModuleCallbacks");
+			this.model.destroy();
+			expect(this.model.applyModuleCallbacks).toHaveBeenCalledWith("destroy", []);
+		});
+	});
+
+	describe("save", function() {
+		beforeEach(function() {
+			this.model = new TestModelAttributes();
+		});
+
+		it("publishes the created event", function() {
+			this.model.attributes = {firstName: "Jane", lastName: "McJanerson"};
+			spyOn(this.model, "publish");
+			expect(this.model.newRecord).toBeTrue();
+			this.model.save();
+			expect(this.model.publish).toHaveBeenCalledWith("created");
+			expect(this.model.newRecord).toBeFalse();
+		});
+
+		it("publishes the updated event", function() {
+			this.model.attributes = {firstName: "Jane", lastName: "McJanerson", id: 1234};
+			spyOn(this.model, "publish");
+			expect(this.model.newRecord).toBeFalse();
+			this.model.save();
+			expect(this.model.publish).toHaveBeenCalledWith("updated");
+			expect(this.model.newRecord).toBeFalse();
+		});
+
+		it("sets newRecord to false", function() {
+			this.model.attributes = {firstName: "Abby"};
+			expect(this.model.newRecord).toBeTrue();
+			this.model.save();
+			expect(this.model.newRecord).toBeFalse();
+		});
+	});
+
+	describe("subscribe", function() {
+		beforeEach(function() {
+			this.model = new TestModelAttributes();
+		});
+
+		it("accepts an event name and a callback function", function() {
+			var subscriber = {
+				callback: function(model) {
+					
+				}
+			};
+			spyOn(subscriber, "callback");
+			this.model.subscribe("test", subscriber.callback);
+			this.model.publish("test");
+			expect(subscriber.callback).toHaveBeenCalledWith(this.model);
+		});
+
+		it("accepts an event name, an object context and callback function", function() {
+			var called = false;
+			var subscriber = {
+				callback: function(model) {
+					called = true;
+					expect(this).toEqual(subscriber);
+				}
+			};
+			this.model.subscribe("test", subscriber, subscriber.callback);
+			this.model.publish("test");
+			expect(called).toBeTrue();
+		});
+
+		it("accepts an event name, an object, and the name of a method to call", function() {
+			var called = false;
+			var subscriber = {
+				callback: function(model) {
+					
+				}
+			};
+			spyOn(subscriber, "callback");
+			this.model.subscribe("test", subscriber, "callback");
+			this.model.publish("test");
+			expect(subscriber.callback).toHaveBeenCalledWith(this.model);
+		});
+
+		it("allows the same subscriber to subscribe more than once", function() {
+			var subscriber = {
+				callback: function() {
+					
+				}
+			};
+			spyOn(subscriber, "callback");
+			this.model.subscribe("test", subscriber, "callback");
+			this.model.subscribe("test", subscriber, "callback");
+			this.model.publish("test");
+			expect(subscriber.callback.callCount).toEqual(2);
+		});
+	});
+
+	describe("unsubscribe", function() {
+		beforeEach(function() {
+			this.model = new TestModelAttributes();
+		});
+
+		it("removes a subscriber matching event name and callback function", function() {
+			var callback = function() {};
+			this.model.subscribe("test", callback);
+			expect(this.model.subscribers.test.length).toEqual(1);
+			this.model.unsubscribe("test", callback);
+			expect(this.model.subscribers.test.length).toEqual(0);
+		});
+
+		it("removes a subscriber matching event name, object instance, and callback function", function() {
+			var subscriber = {
+				callback: function() {}
+			};
+			this.model.subscribe("test", subscriber, subscriber.callback);
+			expect(this.model.subscribers.test.length).toEqual(1);
+			this.model.unsubscribe("test", subscriber, subscriber.callback);
+			expect(this.model.subscribers.test.length).toEqual(0);
+		});
+
+		it("removes a subscriber matching event name, object instance and callback method name", function() {
+			var subscriber = {
+				callback: function() {}
+			};
+			this.model.subscribe("test", subscriber, "callback");
+			expect(this.model.subscribers.test.length).toEqual(1);
+			this.model.unsubscribe("test", subscriber, "callback");
+			expect(this.model.subscribers.test.length).toEqual(0);
+		});
+
+		it("throws an error if an object is passed, but no callback", function() {
+			var subscriber = {
+				callback: function() {}
+			};
+			var model = this.model;
+			this.model.subscribe("test", subscriber, "callback");
+			expect(function() {
+				model.unsubscribe("test", subscriber);
+			}).toThrowError();
+		});
 	});
 
 	describe("basicValidation module", function() {
