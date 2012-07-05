@@ -63,7 +63,6 @@ BaseModel.includeModule("relations", {
 						for (i = 0, length = relation.length; i < length; i++) {
 							options.rootElement = currentRootElement + "[" + i + "]";
 							relationQueryString = relation[i].toQueryString(options);
-							console.log(options.rootElement + " - relationQueryString = " + relationQueryString);
 
 							if (relationQueryString) {
 								queryString.push(relationQueryString);
@@ -72,8 +71,6 @@ BaseModel.includeModule("relations", {
 					}
 				}
 			}
-
-			console.log(origRootElement + " - queryString = " + queryString.join("&"));
 
 			return queryString.length ? queryString.join("&") : undefined;
 		},
