@@ -1147,6 +1147,78 @@ describe("BaseModel", function() {
 				var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
 				expect(actual).toEqual(queryString);
 			});
+
+			describe("toXML", function() {
+				beforeEach(function() {
+					this.store = new Store();
+				});
+
+				it("serializes hasOne relationships", function() {
+					this.store.attributes = {
+						id: 1234,
+						distribution_center: {
+							id: 9876,
+							address: "123 South St",
+							postal_code: "12345-1234",
+							region: "NE",
+							country: "United States of America"
+						}
+					};
+
+					var xml = [
+						'<store>',
+							'<id>1234</id>',
+							'<distribution_center>',
+								'<id>9876</id>',
+								'<address>123 South St</address>',
+								'<postal_code>12345-1234</postal_code>',
+								'<region>NE</region>',
+								'<country>United States of America</country>',
+							'</distribution_center>',
+						'</store>'
+					].join("");
+					var action = this.store.toXML({rootElement: "store"});
+					expect(action).toEqual(xml);
+				});
+
+				it("serializes hasMany relationships", function() {
+					this.store.attributes = {
+						deals: [{
+							id: 4,
+							store_id: 1234,
+							name: "Testing1"
+						},{
+							id: 78,
+							store_id: 1234,
+							name: "Testing2"
+						}]
+					};
+
+					var xml = [
+						'<store>',
+							'<deals>',
+								'<deal>',
+									'<id>4</id>',
+									'<store_id>1234</store_id>',
+									'<name>Testing1</name>',
+								'</deal>',
+								'<deal>',
+									'<id>78</id>',
+									'<store_id>1234</store_id>',
+									'<name>Testing2</name>',
+								'</deal>',
+							'</deals>',
+						'</store>'
+					].join("");
+
+					var action = this.store.toXML({rootElement: "store"});
+					expect(action).toEqual(xml);
+				});
+			});
+
+			describe("toJSON", function() {
+				
+			});
 		});
 	});
 
