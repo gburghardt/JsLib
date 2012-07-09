@@ -1,3 +1,9 @@
+if (!String.prototype.capitalize) {
+	String.prototype.capitalize = function() {
+		return this.charAt(0).toUpperCase() + this.slice(1, this.length);
+	};
+}
+
 if (!String.prototype.singularize) {
 	String.prototype.singularize = function() {
 		if (/ies$/.test(this)) {
@@ -18,4 +24,3 @@ if (!String.prototype.singularize) {
 		}
 	};
 }
-
