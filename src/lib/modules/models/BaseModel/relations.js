@@ -24,7 +24,7 @@ BaseModel.includeModule("relations", {
 			}
 		},
 
-		toJSON: function(options) {
+		toJson: function(options) {
 
 		},
 
@@ -75,7 +75,7 @@ BaseModel.includeModule("relations", {
 			return queryString.length ? queryString.join("&") : undefined;
 		},
 
-		toXML: function(options) {
+		toXml: function(options) {
 			var key;
 			var i;
 			var length;
@@ -91,7 +91,7 @@ BaseModel.includeModule("relations", {
 				relation = this[key];
 
 				if (relation) {
-					xml.push(relation.toXML({rootElement: key}));
+					xml.push(relation.toXml({rootElement: key}));
 				}
 			}
 
@@ -109,7 +109,7 @@ BaseModel.includeModule("relations", {
 					}
 
 					for (i = 0, length = relations.length; i < length; i++) {
-						xml.push(relations[i].toXML({rootElement: key.singularize()}));
+						xml.push(relations[i].toXml({rootElement: key.singularize()}));
 					}
 				}
 			}

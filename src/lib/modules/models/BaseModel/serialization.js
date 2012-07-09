@@ -13,24 +13,12 @@ BaseModel.includeModule("serialization", {
 		serialize: function(type, options) {
 			type = type || "queryString";
 			options = options || {};
-			var x = "";
-
-			switch (type) {
-				case "xml":
-					x = this.toXML(options);
-					break;
-				case "json":
-					x = this.toJSON(options);
-					break;
-				default:
-					x = this.toQueryString(options);
-					break;
-			}
-
+			var methodName = "to" + type.capitalize();
+			var x = (!!this[methodName]) ? this[methodName](options) : this.toQueryString(options);
 			return x;
 		},
 
-		toJSON: function(options) {
+		toJson: function(options) {
 			options = options || {};
 			var json = "", moduleCallbacksResult, attrs = {}, i, length, key;
 
@@ -57,7 +45,7 @@ BaseModel.includeModule("serialization", {
 			}
 
 			json += JSON.stringify(attrs);
-			moduleCallbacksResult = this.applyModuleCallbacks("toJSON", [options]);
+			moduleCallbacksResult = this.applyModuleCallbacks("toJson", [options]);
 
 			if (moduleCallbacksResult.length) {
 				json += "," + moduleCallbacksResult.join("");
@@ -113,7 +101,7 @@ BaseModel.includeModule("serialization", {
 			return queryString.join("&");
 		},
 
-		toXML: function(options) {
+		toXml: function(options) {
 			options = options || {};
 			var attrs, key, xml = [], glue = "", moduleCallbacksResult;
 
@@ -147,7 +135,7 @@ BaseModel.includeModule("serialization", {
 
 				xml.push("/>");
 
-				moduleCallbacksResult = this.applyModuleCallbacks("toXML", [options]);
+				moduleCallbacksResult = this.applyModuleCallbacks("toXml", [options]);
 
 				if (moduleCallbacksResult.length) {
 					xml.push(moduleCallbacksResult.join(""));
@@ -166,7 +154,7 @@ BaseModel.includeModule("serialization", {
 					}
 				}
 
-				moduleCallbacksResult = this.applyModuleCallbacks("toXML", [options]);
+				moduleCallbacksResult = this.applyModuleCallbacks("toXml", [options]);
 
 				if (moduleCallbacksResult) {
 					xml.push(moduleCallbacksResult.join(""));

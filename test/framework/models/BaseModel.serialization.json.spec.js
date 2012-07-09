@@ -4,7 +4,7 @@ describe("BaseModel", function() {
 
 		describe("serialization", function() {
 
-			describe("toJSON", function() {
+			describe("toJson", function() {
 				beforeEach(function() {
 					this.model = new TestValidation({
 						id: 1234,
@@ -28,7 +28,7 @@ describe("BaseModel", function() {
 						'}'
 					].join("");
 
-					expect(this.model.toJSON()).toEqual(json);
+					expect(this.model.toJson()).toEqual(json);
 				});
 
 				it("serializes attributes into a named object", function() {
@@ -45,7 +45,7 @@ describe("BaseModel", function() {
 						'}'
 					].join("");
 
-					expect(this.model.toJSON({rootElement: "test_validation"})).toEqual(json);
+					expect(this.model.toJson({rootElement: "test_validation"})).toEqual(json);
 				});
 
 				it("serializes changed attributes", function() {
@@ -57,12 +57,12 @@ describe("BaseModel", function() {
 					].join("");
 					this.model.name = "Stain";
 					expect(this.model.changedAttributes.name).toEqual("Paint");
-					expect(this.model.toJSON({changedAttributesOnly: true})).toEqual(json);
+					expect(this.model.toJson({changedAttributesOnly: true})).toEqual(json);
 				});
 
 				it("serializes only the primary key when no changed attributes exist", function() {
 					var json = '{"id":1234}';
-					expect(this.model.toJSON({changedAttributesOnly: true})).toEqual(json);
+					expect(this.model.toJson({changedAttributesOnly: true})).toEqual(json);
 				});
 			});
 

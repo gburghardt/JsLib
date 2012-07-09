@@ -275,7 +275,7 @@ describe("BaseModel", function() {
 					expect(actual).toEqual(queryString);
 				});
 
-				describe("toXML", function() {
+				describe("toXml", function() {
 					beforeEach(function() {
 						this.store = new Store();
 					});
@@ -304,7 +304,7 @@ describe("BaseModel", function() {
 								'</distribution_center>',
 							'</store>'
 						].join("");
-						var action = this.store.toXML({rootElement: "store"});
+						var action = this.store.toXml({rootElement: "store"});
 						expect(action).toEqual(xml);
 					});
 
@@ -338,12 +338,12 @@ describe("BaseModel", function() {
 							'</store>'
 						].join("");
 
-						var action = this.store.toXML({rootElement: "store"});
+						var action = this.store.toXml({rootElement: "store"});
 						expect(action).toEqual(xml);
 					});
 				});
 
-				describe("toJSON", function() {
+				describe("toJson", function() {
 				
 				});
 			});

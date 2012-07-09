@@ -4,7 +4,7 @@ describe("BaseModel", function() {
 
 		describe("serialization", function() {
 
-			describe("toXML", function() {
+			describe("toXml", function() {
 				beforeEach(function() {
 					this.model = new TestValidation({
 						id: 1234,
@@ -25,7 +25,7 @@ describe("BaseModel", function() {
 						'<notes>Per gallon</notes>'
 					].join("");
 
-					expect(this.model.toXML()).toEqual(xml);
+					expect(this.model.toXml()).toEqual(xml);
 				});
 
 				it("converts attributes to XML with a root element", function() {
@@ -39,13 +39,13 @@ describe("BaseModel", function() {
 						'</test_validation>'
 					].join("");
 
-					expect(this.model.toXML({rootElement: "test_validation"})).toEqual(xml);
+					expect(this.model.toXml({rootElement: "test_validation"})).toEqual(xml);
 				});
 
 				it("converts attributes to XML using shorthand syntax", function() {
 					var xml = '<test_validation id="1234" name="Paint" description="Red&lt;br&gt;&quot;matte&quot;" price="15.99" notes="Per gallon" />';
 
-					expect(this.model.toXML({rootElement: 'test_validation', shorthand: true})).toEqual(xml);
+					expect(this.model.toXml({rootElement: 'test_validation', shorthand: true})).toEqual(xml);
 				});
 
 				it("converts changed attributes to xml", function() {
@@ -54,7 +54,7 @@ describe("BaseModel", function() {
 						'<id>1234</id>'
 					].join("");
 					this.model.name = "Stain";
-					expect(this.model.toXML({changedAttributesOnly: true})).toEqual(xml);
+					expect(this.model.toXml({changedAttributesOnly: true})).toEqual(xml);
 				});
 			});
 		});
