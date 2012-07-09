@@ -18,3 +18,4 @@ if (!String.prototype.singularize) {
 		}
 	};
 }
+
