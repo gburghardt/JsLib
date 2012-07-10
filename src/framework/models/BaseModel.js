@@ -302,6 +302,54 @@ BaseModel.includeModule = function(moduleName, forceOverride, module) {
 	module = null;
 };
 
+BaseModel.extendModule = function(moduleName, forceOverride, extensions) {
+	if (forceOverride && !module) {
+		extensions = forceOverride;
+		forceOverride = false;
+	}
+
+	if (!this.modules[moduleName]) {
+		throw new Error("Module " + moduleName + " has not been included. Cannot extend this module.");
+	}
+
+	var module = this.modules[moduleName];
+
+	if (extensions.prototype) {
+		this.extendModulePrototype(module, extensions.prototype);
+	}
+
+	if (extensions.callbacks) {
+		this.extendModuleCallbacks(module, extensions.callbacks);
+	}
+
+	module = null;
+};
+
+BaseModel.extendModulePrototype = function(module, prototype, forceOverride) {
+	var key;
+
+	for (key in prototype) {
+		if (prototype.hasOwnProperty(key) && (!this.prototype.hasOwnProperty(key) || forceOverride)) {
+			this.prototype[key] = prototype[key];
+		}
+	}
+
+	module = prototype = null;
+};
+
+BaseModel.extendModuleCallbacks = function(module, callbacks) {
+	var key;
+
+	for (key in callbacks) {
+		if (callbacks.hasOwnProperty(key)) {
+			this.moduleCallbacks[key] = this.moduleCallbacks[key] || [];
+			this.moduleCallbacks[key].push(callbacks[key]);
+		}
+	}
+
+	module = callbacks = null;
+};
+
 BaseModel.applyModuleCallbacks = function(instance, callbackName, args) {
 	args = args || [];
 	var result, results = [], i, length, callbacks = this.moduleCallbacks[callbackName];

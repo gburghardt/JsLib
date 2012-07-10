@@ -1,5 +1,66 @@
 describe("BaseModel", function() {
 
+	describe("includeModule", function() {
+		it("extends the prototype of BaseModel", function() {
+			var module = {
+				prototype: {
+					foo: function() {
+						return 'bar';
+					}
+				}
+			};
+			BaseModel.includeModule("__TEST__", module);
+			expect(BaseModel.prototype.hasOwnProperty('foo')).toBeTrue();
+			expect(BaseModel.prototype.foo).toEqual(module.prototype.foo);
+			expect(BaseModel.prototype.foo()).toEqual('bar');
+		});
+
+		it("overrides existing methods or properties in the BaseModel prototype", function() {
+			var module = {
+				prototype: {
+					foo: function() {
+						return 'foo';
+					}
+				}
+			};
+			BaseModel.includeModule("__TEST2__", true, module);
+			expect(BaseModel.prototype.foo).toEqual(module.prototype.foo);
+			expect(BaseModel.prototype.foo()).toEqual('foo');
+		});
+
+		it("adds callbacks around method calls", function() {
+			var module = {
+				callbacks: {
+					foo: function() {
+						return 'foo';
+					}
+				}
+			};
+			BaseModel.includeModule("__TEST3__", module);
+			expect(BaseModel.moduleCallbacks.hasOwnProperty("foo")).toBeTrue();
+			expect(BaseModel.moduleCallbacks.foo).toBeInstanceof(Array);
+			expect(BaseModel.moduleCallbacks.foo.length).toEqual(1);
+		});
+	});
+
+	describe("extendModule", function() {
+		xit("extends the BaseModel prototype if the module exists", function() {
+			
+		});
+
+		xit("throws an error if the module has not been included", function() {
+			
+		});
+
+		xit("overrides methods or properties on the BaseModel prototype", function() {
+			
+		});
+	});
+
+	describe("applyModuleCallbacks", function() {
+		xit("should be tested");
+	});
+
 	it("defines a primary key by default", function() {
 		var o = new TestModel();
 		expect(o.isValidAttributeKey("id")).toEqual(true);
