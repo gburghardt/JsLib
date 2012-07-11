@@ -1,3 +1,4 @@
+// TODO: Move serialization into a module extension for relations
 BaseModel.includeModule("relations", {
 
 	callbacks: {
