@@ -44,16 +44,57 @@ describe("BaseModel", function() {
 	});
 
 	describe("extendModule", function() {
-		xit("extends the BaseModel prototype if the module exists", function() {
-			
+		it("extends the BaseModel prototype if the module exists", function() {
+			var module = {
+				prototype: {
+					foo: function() {
+						return '123';
+					}
+				}
+			};
+			var extension = {
+				prototype: {
+					bar: function() {
+						return 'abc123';
+					},
+					foo: function() {
+						return 'abc';
+					}
+				}
+			};
+			BaseModel.includeModule("__TEST4__", module);
+			BaseModel.extendModule("__TEST4__", extension);
+			expect(BaseModel.prototype.hasOwnProperty("bar")).toBeTrue();
+			expect(BaseModel.prototype.bar).toEqual(extension.prototype.bar);
+			expect(BaseModel.prototype.foo).toNotEqual(extension.prototype.foo);
+			expect(BaseModel.prototype.foo()).toEqual("123");
 		});
 
-		xit("throws an error if the module has not been included", function() {
-			
+		it("throws an error if the module has not been included", function() {
+			expect(function() {
+				BaseModel.extendModule("__NON_EXISTENT_MODULE__", {});
+			}).toThrowError();
 		});
 
-		xit("overrides methods or properties on the BaseModel prototype", function() {
-			
+		it("overrides methods or properties on the BaseModel prototype", function() {
+			var module = {
+				prototype: {
+					overrideMe: function() {
+						return '123';
+					}
+				}
+			};
+			var extension = {
+				prototype: {
+					overrideMe: function() {
+						return 'abc';
+					}
+				}
+			};
+			BaseModel.includeModule("__TEST5__", module);
+			BaseModel.extendModule("__TEST5__", true, extension);
+			expect(BaseModel.prototype.overrideMe).toEqual(extension.prototype.overrideMe);
+			expect(BaseModel.prototype.overrideMe()).toEqual("abc");
 		});
 	});
 

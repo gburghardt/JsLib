@@ -303,7 +303,7 @@ BaseModel.includeModule = function(moduleName, forceOverride, module) {
 };
 
 BaseModel.extendModule = function(moduleName, forceOverride, extensions) {
-	if (forceOverride && !module) {
+	if (forceOverride && !extensions) {
 		extensions = forceOverride;
 		forceOverride = false;
 	}
@@ -315,7 +315,7 @@ BaseModel.extendModule = function(moduleName, forceOverride, extensions) {
 	var module = this.modules[moduleName];
 
 	if (extensions.prototype) {
-		this.extendModulePrototype(module, extensions.prototype);
+		this.extendModulePrototype(module, extensions.prototype, forceOverride);
 	}
 
 	if (extensions.callbacks) {
