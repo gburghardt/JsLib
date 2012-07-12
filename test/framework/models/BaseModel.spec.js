@@ -47,27 +47,27 @@ describe("BaseModel", function() {
 		it("extends the BaseModel prototype if the module exists", function() {
 			var module = {
 				prototype: {
-					foo: function() {
+					getAbc: function() {
 						return '123';
 					}
 				}
 			};
 			var extension = {
 				prototype: {
-					bar: function() {
+					getAbc123: function() {
 						return 'abc123';
 					},
-					foo: function() {
+					getAbc: function() {
 						return 'abc';
 					}
 				}
 			};
 			BaseModel.includeModule("__TEST4__", module);
 			BaseModel.extendModule("__TEST4__", extension);
-			expect(BaseModel.prototype.hasOwnProperty("bar")).toBeTrue();
-			expect(BaseModel.prototype.bar).toEqual(extension.prototype.bar);
-			expect(BaseModel.prototype.foo).toNotEqual(extension.prototype.foo);
-			expect(BaseModel.prototype.foo()).toEqual("123");
+			expect(BaseModel.prototype.hasOwnProperty("getAbc123")).toBeTrue();
+			expect(BaseModel.prototype.getAbc123).toEqual(extension.prototype.getAbc123);
+			expect(BaseModel.prototype.getAbc).toNotEqual(extension.prototype.getAbc);
+			expect(BaseModel.prototype.getAbc()).toEqual("123");
 		});
 
 		it("throws an error if the module has not been included", function() {
