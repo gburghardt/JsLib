@@ -218,8 +218,8 @@ describe("BaseModel", function() {
 			});
 
 			describe("serialization", function() {
-				it("serializes relations into a query string", function() {
-					var model = new Store({
+				beforeEach(function() {
+					this.storeWithDealsAndDistributionCenterAttrs = {
 						id: 1234,
 						deals: [{
 							id: 4,
@@ -237,42 +237,73 @@ describe("BaseModel", function() {
 							region: "NE",
 							country: "United States of America"
 						}
-					});
-					var queryString = [
-						'store[id]=1234',
-						'store[deals][0][id]=4',
-						'store[deals][0][store_id]=1234',
-						'store[deals][0][name]=Testing1',
-						'store[deals][1][id]=78',
-						'store[deals][1][store_id]=1234',
-						'store[deals][1][name]=Testing2',
-						'store[distribution_center][id]=9876',
-						'store[distribution_center][address]=123%20South%20St',
-						'store[distribution_center][postal_code]=12345-1234',
-						'store[distribution_center][region]=NE',
-						'store[distribution_center][country]=United%20States%20of%20America'
-					].sort().join("&");
-					var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
-					expect(actual).toEqual(queryString);
-				});
+					};
 
-				it("skips relations that do not exist", function() {
-					var model = new Store({
+					this.storeWithDealsAttrs = {
 						id: 1234,
 						deals: [{
 							id: 4,
 							store_id: 1234,
 							name: "Testing1"
 						}]
+					};
+
+					this.storeWithDistributionCenterAttrs = {
+						id: 1234,
+						distribution_center: {
+							id: 9876,
+							address: "123 South St",
+							postal_code: "12345-1234",
+							region: "NE",
+							country: "United States of America"
+						}
+					};
+
+					this.storeWithOnlyDealsAttrs = {
+						deals: [{
+							id: 4,
+							store_id: 1234,
+							name: "Testing1"
+						},{
+							id: 78,
+							store_id: 1234,
+							name: "Testing2"
+						}]
+					};
+				});
+
+				describe("queryString", function() {
+					it("serializes relations into a namespaced query string", function() {
+						var model = new Store(this.storeWithDealsAndDistributionCenterAttrs);
+						var queryString = [
+							'store[id]=1234',
+							'store[deals][0][id]=4',
+							'store[deals][0][store_id]=1234',
+							'store[deals][0][name]=Testing1',
+							'store[deals][1][id]=78',
+							'store[deals][1][store_id]=1234',
+							'store[deals][1][name]=Testing2',
+							'store[distribution_center][id]=9876',
+							'store[distribution_center][address]=123%20South%20St',
+							'store[distribution_center][postal_code]=12345-1234',
+							'store[distribution_center][region]=NE',
+							'store[distribution_center][country]=United%20States%20of%20America'
+						].sort().join("&");
+						var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
+						expect(actual).toEqual(queryString);
 					});
-					var queryString = [
-						'store[id]=1234',
-						'store[deals][0][id]=4',
-						'store[deals][0][store_id]=1234',
-						'store[deals][0][name]=Testing1'
-					].sort().join("&");
-					var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
-					expect(actual).toEqual(queryString);
+
+					it("skips relations that do not exist", function() {
+						var model = new Store(this.storeWithDealsAttrs);
+						var queryString = [
+							'store[id]=1234',
+							'store[deals][0][id]=4',
+							'store[deals][0][store_id]=1234',
+							'store[deals][0][name]=Testing1'
+						].sort().join("&");
+						var actual = model.toQueryString({rootElement: "store"}).split(/&/g).sort().join("&");
+						expect(actual).toEqual(queryString);
+					});
 				});
 
 				describe("toXml", function() {
@@ -281,16 +312,7 @@ describe("BaseModel", function() {
 					});
 
 					it("serializes hasOne relationships", function() {
-						this.store.attributes = {
-							id: 1234,
-							distribution_center: {
-								id: 9876,
-								address: "123 South St",
-								postal_code: "12345-1234",
-								region: "NE",
-								country: "United States of America"
-							}
-						};
+						this.store.attributes = this.storeWithDistributionCenterAttrs;
 
 						var xml = [
 							'<store>',
@@ -309,17 +331,7 @@ describe("BaseModel", function() {
 					});
 
 					it("serializes hasMany relationships", function() {
-						this.store.attributes = {
-							deals: [{
-								id: 4,
-								store_id: 1234,
-								name: "Testing1"
-							},{
-								id: 78,
-								store_id: 1234,
-								name: "Testing2"
-							}]
-						};
+						this.store.attributes = this.storeWithOnlyDealsAttrs;
 
 						var xml = [
 							'<store>',
