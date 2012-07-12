@@ -356,7 +356,13 @@ describe("BaseModel", function() {
 				});
 
 				describe("toJson", function() {
-				
+					xit("serializes hasOne relationships");
+
+					xit("serializes hasMany relationships");
+
+					xit("skips hasOne relationships that do not exist");
+
+					xit("skips hasMany relationships that do not exist");
 				});
 			});
 
