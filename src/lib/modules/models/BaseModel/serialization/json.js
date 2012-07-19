@@ -32,7 +32,8 @@ BaseModel.extendModule("serialization", {
 			moduleCallbacksResult = this.applyModuleCallbacks("toJson", [options]);
 
 			if (moduleCallbacksResult.length) {
-				json += "," + moduleCallbacksResult.join("");
+				json = json.replace(/\}$/, "");
+				json += "," + moduleCallbacksResult.join("") + "}";
 			}
 
 			if (options.rootElement) {

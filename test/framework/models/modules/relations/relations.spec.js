@@ -22,6 +22,36 @@ describe("BaseModel", function() {
 				});
 			});
 
+			describe("getHasOneRelation", function() {
+				it("returns null when there is no hasOne relation", function() {
+					var store = new Store();
+					expect(store.getHasOneRelation("__NON_EXISTENT__")).toBeNull();
+				});
+
+				it("returns null for relations with no attributes", function() {
+					var store = new Store();
+					spyOn(BaseModel.modules.relations.self, "getClassReference");
+					expect(store.getHasOneRelation("destribution_center")).toBeNull();
+					expect(BaseModel.modules.relations.self.getClassReference).wasNotCalled();
+				});
+
+				it("returns an already created relation", function() {
+					var store = new Store();
+					var distributionCenter = new DistributionCenter();
+					store._relations.distribution_center = distributionCenter;
+					spyOn(BaseModel.modules.relations.self, "getClassReference");
+					expect(store.getHasOneRelation("distribution_center")).toEqual(distributionCenter);
+					expect(BaseModel.modules.relations.self.getClassReference).wasNotCalled();
+				});
+
+				it("instantiates a new relation object", function() {
+					var store = new Store({distribution_center: {id: 1234}});
+					spyOn(BaseModel.modules.relations.self, "getClassReference").andReturn(DistributionCenter);
+					expect(store.getHasOneRelation("distribution_center")).toBeInstanceof(DistributionCenter);
+					expect(BaseModel.modules.relations.self.getClassReference).toHaveBeenCalledWith("DistributionCenter");
+				});
+			});
+
 			describe("hasOne", function() {
 				beforeEach(function() {
 					this.attributes = {
@@ -350,19 +380,48 @@ describe("BaseModel", function() {
 							'</store>'
 						].join("");
 
-						var action = this.store.toXml({rootElement: "store"});
-						expect(action).toEqual(xml);
+						var actual = this.store.toXml({rootElement: "store"});
+						expect(actual).toEqual(xml);
 					});
 				});
 
 				describe("toJson", function() {
-					xit("serializes hasOne relationships");
+					it("serializes hasOne relationships", function() {
+						var store = new Store(this.storeWithDistributionCenterAttrs);
+						var actual = store.toJson({rootElement: "store"});
+						var expected = [
+							'{"store":{',
+								'"id":1234,',
+								'"distribution_center":{',
+									'"address":"123 South St",',
+									'"postal_code":"12345-1234",',
+									'"region":"NE",',
+									'"country":"United States of America",',
+									'"id":9876',
+								'}',
+							'}}'
+						].join("");
+						expect(actual).toEqual(expected);
+					});
 
-					xit("serializes hasMany relationships");
-
-					xit("skips hasOne relationships that do not exist");
-
-					xit("skips hasMany relationships that do not exist");
+					xit("serializes hasMany relationships", function() {
+						var store = new Store(this.storeWithOnlyDealsAttrs);
+						var actual = store.toJson({rootElement: "store"});
+						var expected = [
+							'{"store":{',
+								'"deals":[{',
+									'"id":4,',
+									'"store_id":1234,',
+									'"name":"Testing1"',
+								'},{',
+									'"id":78,',
+									'"store_id":1234,',
+									'"name":"Testing2"',
+								'}]',
+							'}}'
+						].join("");
+						expect(actual).toEqual(expected);
+					});
 				});
 			});
 

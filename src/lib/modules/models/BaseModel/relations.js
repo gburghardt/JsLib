@@ -89,7 +89,7 @@ BaseModel.includeModule("relations", {
 					}
 
 					Object.defineProperty(this.__proto__, key, {
-						get: this.createOneToOneRelationshipGetter(key, this.hasOne[key]),
+						get: this.createOneToOneRelationshipGetter(key),
 						set: this.createOneToOneRelationshipSetter(key, this.hasOne[key]),
 						enumerable: true
 					});
@@ -129,20 +129,9 @@ BaseModel.includeModule("relations", {
 			};
 		},
 
-		createOneToOneRelationshipGetter: function(key, relationInfo) {
+		createOneToOneRelationshipGetter: function(key) {
 			return function() {
-				if (this._relations[key]) {
-					return this._relations[key];
-				}
-				else if (this.relationsAttributes[key]) {
-					var classReference = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
-					this._relations[key] = new classReference(this.relationsAttributes[key]);
-					classReference = null;
-					return this._relations[key];
-				}
-				else {
-					return null;
-				}
+				return this.getHasOneRelation(key);
 			};
 		},
 
@@ -160,6 +149,52 @@ BaseModel.includeModule("relations", {
 
 				newValue = null;
 			};
+		},
+
+		getHasManyRelation: function(name) {
+			var relation = null;
+
+			if (this.hasMany[name]) {
+				
+			}
+
+			return relation;
+		},
+
+		getHasOneRelation: function(key) {
+			if (this._relations[key]) {
+				return this._relations[key];
+			}
+			else if (!this.hasOne[key]) {
+				return null;
+			}
+			else if (this.relationsAttributes[key]) {
+				var relationInfo = this.hasOne[key]
+				var RelationClass = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
+				this._relations[key] = new RelationClass(this.relationsAttributes[key]);
+				RelationClass = null;
+
+				return this._relations[key];
+			}
+			else {
+				return null;
+			}
+		},
+
+		getRelation: function(name) {
+			return this.getHasOneRelation(name) || this.getHasManyRelation(name) || null;
+		},
+
+		setHasManyRelation: function(name, relation) {
+			
+		},
+
+		setHasOneRelation: function(name, relation) {
+			
+		},
+
+		setRelation: function(name) {
+			
 		},
 
 		validateOneToOneRelationships: function(key) {
