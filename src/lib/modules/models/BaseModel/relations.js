@@ -151,14 +151,29 @@ BaseModel.includeModule("relations", {
 			};
 		},
 
-		getHasManyRelation: function(name) {
-			var relation = null;
-
-			if (this.hasMany[name]) {
-				
+		getHasManyRelation: function(key) {
+			if (this._relations[key]) {
+				return this._relations[key];
 			}
+			else if (!this.hasMany[key]) {
+				return null;
+			}
+			else if (this.relationsAttributes[key]) {
+				var i = 0, length = this.relationsAttributes[key].length, RelationClass, relationInfo = this.hasMany[key];
 
-			return relation;
+				this._relations[key] = [];
+
+				for (i; i < length; i++) {
+					RelationClass = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
+					this._relations[key].push( new RelationClass( this.relationsAttributes[key][i] ) );
+				}
+
+				classReference = null;
+				return this._relations[key];
+			}
+			else {
+				return null;
+			}
 		},
 
 		getHasOneRelation: function(key) {

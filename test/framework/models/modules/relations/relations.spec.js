@@ -52,6 +52,33 @@ describe("BaseModel", function() {
 				});
 			});
 
+			describe("getHasManyRelation", function() {
+				it("returns null when there is no hasMany relation", function() {
+					var store = new Store();
+					expect(store.getHasManyRelation("non_existent")).toBeNull();
+				});
+
+				it("returns null for relations with no attributes", function() {
+					var store = new Store();
+					expect(store.getHasManyRelation("deals")).toBeNull();
+				});
+
+				it("returns an already created relation", function() {
+					var store = new Store();
+					var deals = [new Deal(), new Deal()]
+					store._relations.deals = deals;
+					expect(store.getHasManyRelation("deals") === deals).toBeTrue();
+				});
+
+				it("creates new relations", function() {
+					var store = new Store();
+					store.relationsAttributes.deals = [{id: 123}];
+					var deals = store.getHasManyRelation("deals");
+					expect(deals.length).toEqual(1);
+					expect(deals[0].id).toEqual(123);
+				});
+			});
+
 			describe("hasOne", function() {
 				beforeEach(function() {
 					this.attributes = {

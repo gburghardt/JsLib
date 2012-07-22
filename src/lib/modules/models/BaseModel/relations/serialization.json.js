@@ -29,16 +29,31 @@ BaseModel.extendModule("relations", {
 	prototype: {
 
 		hasManyToJson: function() {
-			var json = [];
-			return json.join("");
+			var json = [], key, relations, i, length, buffer;
+
+			for (key in this.hasMany) {
+				if (this.hasMany.hasOwnProperty(key)) {
+					relations = this.getHasManyRelation(key);
+
+					if (relations && relations.length) {
+						for (i = 0, length = relations.length; i < length; i++) {
+							buffer.push(relations[i].toJson());
+						}
+
+						json.push('"' + key + '":[' + buffer.join(",") + ']');
+					}
+				}
+			}
+
+			return json.join(",");
 		},
 
 		hasOneToJson: function() {
-			var json = [], key;
+			var json = [], key, relation;
 
 			for (key in this.hasOne) {
 				if (this.hasOne.hasOwnProperty(key)) {
-					var relation = this.getHasOneRelation(key);
+					relation = this.getHasOneRelation(key);
 
 					if (relation) {
 						json.push('"' + key + '":' + relation.toJson());
