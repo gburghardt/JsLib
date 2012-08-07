@@ -33,6 +33,7 @@ BaseModel.extendModule("serialization", {
 
 			if (moduleCallbacksResult.length) {
 				json = json.replace(/\}$/, "");
+				// FIXME: syntax error is introduced when main model has no attributes set: '{"store": {' + ','
 				json += "," + moduleCallbacksResult.join("") + "}";
 			}
 

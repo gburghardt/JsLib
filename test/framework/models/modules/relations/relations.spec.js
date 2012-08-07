@@ -431,8 +431,9 @@ describe("BaseModel", function() {
 						expect(actual).toEqual(expected);
 					});
 
-					xit("serializes hasMany relationships", function() {
+					it("serializes hasMany relationships", function() {
 						var store = new Store(this.storeWithOnlyDealsAttrs);
+						debugger;
 						var actual = store.toJson({rootElement: "store"});
 						var expected = [
 							'{"store":{',

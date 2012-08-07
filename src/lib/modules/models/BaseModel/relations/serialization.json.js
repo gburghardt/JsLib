@@ -29,7 +29,7 @@ BaseModel.extendModule("relations", {
 	prototype: {
 
 		hasManyToJson: function() {
-			var json = [], key, relations, i, length, buffer;
+			var json = [], key, relations, i, length, buffer = [];
 
 			for (key in this.hasMany) {
 				if (this.hasMany.hasOwnProperty(key)) {
