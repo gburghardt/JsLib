@@ -234,9 +234,31 @@ describe("Function", function() {
 			expect(instance).toBeInstanceof(Object);
 		});
 
-		xit("inherits instance level methods");
+		it("inherits instance level methods", function() {
+			var ParentKlass = Object.extend({
+				prototype: {
+					foo: function() {
+						return "foo";
+					}
+				}
+			});
+			var ChildKlass = ParentKlass.extend();
+			expect(ChildKlass.prototype.hasOwnProperty("foo")).toBeFalse();
+			expect(ChildKlass.prototype.foo).toEqual(ParentKlass.prototype.foo);
+		});
 
-		xit("inherits class level methods");
+		it("inherits class level methods", function() {
+			var ParentKlass = Object.extend({
+				self: {
+					foo: function() {
+						return "foo";
+					}
+				}
+			});
+			var ChildKlass = ParentKlass.extend();
+			expect(ChildKlass.hasOwnProperty("foo")).toBeTrue();
+			expect(ChildKlass.foo).toEqual(ParentKlass.foo);
+		});
 
 		it("does not allow mixins to override class and instance methods", function() {
 			var Mixin = {
