@@ -25,6 +25,11 @@ if (!String.prototype.singularize) {
 	};
 }
 
+String.prototype.constantize = function() {
+	var className = this.toClassName();
+	return className ? eval(className) : null;
+};
+
 String.prototype.toClassName = function() {
 	if (this.match(/[^-_a-zA-Z0-9]/)) {
 		return "";
