@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Test Application</title>
+	</head>
+	<!-- application root operation maps to blog.NewPostInitOperation -->
+	<body data-operation-init="blog-new_post_init">
+		<!-- submit handled by blog.CreatePostOperation -->
+		<form action="#" data-action-submit="blog-create_post">
+			<h1>New Blog Post</h1>
+			<p>
+				<label>Title: <input type="text" size="60" name="title" id="blog-post-title"></label>
+			</p>
+			<p>
+				<label for="blog-post-body">Body</label><br>
+				<textarea rows="18" cols="60" name="body" id="blog-post-body"></textarea>
+			</p>
+			<p>
+				<button type="button" data-action-click="blog-cancel_new_post">Cancel</button>
+				<button type="submit">Create</button>
+			</p>
+		</form>
+		<script type="text/javascript" src="/src/lib/patches/Function.js"></script>
+		<script type="text/javascript" src="/src/lib/patches/String.js"></script>
+		<script type="text/javascript" src="/src/lib/dom/events/Delegator.js"></script>
+		<script type="text/javascript" src="/src/lib/dom/events/action.js"></script>
+		<script type="text/javascript" src="/src/lib/OperationFactory.js"></script>
+		<script type="text/javascript" src="/src/lib/events/Dispatcher.js"></script>
+		<script type="text/javascript" src="/src/lib/events/Publisher.js"></script>
+		<script type="text/javascript" src="/src/lib/events/Event.js"></script>
+		<script type="text/javascript" src="/src/framework/operations/BaseOperation.js"></script>
+		<script type="text/javascript" src="/src/framework/application/Application.js"></script>
+		<script type="text/javascript" src="./blog/NewPostInitOperation.js"></script>
+		<script type="text/javascript">
+			var app = new Application();
+			app.document = document;
+			app.operationFactory = new OperationFactory();
+			app.eventDispatcher = new events.Dispatcher();
+			app.delegator = new dom.events.Delegator(app, document.documentElement);
+			app.init();
+
+			window.onunload = function() {
+				app.teardown();
+			};
+		</script>
+	</body>
+</html>
