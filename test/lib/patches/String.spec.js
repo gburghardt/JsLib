@@ -30,4 +30,16 @@ describe("String", function() {
 		});
 	});
 
+	describe("toClassName", function() {
+		it("converts a non name space string to a class name", function() {
+			expect("foo".toClassName()).toEqual("Foo");
+			expect("foo_bar".toClassName()).toEqual("FooBar");
+		});
+
+		it("converts a namespaced string to a namespaced class name", function() {
+			expect("foo-bar".toClassName()).toEqual("foo.Bar");
+			expect("foo-bar-baz-bee_bop".toClassName()).toEqual("foo.bar.baz.BeeBop");
+		});
+	});
+
 });

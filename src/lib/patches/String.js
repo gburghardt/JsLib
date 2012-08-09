@@ -24,3 +24,19 @@ if (!String.prototype.singularize) {
 		}
 	};
 }
+
+String.prototype.toClassName = function() {
+	if (this.match(/[^-_a-zA-Z0-9]/)) {
+		return "";
+	}
+
+	var pieces = this.split(/-/g);
+	var className = pieces[pieces.length - 1];
+	pieces = pieces.slice(0, pieces.length - 1);
+
+	className = className.replace(/(^[a-z])|(_[a-z])/g, function($1) {
+		return $1.replace(/^_/, "").toUpperCase();
+	});
+
+	return pieces.length ? pieces.join(".") + "." + className : className;
+};
