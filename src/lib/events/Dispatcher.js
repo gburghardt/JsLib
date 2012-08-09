@@ -19,7 +19,7 @@ events.Dispatcher.prototype = {
 					subscribers = this.subscribers[type];
 
 					for (i = 0, length = subscribers.length; i < length; i++) {
-						subcribers[i] = null;
+						subscribers[i] = null;
 					}
 
 					this.subscribers[type] = null;
