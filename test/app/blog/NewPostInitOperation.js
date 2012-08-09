@@ -9,15 +9,15 @@ blog.NewPostInitOperation = BaseOperation.extend({
 				"blog-cancel_new_post": "cancel"
 			});
 		},
-		cancel: function(event) {
+		cancel: function(event, action) {
 			console.info("blog.NewPostInitOperation#cancel");
 			console.debug(event);
-			event.data.action.cancel();
+			action.cancel();
 		},
-		create: function(event) {
+		create: function(event, action) {
 			console.info("blog.newPostInitOperation#create");
 			console.debug(event);
-			event.data.action.cancel();
+			action.cancel();
 		}
 	}
 });

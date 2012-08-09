@@ -62,7 +62,7 @@ Application = Object.extend({
 			action.event = event;
 			action.element = element;
 			action.params = params;
-			this.eventDispatcher.publish("operation:" + actionName, this, {action: action});
+			this.eventDispatcher.publish("operation:" + actionName, this, action);
 		},
 
 		teardown: function() {

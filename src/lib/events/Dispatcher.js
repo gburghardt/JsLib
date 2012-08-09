@@ -46,7 +46,7 @@ events.Dispatcher.prototype = {
 			subscriber = subscribers[i];
 
 			try {
-				subscriber.instance[ subscriber.method ](event);
+				subscriber.instance[ subscriber.method ](event, event.data);
 			}
 			catch (error) {
 				if (events.Dispatcher.logger) {
