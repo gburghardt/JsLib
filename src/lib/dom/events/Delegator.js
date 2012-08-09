@@ -102,7 +102,7 @@ dom.events.Delegator = function() {
 			event.actionTarget = event.target;
 		}
 
-		var action = null;
+		var action = null, method;
 		
 		if (event.actionTarget.getAttribute) {
 			// DOM node
@@ -117,18 +117,20 @@ dom.events.Delegator = function() {
 
 		if (action) {
 			action = action.replace(self.actionRegex, "");
+			method = self.delegate[action] ? action : "handleAction";
 		}
 
-		if (action && self.delegate[action]) {
+		if (self.delegate[method]) {
 			try {
-				self.delegate[action](event, event.actionTarget);
+				// TODO: support params
+				self.delegate[method](event, event.actionTarget, {}, action);
 			}
 			catch (error) {
 				event.preventDefault();
 				event.stopPropagation();
 
-				if (self.delegate.onActionError) {
-					self.delegate.onActionError(event, event.actionTarget, action, error);
+				if (self.delegate.handleActionError) {
+					self.delegate.handleActionError(event, event.actionTarget, action, error);
 				}
 				else if (window.console && window.console.error) {
 					window.console.error(error);
