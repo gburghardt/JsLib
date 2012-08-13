@@ -25,138 +25,142 @@ class BaseView extends Object
 		nodeCachingEnabled() returns Boolean
 
 */
-function BaseView() {
-}
+BaseView = Object.extend({
 
-BaseView.prototype = {
+	self: {
+
+		nodeCachingEnabled: false,
+
+		nodeIdIndex: 0,
+
+		disableNodeCaching: function() {
+			this.nodeCachingEnabled = false;
+		},
+
+		enableNodeCaching: function() {
+			this.nodeCachingEnabled = true;
+		},
+
+		generateNodeId: function() {
+			return "anonymous-node-" + (BaseView.nodeIdIndex++);
+		}
+	},
+
+	prototype: {
 
 // Access: Public
 
-	constructor: function(id) {
-		this.nodeCache = {};
-		this.id = id;
-		this.delegator = new dom.events.Delegator(this);
-		this.delegator.setActionPrefix(this.delegatorActionPrefix);
-		id = null;
-	},
+		initialize: function(id) {
+			this.nodeCache = {};
+			this.id = id;
+			this.delegator = new dom.events.Delegator(this);
+			this.delegator.setActionPrefix(this.delegatorActionPrefix);
+			id = null;
+		},
 
-	init: function() {
-		if (typeof this.id === "string") {
-			if (!this.ownerDocument) {
-				this.ownerDocument = document;
+		init: function() {
+			if (typeof this.id === "string") {
+				if (!this.ownerDocument) {
+					this.ownerDocument = document;
+				}
+
+				this.rootNode = this.ownerDocument.getElementById(this.id);
+			}
+			else {
+				this.rootNode = this.id;
+				this.ownerDocument = this.rootNode.ownerDocument;
+
+				if (!this.rootNode.getAttribute("id")) {
+					this.rootNode.setAttribute("id", BaseView.generateNodeId());
+					this.id = this.rootNode.id;
+				}
 			}
 
-			this.rootNode = this.ownerDocument.getElementById(this.id);
-		}
-		else {
-			this.rootNode = this.id;
-			this.ownerDocument = this.rootNode.ownerDocument;
+			this.delegator.node = this.rootNode;
+			this.delegator.init();
+			this.delegator.addEventTypes(this.getDelegatorEventTypes());
+			return this;
+		},
 
-			if (!this.rootNode.getAttribute("id")) {
-				this.rootNode.setAttribute("id", BaseView.generateNodeId());
-				this.id = this.rootNode.id;
+		destructor: function() {
+			if (this.delegator) {
+				this.delegator.destructor();
+				this.delegator = null;
 			}
-		}
 
-		this.delegator.node = this.rootNode;
-		this.delegator.init();
-		this.delegator.addEventTypes(this.getDelegatorEventTypes());
-		return this;
-	},
-
-	destructor: function() {
-		if (this.delegator) {
-			this.delegator.destructor();
-			this.delegator = null;
-		}
-
-		this.rootNode = this.ownerDocument = null;
-	},
+			this.rootNode = this.ownerDocument = null;
+		},
 
 // Access: Protected
 
-	delegateActionPrefix: "",
+		delegateActionPrefix: "",
 
-	delegator: null,
+		delegator: null,
 
-	id: null,
+		id: null,
 
-	ownerDocument: null,
+		ownerDocument: null,
 
-	rootNode: null,
+		rootNode: null,
 
-	getDelegatorEventTypes: function() {
-		return [];
-	},
+		getDelegatorEventTypes: function() {
+			return [];
+		},
 
-	getNode: function(idSuffix) {
-		return this.ownerDocument.getElementById(this.id + "-" + idSuffix);
-	},
+		getNode: function(idSuffix) {
+			return this.ownerDocument.getElementById(this.id + "-" + idSuffix);
+		},
 
-	purgeNodeCache: function() {
-		this.nodeCache = {};
-	},
+		purgeNodeCache: function() {
+			this.nodeCache = {};
+		},
 
-	querySelector: function(selector) {
-		if (this.nodeCachingEnabled()) {
-			var node = this.getNodesFromCache("selector-" + selector);
+		querySelector: function(selector) {
+			if (this.nodeCachingEnabled()) {
+				var node = this.getNodesFromCache("selector-" + selector);
 
-			if (!node) {
-				node = this.rootNode.querySelector(selector);
-				this.nodeCache["selector-" + selector] = node;
+				if (!node) {
+					node = this.rootNode.querySelector(selector);
+					this.nodeCache["selector-" + selector] = node;
+				}
+
+				return node;
 			}
+			else {
+				return this.rootNode.querySelector(selector);
+			}
+		},
 
-			return node;
-		}
-		else {
-			return this.rootNode.querySelector(selector);
-		}
-	},
+		querySelectorAll: function(selector) {
+			var nodes = [];
 
-	querySelectorAll: function(selector) {
-		var nodes = [];
+			if (this.nodeCachingEnabled()) {
+				nodes = this.getNodesFromCache("selectorAll-" + selector);
 
-		if (this.nodeCachingEnabled()) {
-			nodes = this.getNodesFromCache("selectorAll-" + selector);
-
-			if (!nodes) {
+				if (!nodes) {
+					nodes = this.rootNode.querySelectorAll(selector);
+					this.nodeCache["selectorAll-" + selector] = nodes;
+				}
+			}
+			else {
 				nodes = this.rootNode.querySelectorAll(selector);
-				this.nodeCache["selectorAll-" + selector] = nodes;
 			}
-		}
-		else {
-			nodes = this.rootNode.querySelectorAll(selector);
-		}
 
-		return nodes;
-	},
+			return nodes;
+		},
 
 // Access: Private
 
-	nodeCache: null,
+		nodeCache: null,
 
-	getNodesFromCache: function(key) {
-		return (this.nodeCache[key]) ? this.nodeCache[key] : null;
-	},
+		getNodesFromCache: function(key) {
+			return (this.nodeCache[key]) ? this.nodeCache[key] : null;
+		},
 
-	nodeCachingEnabled: function() {
-		return BaseView.nodeCachingEnabled;
+		nodeCachingEnabled: function() {
+			return BaseView.nodeCachingEnabled;
+		}
+
 	}
 
-};
-
-BaseView.nodeCachingEnabled = false;
-
-BaseView.disableNodeCaching = function() {
-	this.nodeCachingEnabled = false;
-};
-
-BaseView.enableNodeCaching = function() {
-	this.nodeCachingEnabled = true;
-};
-
-BaseView.nodeIdIndex = 0;
-
-BaseView.generateNodeId = function() {
-	return "anonymous-node-" + (BaseView.nodeIdIndex++);
-};
+});
