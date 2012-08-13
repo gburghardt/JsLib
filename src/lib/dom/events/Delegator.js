@@ -102,35 +102,45 @@ dom.events.Delegator = function() {
 			event.actionTarget = event.target;
 		}
 
-		var action = null, method;
+		var action = null, actionName = null, method;
 		
 		if (event.actionTarget.getAttribute) {
 			// DOM node
-			action = event.actionTarget.getAttribute("data-action-" + event.type) ||
-							 event.actionTarget.getAttribute("data-action");
+			actionName = event.actionTarget.getAttribute("data-action-" + event.type) ||
+							     event.actionTarget.getAttribute("data-action");
 		}
 		else if (event.actionTarget.documentURI) {
 			// document object
-			action = event.actionTarget["data-action-" + event.type] ||
-							 event.actionTarget["data-action"];
+			actionName = event.actionTarget["data-action-" + event.type] ||
+							     event.actionTarget["data-action"];
 		}
 
-		if (action) {
-			action = action.replace(self.actionRegex, "");
-			method = self.delegate[action] ? action : "handleAction";
+		if (actionName) {
+			actionName = actionName.replace(self.actionRegex, "");
+			method = self.delegate[actionName] ? actionName : "handleAction";
 		}
 
 		if (self.delegate[method]) {
 			try {
+				action = new dom.events.Action();
+				action.name = actionName;
 				// TODO: support params
-				self.delegate[method](event, event.actionTarget, {}, action);
+				action.params = {};
+				action.event = event;
+				action.element = event.actionTarget;
+				self.delegate[method](action);
 			}
 			catch (error) {
 				event.preventDefault();
 				event.stopPropagation();
 
 				if (self.delegate.handleActionError) {
-					self.delegate.handleActionError(event, event.actionTarget, action, error);
+					action = new dom.events.Action();
+					action.name = actionName;
+					action.event = event;
+					action.element = action.actionTarget;
+					action.params = {error: error};
+					self.delegate.handleActionError(action);
 				}
 				else if (window.console && window.console.error) {
 					window.console.error(error);

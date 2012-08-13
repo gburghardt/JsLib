@@ -1,0 +1,31 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+	width: 100%;
+}
+.layout-container {
+	float: left;
+	height: 100%;
+	overflow: auto;
+}
+.layout-main {
+	background-color: #fcc;
+	float: none;
+	margin: 0 250px 0 160px;
+}
+.layout-nav {
+	background-color: #cfc;
+	width: 160px;
+}
+.layout-secondary {
+	background-color: #ccf;
+	float: right;
+	width: 250px;
+}
+nav ul {
+	list-style-type: none;
+	margin: 0;
+	padding: .25em;
+}

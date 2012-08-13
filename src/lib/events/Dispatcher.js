@@ -83,6 +83,22 @@ events.Dispatcher.prototype = {
 
 			subscribers = instance = null;
 		}
+	},
+
+	unsubscribeAll: function(instance) {
+		var type, i;
+
+		for (type in this.subscribers) {
+			if (this.subscribers.hasOwnProperty(type)) {
+				i = this.subscribers[type].length;
+
+				while (i--) {
+					if (this.subscribers[type][i].instance === instance) {
+						this.subscribers[type].splice(i, 1);
+					}
+				}
+			}
+		}
 	}
 
 };

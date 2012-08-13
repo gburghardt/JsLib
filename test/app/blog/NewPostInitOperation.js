@@ -1,9 +1,10 @@
 window.blog = window.blog || {};
 
-blog.NewPostInitOperation = BaseOperation.extend({
+blog.NewPostInitOperation = InitOperation.extend({
 	prototype: {
 		run: function() {
 			console.info("blog.NewPostInitOperation#run");
+			console.debug(this);
 			this.map({
 				"blog-create_post": "create",
 				"blog-cancel_new_post": "cancel"
@@ -15,7 +16,7 @@ blog.NewPostInitOperation = BaseOperation.extend({
 			action.cancel();
 		},
 		create: function(event, action) {
-			console.info("blog.newPostInitOperation#create");
+			console.info("blog.NewPostInitOperation#create");
 			console.debug(event);
 			action.cancel();
 		}

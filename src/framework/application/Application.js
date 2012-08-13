@@ -25,54 +25,50 @@ Application = Object.extend({
 
 	prototype: {
 
+		bootOperation: null,
+
+		config: null,
+
 		delegator: null,
 
 		eventDispatcher: null,
 
-		initOperation: null,
-
 		operationFactory: null,
 
+		initialize: function() {
+			this.config = {
+				"bootOperation.name": "boot",
+				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup"]
+			};
+		},
+
 		init: function() {
-			this.delegator.addEventTypes(["click", "submit", "keydown", "keypress", "keyup"]);
 			this.operationFactory.setEventDispatcher(this.eventDispatcher);
-			this.initOperation = this.operationFactory.getOperation(this.document.body.getAttribute("data-operation-init") || "init");
-			this.initOperation.call(null);
+			this.bootOperation = this.operationFactory.getOperation(this.config["bootOperation.name"]);
+			this.bootOperation.setApplication(this);
+			this.bootOperation.setEventDispatcher(this.eventDispatcher);
+			this.bootOperation.setDelegator(this.delegator);
+			this.bootOperation.call(null);
 		},
 
 		destructor: function() {
-			if (this.delegator) {
-				this.delegator.destructor();
-			}
-
-			this.initOperation.destructor();
+			this.delegator.destructor();
+			this.bootOperation.destructor();
 			this.eventDispatcher.destructor();
 			this.operationFactory.destructor();
-
-			if (this.teardownOperation) {
-				this.teardownOperation.destructor();
-			}
-
-			this.document = this.initOperation = this.teardownOperation = this.operationFactory = this.eventDispatcher = null;
+			this.document = this.delegator = this.bootOperation = this.operationFactory = this.eventDispatcher = null;
 		},
 
-		handleAction: function(event, element, params, actionName) {
-			var action = new dom.events.Action();
-			action.name = actionName;
-			action.event = event;
-			action.element = element;
-			action.params = params;
-			this.eventDispatcher.publish("operation:" + actionName, this, action);
-		},
+		configure: function(config) {
+			var key;
 
-		teardown: function() {
-			this.teardownOperation = this.operationFactory.getOperation("teardown");
-
-			if (this.teardownOperation) {
-				this.teardownOperation.call(this.initOperation);
+			for (key in config) {
+				if (config.hasOwnProperty(key)) {
+					this.config[key] = config[key];
+				}
 			}
 
-			this.destructor();
+			config = null;
 		}
 
 	}
