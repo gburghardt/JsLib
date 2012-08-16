@@ -40,7 +40,7 @@ BootOperation = BaseOperation.extend({
 		runChildOperation: function(action) {
 			var name = action.element.getAttribute("data-operation")
 			var childOperation = this.getChildOperation(name);
-			childOperation.call(this, action.element);
+			childOperation.call(this, action);
 			childOperation = null;
 		},
 

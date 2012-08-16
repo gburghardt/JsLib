@@ -5,7 +5,7 @@ InitOperation = BaseOperation.extend({
 		containerElement: null,
 
 		destroyOperationChain: function() {
-			// "init" operations do nothing here. Just here to break the chain of destruction.
+			this.destructor();
 		},
 
 		getContainerElement: function(element) {
@@ -25,9 +25,10 @@ InitOperation = BaseOperation.extend({
 			return containerElement;
 		},
 
-		call: function(parentOperation, triggerElement) {
-			this.containerElement = this.getContainerElement(triggerElement);
-			BaseOperation.prototype.call.call(this, parentOperation);
+		call: function(parentOperation, action) {
+			this.containerElement = this.getContainerElement(action.element);
+			BaseOperation.prototype.call.call(this, parentOperation, [action]);
+			action = null;
 		}
 
 	}

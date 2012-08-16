@@ -38,9 +38,9 @@ BaseOperation = Object.extend({
 			this.parentOperation = this.operationFactory = this.eventDispatcher = null;
 		},
 
-		call: function(parentOperation) {
+		call: function(parentOperation, runArgs) {
 			this.parentOperation = parentOperation;
-			this.run();
+			this.run.apply(this, runArgs);
 			parentOperation = null;
 		},
 
