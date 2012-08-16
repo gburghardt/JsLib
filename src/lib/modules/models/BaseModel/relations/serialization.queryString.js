@@ -1,4 +1,4 @@
-BaseModel.extendModule("relations", {
+BaseModel.Relations.QueryStringSerialization = {
 
 	callbacks: {
 
@@ -51,4 +51,6 @@ BaseModel.extendModule("relations", {
 
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Relations.QueryStringSerialization);

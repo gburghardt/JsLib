@@ -1,4 +1,4 @@
-BaseModel.includeModule("basicValidation", {
+BaseModel.BasicValidation = {
 
 	prototype: {
 
@@ -83,4 +83,6 @@ BaseModel.includeModule("basicValidation", {
 
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.BasicValidation);

@@ -14,11 +14,11 @@ describe("BaseModel", function() {
 				};
 
 				it("gets a class reference by a String class name", function() {
-					expect(BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.Test")).toBeFunction();
+					expect(BaseModel.Relations.getClassReference("__classReferenceTest__.foo.bar.Test")).toBeFunction();
 				});
 
 				it("throws an error when an invalid String class name is provided", function() {
-					expect(function() {BaseModel.modules.relations.self.getClassReference("__classReferenceTest__.foo.bar.InvalidClassName");}).toThrowError();
+					expect(function() {BaseModel.Relations.getClassReference("__classReferenceTest__.foo.bar.InvalidClassName");}).toThrowError();
 				});
 			});
 
@@ -30,25 +30,25 @@ describe("BaseModel", function() {
 
 				it("returns null for relations with no attributes", function() {
 					var store = new Store();
-					spyOn(BaseModel.modules.relations.self, "getClassReference");
+					spyOn(BaseModel.Relations, "getClassReference");
 					expect(store.getHasOneRelation("destribution_center")).toBeNull();
-					expect(BaseModel.modules.relations.self.getClassReference).wasNotCalled();
+					expect(BaseModel.Relations.getClassReference).wasNotCalled();
 				});
 
 				it("returns an already created relation", function() {
 					var store = new Store();
 					var distributionCenter = new DistributionCenter();
 					store._relations.distribution_center = distributionCenter;
-					spyOn(BaseModel.modules.relations.self, "getClassReference");
+					spyOn(BaseModel.Relations, "getClassReference");
 					expect(store.getHasOneRelation("distribution_center")).toEqual(distributionCenter);
-					expect(BaseModel.modules.relations.self.getClassReference).wasNotCalled();
+					expect(BaseModel.Relations.getClassReference).wasNotCalled();
 				});
 
 				it("instantiates a new relation object", function() {
 					var store = new Store({distribution_center: {id: 1234}});
-					spyOn(BaseModel.modules.relations.self, "getClassReference").andReturn(DistributionCenter);
+					spyOn(BaseModel.Relations, "getClassReference").andReturn(DistributionCenter);
 					expect(store.getHasOneRelation("distribution_center")).toBeInstanceof(DistributionCenter);
-					expect(BaseModel.modules.relations.self.getClassReference).toHaveBeenCalledWith("DistributionCenter");
+					expect(BaseModel.Relations.getClassReference).toHaveBeenCalledWith("DistributionCenter");
 				});
 			});
 
@@ -433,7 +433,6 @@ describe("BaseModel", function() {
 
 					it("serializes hasMany relationships", function() {
 						var store = new Store(this.storeWithOnlyDealsAttrs);
-						debugger;
 						var actual = store.toJson({rootElement: "store"});
 						var expected = [
 							'{"store":{',

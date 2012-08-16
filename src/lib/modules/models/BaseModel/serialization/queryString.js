@@ -1,4 +1,4 @@
-BaseModel.extendModule("serialization", {
+BaseModel.Serialization.QueryString = {
 
 	prototype: {
 
@@ -47,4 +47,6 @@ BaseModel.extendModule("serialization", {
 
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Serialization.QueryString);

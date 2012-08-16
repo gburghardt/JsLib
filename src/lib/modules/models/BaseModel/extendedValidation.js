@@ -1,4 +1,4 @@
-BaseModel.includeModule("extendedValidation", {
+BaseModel.ExtendedValidation = {
 
 	callbacks: {
 
@@ -86,4 +86,6 @@ BaseModel.includeModule("extendedValidation", {
 		
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.ExtendedValidation);

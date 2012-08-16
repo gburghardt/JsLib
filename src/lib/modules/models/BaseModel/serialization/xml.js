@@ -1,4 +1,4 @@
-BaseModel.extendModule("serialization", {
+BaseModel.Serialization.Xml = {
 
 	prototype: {
 
@@ -71,4 +71,6 @@ BaseModel.extendModule("serialization", {
 		
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Serialization.Xml);

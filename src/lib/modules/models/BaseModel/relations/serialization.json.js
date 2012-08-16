@@ -1,4 +1,4 @@
-BaseModel.extendModule("relations", {
+BaseModel.Relations.JsonSerialization = {
 
 	callbacks: {
 
@@ -66,4 +66,6 @@ BaseModel.extendModule("relations", {
 		
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Relations.JsonSerialization);

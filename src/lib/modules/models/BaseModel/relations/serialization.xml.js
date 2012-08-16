@@ -1,4 +1,4 @@
-BaseModel.extendModule("relations", {
+BaseModel.Relations.XmlSerialization = {
 
 	callbacks: {
 
@@ -50,4 +50,6 @@ BaseModel.extendModule("relations", {
 
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Relations.XmlSerialization);

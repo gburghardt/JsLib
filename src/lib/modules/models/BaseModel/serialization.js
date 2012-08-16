@@ -1,4 +1,4 @@
-BaseModel.includeModule("serialization", {
+BaseModel.Serialization = {
 
 	prototype: {
 
@@ -20,4 +20,6 @@ BaseModel.includeModule("serialization", {
 
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Serialization);

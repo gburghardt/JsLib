@@ -1,8 +1,8 @@
-BaseModel.includeModule("relations", {
+BaseModel.Relations = {
 
 	callbacks: {
 
-		__constructor: function(attributes) {
+		initialize: function(attributes) {
 			this.relationsAttributes = {};
 			this._relations = {};
 		},
@@ -108,7 +108,7 @@ BaseModel.includeModule("relations", {
 					this._relations[key] = [];
 
 					for (i; i < length; i++) {
-						classReference = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
+						classReference = BaseModel.Relations.getClassReference(relationInfo.className);
 						this._relations[key].push( new classReference( this.relationsAttributes[key][i] ) );
 					}
 
@@ -164,7 +164,7 @@ BaseModel.includeModule("relations", {
 				this._relations[key] = [];
 
 				for (i; i < length; i++) {
-					RelationClass = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
+					RelationClass = BaseModel.Relations.getClassReference(relationInfo.className);
 					this._relations[key].push( new RelationClass( this.relationsAttributes[key][i] ) );
 				}
 
@@ -185,7 +185,7 @@ BaseModel.includeModule("relations", {
 			}
 			else if (this.relationsAttributes[key]) {
 				var relationInfo = this.hasOne[key]
-				var RelationClass = BaseModel.modules.relations.self.getClassReference(relationInfo.className);
+				var RelationClass = BaseModel.Relations.getClassReference(relationInfo.className);
 				this._relations[key] = new RelationClass(this.relationsAttributes[key]);
 				RelationClass = null;
 
@@ -267,43 +267,41 @@ BaseModel.includeModule("relations", {
 
 	},
 
-	self: {
+	classReferenceCache: {},
 
-		classReferenceCache: {},
+	getClassReference: function(className) {
+		if (!this.classReferenceCache.hasOwnProperty(className)) {
+			var context = window;
+			var namespacePieces = className.split(/\./g);
+			var i = 0;
+			var length = namespacePieces.length;
+			var namespace, classReference;
 
-		getClassReference: function(className) {
-			if (!this.classReferenceCache.hasOwnProperty(className)) {
-				var context = window;
-				var namespacePieces = className.split(/\./g);
-				var i = 0;
-				var length = namespacePieces.length;
-				var namespace, classReference;
+			for (i; i < length; i++) {
+				namespace = namespacePieces[i];
 
-				for (i; i < length; i++) {
-					namespace = namespacePieces[i];
-
-					if (context[namespace]) {
-						if (typeof context[namespace] === "function") {
-							classReference = context[namespace];
-							this.classReferenceCache[className] = classReference;
-							break;
-						}
-						else {
-							context = context[namespace];
-							continue;
-						}
+				if (context[namespace]) {
+					if (typeof context[namespace] === "function") {
+						classReference = context[namespace];
+						this.classReferenceCache[className] = classReference;
+						break;
 					}
 					else {
-						throw new Error("No class reference was found for " + className);
+						context = context[namespace];
+						continue;
 					}
 				}
-
-				context = classReference = namespacePieces = null;
+				else {
+					throw new Error("No class reference was found for " + className);
+				}
 			}
 
-			return this.classReferenceCache[className];
+			context = classReference = namespacePieces = null;
 		}
 
+		return this.classReferenceCache[className];
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Relations);

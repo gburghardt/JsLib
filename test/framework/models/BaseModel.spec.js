@@ -1,6 +1,6 @@
 describe("BaseModel", function() {
 
-	describe("includeModule", function() {
+	describe("include", function() {
 		it("extends the prototype of BaseModel", function() {
 			var module = {
 				prototype: {
@@ -9,23 +9,10 @@ describe("BaseModel", function() {
 					}
 				}
 			};
-			BaseModel.includeModule("__TEST__", module);
+			BaseModel.include(module);
 			expect(BaseModel.prototype.hasOwnProperty('foo')).toBeTrue();
 			expect(BaseModel.prototype.foo).toEqual(module.prototype.foo);
 			expect(BaseModel.prototype.foo()).toEqual('bar');
-		});
-
-		it("overrides existing methods or properties in the BaseModel prototype", function() {
-			var module = {
-				prototype: {
-					foo: function() {
-						return 'foo';
-					}
-				}
-			};
-			BaseModel.includeModule("__TEST2__", true, module);
-			expect(BaseModel.prototype.foo).toEqual(module.prototype.foo);
-			expect(BaseModel.prototype.foo()).toEqual('foo');
 		});
 
 		it("adds callbacks around method calls", function() {
@@ -36,65 +23,10 @@ describe("BaseModel", function() {
 					}
 				}
 			};
-			BaseModel.includeModule("__TEST3__", module);
-			expect(BaseModel.moduleCallbacks.hasOwnProperty("foo")).toBeTrue();
-			expect(BaseModel.moduleCallbacks.foo).toBeInstanceof(Array);
-			expect(BaseModel.moduleCallbacks.foo.length).toEqual(1);
-		});
-	});
-
-	describe("extendModule", function() {
-		it("extends the BaseModel prototype if the module exists", function() {
-			var module = {
-				prototype: {
-					getAbc: function() {
-						return '123';
-					}
-				}
-			};
-			var extension = {
-				prototype: {
-					getAbc123: function() {
-						return 'abc123';
-					},
-					getAbc: function() {
-						return 'abc';
-					}
-				}
-			};
-			BaseModel.includeModule("__TEST4__", module);
-			BaseModel.extendModule("__TEST4__", extension);
-			expect(BaseModel.prototype.hasOwnProperty("getAbc123")).toBeTrue();
-			expect(BaseModel.prototype.getAbc123).toEqual(extension.prototype.getAbc123);
-			expect(BaseModel.prototype.getAbc).toNotEqual(extension.prototype.getAbc);
-			expect(BaseModel.prototype.getAbc()).toEqual("123");
-		});
-
-		it("throws an error if the module has not been included", function() {
-			expect(function() {
-				BaseModel.extendModule("__NON_EXISTENT_MODULE__", {});
-			}).toThrowError();
-		});
-
-		it("overrides methods or properties on the BaseModel prototype", function() {
-			var module = {
-				prototype: {
-					overrideMe: function() {
-						return '123';
-					}
-				}
-			};
-			var extension = {
-				prototype: {
-					overrideMe: function() {
-						return 'abc';
-					}
-				}
-			};
-			BaseModel.includeModule("__TEST5__", module);
-			BaseModel.extendModule("__TEST5__", true, extension);
-			expect(BaseModel.prototype.overrideMe).toEqual(extension.prototype.overrideMe);
-			expect(BaseModel.prototype.overrideMe()).toEqual("abc");
+			BaseModel.include(module);
+			expect(BaseModel.callbacks.hasOwnProperty("foo")).toBeTrue();
+			expect(BaseModel.callbacks.foo).toBeInstanceof(Array);
+			expect(BaseModel.callbacks.foo.length).toEqual(1);
 		});
 	});
 
@@ -240,7 +172,7 @@ describe("BaseModel", function() {
 		});
 	});
 
-	describe("constructor", function() {
+	describe("initialize", function() {
 		it("assigns attributes", function() {
 			var o = new TestModelAttributes({id: 123, firstName: "John", lastName: "Doe"});
 			expect(o.id).toEqual(123);

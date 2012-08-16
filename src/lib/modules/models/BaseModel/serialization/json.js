@@ -1,4 +1,4 @@
-BaseModel.extendModule("serialization", {
+BaseModel.Serialization.Json = {
 
 	prototype: {
 
@@ -46,4 +46,6 @@ BaseModel.extendModule("serialization", {
 
 	}
 
-});
+};
+
+BaseModel.include(BaseModel.Serialization.Json);
