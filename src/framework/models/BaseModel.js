@@ -4,6 +4,10 @@ BaseModel = Object.extend({
 
 		callbacks: {},
 
+		guidIndex: 0,
+
+		instances: {},
+
 		applyModuleCallbacks: function(instance, name, args) {
 			args = args || [];
 			var result, results = [], i, length, callbacks = this.callbacks[name];
@@ -29,6 +33,10 @@ BaseModel = Object.extend({
 				this.extendCallbacks(descriptor.callbacks);
 			}
 
+			// New class should manage its own instances
+			descriptor.self = descriptor.self || {};
+			descriptor.self.instances = {};
+
 			return Function.prototype.extend.call(this, descriptor);
 		},
 
@@ -43,6 +51,10 @@ BaseModel = Object.extend({
 			}
 
 			callbacks = null;
+		},
+
+		find: function(id) {
+			return this.instances[id] || null;
 		},
 
 		include: function(descriptor) {
@@ -64,6 +76,8 @@ BaseModel = Object.extend({
 
 		destroyed: false,
 
+		guid: null,
+
 		newRecord: true,
 
 		previouslyChanged: null,
@@ -75,34 +89,10 @@ BaseModel = Object.extend({
 		validAttributes: null,
 
 		initialize: function(attributes) {
+			this.guid = BaseModel.guidIndex++;
 			this._attributes = {};
 			this._changedAttributes = {};
 			this.previouslyChanged = {};
-
-			// Set up default event subscribers.
-			//
-			// attributes:changed - Triggered once after all attributes have been assigned, and
-			//                      after all attribute key specific events have been triggered.
-			//
-			// attribute:<key>:changed - Triggered for a single attribute key.
-			//
-			// created - Triggered if this was a new record and was saved. This is triggered
-			//           before the "saved" event.
-			//
-			// updated - Triggered if this was an existing record that got saved. This is
-			//           triggered before the "save" event.
-			//
-			// destroyed - Triggered when this is destroyed, either on the server, on the client,
-			//             or after being destroyed on the server AND on the client. The "save"
-			//             event is not triggered.
-			this.subscribers = {
-				"attributes:changed": [],
-				created: [],
-				updated: [],
-				destroyed: [],
-				saved: []
-			};
-
 			this.applyModuleCallbacks("initialize", [attributes]);
 			this.initAttributes();
 
@@ -231,32 +221,6 @@ BaseModel = Object.extend({
 			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 		},
 
-		publish: function(eventName) {
-			if (!this.subscribers[eventName]) {
-				return;
-			}
-
-			var i = 0, length = this.subscribers[eventName].length, subscriber;
-
-			for (i; i < length; i++) {
-				subscriber = this.subscribers[eventName][i];
-
-				if (subscriber.instance) {
-					if (typeof subscriber.callback === "string") {
-						subscriber.instance[ subscriber.callback ](this);
-					}
-					else {
-						subscriber.callback.call(subscriber.instance, this);
-					}
-				}
-				else {
-					subscriber.callback(this);
-				}
-			}
-
-			subscriber = null;
-		},
-
 		save: function() {
 			if (this.destroyed) {
 				throw new Error("Cannot save record after it has been destroyed");
@@ -284,47 +248,6 @@ BaseModel = Object.extend({
 			if (key == this.primaryKey && !this.previouslyChanged[key]) {
 				this.newRecord = false;
 			}
-		},
-
-		subscribe: function(eventName, instance, callback) {
-			if (typeof instance === "function") {
-				callback = instance;
-				instance = null;
-			}
-			else if (callback === undefined) {
-				throw new Error("A callback function or instance and callback/method name must be supplied in BaseModel#subscribe");
-			}
-
-			this.subscribers[eventName] = this.subscribers[eventName] || [];
-			this.subscribers[eventName].push({
-				instance: instance,
-				callback: callback
-			});
-		},
-
-		unsubscribe: function(eventName, instance, callback) {
-			if (!this.subscribers[eventName]) {
-				return;
-			}
-			else if (typeof instance === "function") {
-				callback = instance;
-				instance = null;
-			}
-			else if (callback === undefined) {
-				throw new Error("A callback function or instance and callback/method name must be supplied in BaseModel#unsubscribe");
-			}
-
-			var i = this.subscribers[eventName].length, subscriber;
-
-			while (i--) {
-				subscriber = this.subscribers[eventName][i];
-
-				if (subscriber.instance === instance && subscriber.callback === callback) {
-					this.subscribers[eventName].splice(i, 1);
-				}
-			}
-
-			instance = callback = subscriber = null;
 		},
 
 		valueIsEmpty: function(value) {

@@ -1,5 +1,23 @@
 describe("BaseModel", function() {
 
+	describe("extend", function() {
+		it("gives child classes their own instances hash", function() {
+			var ChildModel = BaseModel.extend();
+			expect(ChildModel.instances).toStrictlyNotEqual(BaseModel.instances);
+		});
+
+		it("adds callbacks around method calls", function() {
+			var ChildModel = BaseModel.extend({
+				callbacks: {
+					addCallbackTest: function() {
+						
+					}
+				}
+			});
+			expect(BaseModel.callbacks.addCallbackTest.length).toEqual(1);
+		});
+	});
+
 	describe("include", function() {
 		it("extends the prototype of BaseModel", function() {
 			var module = {
@@ -303,44 +321,27 @@ describe("BaseModel", function() {
 	describe("subscribe", function() {
 		beforeEach(function() {
 			this.model = new TestModelAttributes();
-		});
 
-		it("accepts an event name and a callback function", function() {
-			var subscriber = {
-				callback: function(model) {
-					
-				}
-			};
-			spyOn(subscriber, "callback");
-			this.model.subscribe("test", subscriber.callback);
-			this.model.publish("test");
-			expect(subscriber.callback).toHaveBeenCalledWith(this.model);
-		});
+			if (BaseModel.dispatcher) {
+				BaseModel.dispatcher.destructor();
+			}
 
-		it("accepts an event name, an object context and callback function", function() {
-			var called = false;
-			var subscriber = {
-				callback: function(model) {
-					called = true;
-					expect(this).toEqual(subscriber);
-				}
-			};
-			this.model.subscribe("test", subscriber, subscriber.callback);
-			this.model.publish("test");
-			expect(called).toBeTrue();
+			BaseModel.dispatcher = new events.Dispatcher();
 		});
 
 		it("accepts an event name, an object, and the name of a method to call", function() {
 			var called = false;
+			var test = this;
 			var subscriber = {
-				callback: function(model) {
-					
+				callback: function(event, model) {
+					expect(event).toBeInstanceof(events.Event);
+					expect(model).toEqual(test.model);
 				}
 			};
 			spyOn(subscriber, "callback");
 			this.model.subscribe("test", subscriber, "callback");
 			this.model.publish("test");
-			expect(subscriber.callback).toHaveBeenCalledWith(this.model);
+			expect(subscriber.callback).toHaveBeenCalled();
 		});
 
 		it("allows the same subscriber to subscribe more than once", function() {
@@ -355,19 +356,37 @@ describe("BaseModel", function() {
 			this.model.publish("test");
 			expect(subscriber.callback.callCount).toEqual(2);
 		});
+
+		it("subscribes to handleEvent if not callback is provided", function() {
+			var subscriber = {
+				handleEvent: function() {}
+			};
+			spyOn(subscriber, "handleEvent");
+			var model = this.model;
+			this.model.subscribe("test", subscriber);
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(1);
+			this.model.publish("test");
+			expect(subscriber.handleEvent).toHaveBeenCalled();
+		});
 	});
 
 	describe("unsubscribe", function() {
 		beforeEach(function() {
 			this.model = new TestModelAttributes();
+
+			if (BaseModel.dispatcher) {
+				BaseModel.dispatcher.destructor();
+			}
+
+			BaseModel.dispatcher = new events.Dispatcher();
 		});
 
 		it("removes a subscriber matching event name and callback function", function() {
 			var callback = function() {};
 			this.model.subscribe("test", callback);
-			expect(this.model.subscribers.test.length).toEqual(1);
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(1);
 			this.model.unsubscribe("test", callback);
-			expect(this.model.subscribers.test.length).toEqual(0);
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(0);
 		});
 
 		it("removes a subscriber matching event name, object instance, and callback function", function() {
@@ -375,9 +394,9 @@ describe("BaseModel", function() {
 				callback: function() {}
 			};
 			this.model.subscribe("test", subscriber, subscriber.callback);
-			expect(this.model.subscribers.test.length).toEqual(1);
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(1);
 			this.model.unsubscribe("test", subscriber, subscriber.callback);
-			expect(this.model.subscribers.test.length).toEqual(0);
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(0);
 		});
 
 		it("removes a subscriber matching event name, object instance and callback method name", function() {
@@ -385,20 +404,9 @@ describe("BaseModel", function() {
 				callback: function() {}
 			};
 			this.model.subscribe("test", subscriber, "callback");
-			expect(this.model.subscribers.test.length).toEqual(1);
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(1);
 			this.model.unsubscribe("test", subscriber, "callback");
-			expect(this.model.subscribers.test.length).toEqual(0);
-		});
-
-		it("throws an error if an object is passed, but no callback", function() {
-			var subscriber = {
-				callback: function() {}
-			};
-			var model = this.model;
-			this.model.subscribe("test", subscriber, "callback");
-			expect(function() {
-				model.unsubscribe("test", subscriber);
-			}).toThrowError();
+			expect(BaseModel.dispatcher.subscribers.test.length).toEqual(0);
 		});
 	});
 
