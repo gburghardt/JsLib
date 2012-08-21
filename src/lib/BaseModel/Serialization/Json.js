@@ -2,9 +2,26 @@ BaseModel.Serialization.Json = {
 
 	prototype: {
 
+		objectIsEmpty: function(o) {
+			var empty = true, key;
+
+			if (o) {
+				for (key in o) {
+					if (o.hasOwnProperty(key)) {
+						empty = false;
+						break;
+					}
+				}
+			}
+
+			o = null;
+
+			return empty;
+		},
+
 		toJson: function(options) {
 			options = options || {};
-			var json = "", moduleCallbacksResult, attrs = {}, i, length, key;
+			var json = "", moduleCallbacksResult, attrs = {}, i, length, key, hasAttrs = false;
 
 			if (options.rootElement) {
 				json += '{"' + options.rootElement + '":';
@@ -17,6 +34,7 @@ BaseModel.Serialization.Json = {
 					}
 				}
 
+				hasAttrs = true;
 				attrs[this.primaryKey] = this.attributes[this.primaryKey];
 			}
 			else {
@@ -24,7 +42,11 @@ BaseModel.Serialization.Json = {
 
 				for (i = 0; i < length; i++) {
 					key = this.validAttributes[i];
-					attrs[key] = this._attributes[key];
+
+					if (this._attributes.hasOwnProperty(key)) {
+						hasAttrs = true;
+						attrs[key] = this._attributes[key];
+					}
 				}
 			}
 
@@ -33,8 +55,13 @@ BaseModel.Serialization.Json = {
 
 			if (moduleCallbacksResult.length) {
 				json = json.replace(/\}$/, "");
-				// FIXME: syntax error is introduced when main model has no attributes set: '{"store": {' + ','
-				json += "," + moduleCallbacksResult.join("") + "}";
+
+				if (hasAttrs) {
+					json += "," + moduleCallbacksResult.join("") + "}";
+				}
+				else {
+					json += moduleCallbacksResult.join("") + "}";
+				}
 			}
 
 			if (options.rootElement) {
