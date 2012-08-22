@@ -448,7 +448,92 @@ describe("BaseModel", function() {
 					expect(actual).toEqual(expected);
 				});
 
-				xit("serializes multiple hasMany relationships");
+				it("serializes multiple hasMany relationships", function() {
+					var attributes = {
+						id: 123,
+						distribution_centers: [
+							{
+								id:425345,
+								address: "123 South St",
+								postal_code: "12345",
+								phone: "555-555-5555"
+							},{
+								id: 123169,
+								address: "37 Smith St",
+								postal_code: "12346"
+							}
+						],
+						stores: [
+							{
+								id: 35,
+								name: "Woolworth",
+								deals: [
+									{
+										id: 2345,
+										store_id: 35,
+										name: "Half off"
+									}
+								]
+							},{
+								id: 68,
+								name: "Smith's Hardware",
+								deals: [
+									{
+										id: 46467,
+										store_id: 68,
+										name: "25% off"
+									}
+								]
+							}
+						]
+					};
+					var json = [
+						'{',
+							'"sales_region":{',
+								'"id":123,',
+								'"stores":[',
+									'{',
+										'"id":35,',
+										'"name":"Woolworth",',
+										'"deals":[',
+											'{',
+												'"id":2345,',
+												'"store_id":35,',
+												'"name":"Half off"',
+											'}',
+										']',
+									'},{',
+										'"id":68,',
+										'"name":"Smith\'s Hardware",',
+										'"deals":[',
+											'{',
+												'"id":46467,',
+												'"store_id":68,',
+												'"name":"25% off"',
+											'}',
+										']',
+									'}',
+								']',
+								'"distribution_centers":[',
+									'{',
+										'"id":425345,',
+										'"address":"123 South St",',
+										'"postal_code":"12345",',
+										'"phone":"555-555-5555"',
+									'},{',
+										'"id":123169,',
+										'"address":"37 Smith St",',
+										'"postal_code":"12346"',
+									'}',
+								']',
+							'}',
+						'}'
+					].join("");
+					debugger;
+					var salesRegion = new SalesRegion(attributes);
+					var actualJson = salesRegion.toJson({rootElement: "sales_region"});
+					expect(actualJson).toEqual(json);
+				});
 			});
 		});
 

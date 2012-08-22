@@ -91,6 +91,16 @@ Store = BaseModel.extend({
 	}
 });
 
+SalesRegion = BaseModel.extend({
+	prototype: {
+		validAttributes: ["id"],
+		hasMany: {
+			stores: {className: "Store"},
+			distribution_centers: {className: "DistributionCenter"}
+		}
+	}
+});
+
 Category = BaseModel.extend({
 	prototype: {
 		validAttributes: ['id', 'name']
