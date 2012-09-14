@@ -410,6 +410,43 @@ describe("BaseModel", function() {
 				});
 			});
 
+			describe("hasManyToJson", function() {
+				// TODO: Start here. Find a more focused, repeatable version of error in "toJson serializes multiple hasMany relationships"
+				it("serializes a single hasMany relation with multiple objects", function() {
+					var attributes = {
+						distribution_centers: [
+							{
+								id:425345,
+								address: "123 South St",
+								postal_code: "12345",
+								phone: "555-555-5555"
+							},{
+								id: 123169,
+								address: "37 Smith St",
+								postal_code: "12346"
+							}
+						]
+					};
+					var expectedJson = [
+						'"distribution_centers":[',
+							'{',
+								'"address":"123 South St",',
+								'"postal_code":"12345",',
+								'"phone":"555-555-5555",',
+								'"id":425345',
+							'},{',
+								'"address":"37 Smith St",',
+								'"postal_code":"12346",',
+								'"id":123169',
+							'}',
+						']'
+					].join("");
+					var salesRegion = new SalesRegion(attributes);
+					var actualJson = salesRegion.hasManyToJson();
+					expect(actualJson).toEqual(expectedJson);
+				});
+			});
+
 			describe("toJson", function() {
 				it("serializes hasOne relationships", function() {
 					var store = new Store(this.storeWithDistributionCenterAttrs);
@@ -513,7 +550,7 @@ describe("BaseModel", function() {
 											'}',
 										']',
 									'}',
-								']',
+								'],',
 								'"distribution_centers":[',
 									'{',
 										'"id":425345,',
@@ -529,7 +566,6 @@ describe("BaseModel", function() {
 							'}',
 						'}'
 					].join("");
-					debugger;
 					var salesRegion = new SalesRegion(attributes);
 					var actualJson = salesRegion.toJson({rootElement: "sales_region"});
 					expect(actualJson).toEqual(json);
