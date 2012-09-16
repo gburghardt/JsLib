@@ -221,15 +221,21 @@ BaseModel = Object.extend({
 			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 		},
 
-		save: function() {
+		save: function(callbacks) {
+			// TODO: Actually save this to something
 			if (this.destroyed) {
-				throw new Error("Cannot save record after it has been destroyed");
+				callbacks.invalid({base: "has been deleted"});
+			}
+			else if (!this.validate()) {
+				callbacks.invalid(this.getErrorMessages());
 			}
 			else if (this.newRecord) {
+				this.applyModuleCallbacks("create");
 				this.newRecord = false;
 				this.publish("created");
 			}
 			else {
+				this.applyModuleCallbacks("update");
 				this.publish("updated");
 			}
 		},

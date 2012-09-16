@@ -19,6 +19,11 @@ FormView = BaseView.extend({
 
 // Access: Public
 
+		initialize: function(id, templateName) {
+			BaseView.prototype.initialize.call(this, id);
+			this.template = Template.find(templateName);
+		},
+
 		getControlValue: function(name) {
 			var controls = this.getControlsByName(name);
 
@@ -52,6 +57,13 @@ FormView = BaseView.extend({
 
 		getLabelValue: function(idSuffix) {
 			return this.getNode(idSuffix).innerHTML;
+		},
+
+		render: function(model) {
+			this.model = model;
+			this.rootNode.innerHTML = this.template.render(this.model);
+			this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+			return this;
 		},
 
 		setControlValue: function(control, value) {
@@ -94,6 +106,10 @@ FormView = BaseView.extend({
 			}
 		},
 
+		setFieldErrors: function(errors) {
+			// TODO: Write me
+		},
+
 		setLabelValue: function(idSuffix, value) {
 			return this.getNode(idSuffix).innerHTML = value;
 		},
@@ -101,6 +117,10 @@ FormView = BaseView.extend({
 // Access: Protected
 
 		currentData: null,
+
+		model: null,
+
+		template: null,
 
 		extractControlValue: function(control) {
 			var nodeName = control.nodeName.toLowerCase(),
@@ -195,6 +215,10 @@ FormView = BaseView.extend({
 
 			nodes = null;
 			return controls;
+		},
+
+		handleAttributesChanged: function(model) {
+			console.info("FormView#handleAttributesChanged");
 		}
 
 	}

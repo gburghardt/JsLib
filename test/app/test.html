@@ -17,12 +17,14 @@
 		</div>
 		<div class="layout-container layout-secondary" data-layout-role="container" id="layout-secondary"></div>
 		<div class="layout-container layout-main" data-layout-role="container" id="layout-main"></div>
-		<script type="text/html" id="blog-new_post_init">
-			<!-- submit handled by blog.CreatePostOperation -->
+		<script type="text/html" id="blog-new_post_init" data-template-name="blog/post/form">
 			<form action="#" data-action-submit="blog-create_post">
 				<h1>New Blog Post</h1>
 				<p>
 					<label>Title: <input type="text" size="60" name="title" id="blog-post-title"></label>
+				</p>
+				<p>
+					<label>Date: <input type="text" size="60" name="publish_date" id="blog-post-publish_date"></label>
 				</p>
 				<p>
 					<label for="blog-post-body">Body</label><br>
@@ -42,12 +44,20 @@
 		<script type="text/javascript" src="/src/lib/events/Dispatcher.js"></script>
 		<script type="text/javascript" src="/src/lib/events/Publisher.js"></script>
 		<script type="text/javascript" src="/src/lib/events/Event.js"></script>
+		<script type="text/javascript" src="/src/lib/Template.js"></script>
+		<script type="text/javascript" src="/src/framework/views/BaseView.js"></script>
+		<script type="text/javascript" src="/src/framework/views/FormView.js"></script>
+		<script type="text/javascript" src="/src/framework/models/BaseModel.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Publisher.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Serialization.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Serialization/QueryString.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/BaseOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/BootOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/InitOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/SubOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/application/Application.js"></script>
 		<script type="text/javascript" src="./blog/NewPostInitOperation.js"></script>
+		<script type="text/javascript" src="./blog/Post.js"></script>
 		<script type="text/javascript">
 			var app = new Application();
 			app.document = document;

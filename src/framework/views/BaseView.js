@@ -50,36 +50,29 @@ BaseView = Object.extend({
 
 // Access: Public
 
-		initialize: function(id) {
+		initialize: function(rootNode) {
 			this.nodeCache = {};
-			this.id = id;
-			this.delegator = new dom.events.Delegator(this);
-			this.delegator.setActionPrefix(this.delegatorActionPrefix);
-			id = null;
-		},
 
-		init: function() {
-			if (typeof this.id === "string") {
+			if (typeof rootNode === "string") {
 				if (!this.ownerDocument) {
 					this.ownerDocument = document;
 				}
 
-				this.rootNode = this.ownerDocument.getElementById(this.id);
+				this.rootNode = this.ownerDocument.getElementById(rootNode);
 			}
 			else {
-				this.rootNode = this.id;
+				this.rootNode = rootNode;
 				this.ownerDocument = this.rootNode.ownerDocument;
 
 				if (!this.rootNode.getAttribute("id")) {
 					this.rootNode.setAttribute("id", BaseView.generateNodeId());
-					this.id = this.rootNode.id;
+					this.id = this.rootNode.getAttribute("id");
 				}
 			}
 
-			this.delegator.node = this.rootNode;
-			this.delegator.init();
+			this.delegator = new dom.events.Delegator(this, this.rootNode, this.delegatorActionPrefix).init();
 			this.delegator.addEventTypes(this.getDelegatorEventTypes());
-			return this;
+			rootNode = null;
 		},
 
 		destructor: function() {
