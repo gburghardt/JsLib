@@ -175,12 +175,13 @@ FormView = BaseView.extend({
 		},
 
 		extractFormControlsData: function(controls, data) {
-			var name = (controls.length) ? controls[0].name : "";
+			var name;
 			var i = 0;
 			var length = controls.length;
 			var value;
 
 			for (i; i < length; i++) {
+				name = controls[i].name;
 				value = this.extractControlValue(controls[i]);
 
 				if (value === null) {
