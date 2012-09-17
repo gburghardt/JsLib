@@ -66,6 +66,7 @@ BaseModel.ExtendedValidation = {
 							if (!this.validatesFormatOf[key][i].test(this._attributes[key])) {
 								this.addError(key, "is not in a valid format");
 								this.valid = false;
+								break;
 							}
 							else {
 								break;
