@@ -25,6 +25,18 @@ InitOperation = BaseOperation.extend({
 			this.destructor();
 		},
 
+		call: function(parentOperation, action) {
+			this.containerElement = this.getContainerElement(action.element);
+			this.createElement();
+
+			if (this.operationMap) {
+				this.map(this.operationMap);
+			}
+
+			BaseOperation.prototype.call.call(this, parentOperation, [action]);
+			parentOperation = action = null;
+		},
+
 		cancel: function(event, action) {
 			action.cancel();
 			this.destructor();
@@ -66,18 +78,6 @@ InitOperation = BaseOperation.extend({
 
 		getDocument: function() {
 			return this.containerElement ? this.containerElement.ownerDocument : null;
-		},
-
-		call: function(parentOperation, action) {
-			this.containerElement = this.getContainerElement(action.element);
-			this.createElement();
-
-			if (this.operationMap) {
-				this.map(this.operationMap);
-			}
-
-			BaseOperation.prototype.call.call(this, parentOperation, [action]);
-			parentOperation = action = null;
 		}
 
 	}
