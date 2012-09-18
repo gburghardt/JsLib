@@ -57,20 +57,24 @@ BaseModel.ExtendedValidation = {
 				return;
 			}
 
-			var key, i, length;
+			var key, i, length, valid = true;
 
 			for (key in this.validatesFormatOf) {
 				if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this._attributes[key])) {
 					if (this.validatesFormatOf[key] instanceof Array) {
 						for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
 							if (!this.validatesFormatOf[key][i].test(this._attributes[key])) {
-								this.addError(key, "is not in a valid format");
-								this.valid = false;
-								break;
+								valid = false;
 							}
 							else {
-								break;
+								valid = true;
+								break
 							}
+						}
+
+						if (!valid) {
+							this.addError(key, "is not in a valid format");
+							this.valid = false;
 						}
 					}
 					else if (!this.validatesFormatOf[key].test(this._attributes[key])) {
