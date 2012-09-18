@@ -20,7 +20,7 @@ blog.NewPostInitOperation = InitOperation.extend({
 
 		run: function(action) {
 			this.post = new blog.Post();
-			this.postView = new FormView(this.element, "blog/post/form").render(this.post);
+			this.postView = new blog.PostFormView(this.element, this).render(this.post);
 		},
 
 		create: function(event, action) {

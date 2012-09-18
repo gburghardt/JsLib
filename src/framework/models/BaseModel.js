@@ -221,13 +221,13 @@ BaseModel = Object.extend({
 			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 		},
 
-		save: function(callbacks) {
+		save: function(context, callbacks) {
 			// TODO: Actually save this to something
 			if (this.destroyed) {
-				callbacks.invalid({base: "has been deleted"});
+				callbacks.invalid.call(context, {base: "has been deleted"});
 			}
 			else if (!this.validate()) {
-				callbacks.invalid(this.getErrorMessages());
+				callbacks.invalid.call(context, this.getErrorMessages());
 			}
 			else if (this.newRecord) {
 				this.applyModuleCallbacks("create");

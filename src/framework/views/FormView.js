@@ -19,9 +19,14 @@ FormView = BaseView.extend({
 
 // Access: Public
 
-		initialize: function(id, templateName) {
-			BaseView.prototype.initialize.call(this, id);
-			this.template = Template.find(templateName);
+		initialize: function(rootNode, delegate, templateName) {
+			BaseView.prototype.initialize.call(this, rootNode, delegate);
+
+			if (templateName) {
+				this.templateName = templateName;
+			}
+
+			rootNode = delegate = null;
 		},
 
 		getControlValue: function(name) {
@@ -60,9 +65,11 @@ FormView = BaseView.extend({
 		},
 
 		render: function(model) {
+			var template = Template.find(this.templateName);
 			this.model = model;
-			this.rootNode.innerHTML = this.template.render(this.model);
+			this.rootNode.innerHTML = template.render(this.model);
 			this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+			template = null;
 			return this;
 		},
 

@@ -50,7 +50,7 @@ BaseView = Object.extend({
 
 // Access: Public
 
-		initialize: function(rootNode) {
+		initialize: function(rootNode, delegate) {
 			this.nodeCache = {};
 
 			if (typeof rootNode === "string") {
@@ -70,9 +70,9 @@ BaseView = Object.extend({
 				}
 			}
 
-			this.delegator = new dom.events.Delegator(this, this.rootNode, this.delegatorActionPrefix).init();
+			this.delegator = new dom.events.Delegator(delegate, this.rootNode, this.delegatorActionPrefix).init();
 			this.delegator.addEventTypes(this.getDelegatorEventTypes());
-			rootNode = null;
+			rootNode = delegate = null;
 		},
 
 		destructor: function() {
@@ -95,6 +95,8 @@ BaseView = Object.extend({
 		ownerDocument: null,
 
 		rootNode: null,
+
+		templateName: null,
 
 		getDelegatorEventTypes: function() {
 			return [];
