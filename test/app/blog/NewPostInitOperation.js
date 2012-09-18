@@ -23,14 +23,17 @@ blog.NewPostInitOperation = InitOperation.extend({
 			this.postView = new blog.PostFormView(this.element, this).render(this.post);
 		},
 
-		create: function(event, action) {
+		create: function(action) {
 			action.cancel();
 			this.post.attributes = this.postView.getFormData();
 			this.post.save(this, {
 				saved: function() {
+					console.info("blog.NewPostInitOperation#save - Saved");
 					this.destructor();
 				},
 				invalid: function(errors) {
+					console.warn("blog.NewPostInitOperation#save - Invalid");
+					console.debug(errors);
 					this.postView.setFieldErrors(errors);
 				}
 			});

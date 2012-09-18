@@ -43,6 +43,10 @@ FormView = BaseView.extend({
 			}
 		},
 
+		getDelegatorEventTypes: function() {
+			return ["click", "submit", "change"];
+		},
+
 		getFormData: function(force) {
 			if (force || !this.currentData) {
 				var inputs = this.rootNode.getElementsByTagName("input");
