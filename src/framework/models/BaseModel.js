@@ -232,10 +232,12 @@ BaseModel = Object.extend({
 			else if (this.newRecord) {
 				this.applyModuleCallbacks("create");
 				this.newRecord = false;
+				callbacks.saved.call(context);
 				this.publish("created");
 			}
 			else {
 				this.applyModuleCallbacks("update");
+				callbacks.saved.call(context);
 				this.publish("updated");
 			}
 		},
