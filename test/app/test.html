@@ -21,14 +21,14 @@
 			<form action="#" data-action-submit="create">
 				<h1>New Blog Post</h1>
 				<p>
-					<label>Title: <input type="text" size="60" name="title" id="blog-post-title"></label>
+					<label>Title: <input type="text" size="60" name="title" id="blog-post-title" value="#{title}"></label>
 				</p>
 				<p>
-					<label>Date: <input type="text" size="60" name="publish_date" id="blog-post-publish_date"></label>
+					<label>Date: <input type="text" size="60" name="publish_date" id="blog-post-publish_date" value="#{publish_date}"></label>
 				</p>
 				<p>
 					<label for="blog-post-body">Body</label><br>
-					<textarea rows="18" cols="60" name="body" id="blog-post-body"></textarea>
+					<textarea rows="18" cols="60" name="body" id="blog-post-body">#{body}</textarea>
 				</p>
 				<p>
 					<button type="button" data-action-click="blog-cancel_new_post">Cancel</button>
@@ -53,6 +53,7 @@
 		<script type="text/javascript" src="/src/lib/BaseModel/ExtendedValidation.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/Serialization.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/Serialization/QueryString.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/TemplateDataKeys.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/BaseOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/BootOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/InitOperation.js"></script>

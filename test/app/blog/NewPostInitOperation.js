@@ -19,7 +19,7 @@ blog.NewPostInitOperation = InitOperation.extend({
 		},
 
 		run: function(action) {
-			this.post = new blog.Post();
+			this.post = new blog.Post({publish_date: "I am an invalid date"});
 			this.postView = new blog.PostFormView(this.element, this).render(this.post);
 		},
 
