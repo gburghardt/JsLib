@@ -73,21 +73,34 @@ Template = Object.extend({
 				return Template.find(templateName).render(data);
 			};
 
-			for (key in data) {
-				if (data.hasOwnProperty(key)) {
-					regex = new RegExp("#\\{\\s*" + key.replace(/\./g, "\\\.", "g") + "\\s*\\}", "g");
+			var doReplace = function(key) {
+				var regex = new RegExp("#\\{\\s*" + key.replace(/\./g, "\\\.", "g") + "\\s*\\}", "g");
 
-					// replace #{foo} tags with value at data[foo]
-					source = source.replace(regex, data[key]);
+				// replace #{foo} tags with value at data[foo]
+				source = source.replace(regex, data[key]);
 
-					// replace #{render} tags
-					if (source.match(regexRender)) {
-						source = source.replace(regexRender, renderReplacer);
-					}
+				// replace #{render with foo} tags by rendering data[foo]
+				if (source.match(regexRender)) {
+					source = source.replace(regexRender, renderReplacer);
+				}
 
-					// replace #{include} tags
-					if (source.match(Template.templates[name])) {
-						source = source.replace(regexInclude, includeReplacer);
+				// replace #{include} tags
+				if (source.match(Template.templates[name])) {
+					source = source.replace(regexInclude, includeReplacer);
+				}
+			};
+
+			if (data.getTemplateKeys) {
+				var keys = data.getTemplateKeys(), i = 0, length = keys.length;
+
+				for (i; i < length; i++) {
+					doReplace(keys[i]);
+				}
+			}
+			else {
+				for (key in data) {
+					if (data.hasOwnProperty(key)) {
+						doReplace(key);
 					}
 				}
 			}
