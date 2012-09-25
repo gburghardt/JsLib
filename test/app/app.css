@@ -5,6 +5,18 @@ html, body {
 	padding: 0;
 	width: 100%;
 }
+.form-errors ul,
+.form-field-error {
+	background-color: #fee;
+	border: 1px solid #c00;
+	color: #c00;
+	list-style-type: none;
+	margin: 1em 0;
+	padding: .5em;
+}
+.form-errors ul li {
+	margin: .33em 0;
+}
 .layout-container {
 	float: left;
 	height: 100%;

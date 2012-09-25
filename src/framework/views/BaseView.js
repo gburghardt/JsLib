@@ -43,14 +43,29 @@ BaseView = Object.extend({
 
 		generateNodeId: function() {
 			return "anonymous-node-" + (BaseView.nodeIdIndex++);
+		},
+
+		getInstance: function(rootNode, delegate, templateName) {
+			var className = templateName.replace(/\//g, "-").toClassName();
+			var ViewClass = className.constantize();
+			var view;
+
+			if (!ViewClass) {
+				ViewClass = BaseView;
+			}
+
+			view = new ViewClass(rootNode, delegate, templateName);
+			ViewClass = rootNode = delegate = null;
+			return view;
 		}
+
 	},
 
 	prototype: {
 
 // Access: Public
 
-		initialize: function(rootNode, delegate) {
+		initialize: function(rootNode, delegate, templateName) {
 			this.nodeCache = {};
 
 			if (typeof rootNode === "string") {
@@ -70,9 +85,18 @@ BaseView = Object.extend({
 				}
 			}
 
-			this.delegator = new dom.events.Delegator(delegate, this.rootNode, this.delegatorActionPrefix).init();
-			this.delegator.addEventTypes(this.getDelegatorEventTypes());
+			if (templateName) {
+				this.templateName = templateName;
+			}
+
+			this.delegator = new dom.events.Delegator(delegate, this.rootNode, this.delegatorActionPrefix);
 			rootNode = delegate = null;
+		},
+
+		init: function() {
+			this.delegator.addEventTypes(this.getDelegatorEventTypes());
+			this.delegator.init();
+			return this;
 		},
 
 		destructor: function() {
@@ -84,9 +108,26 @@ BaseView = Object.extend({
 			this.rootNode = this.ownerDocument = null;
 		},
 
+		render: function(model) {
+			Template.fetch(this.templateName, this, function(template) {
+				if (this.model) {
+					this.model.unsubscribe("attributes:changed", this);
+				}
+
+				this.model = model;
+				this.rootNode.innerHTML = template.render(this.model);
+				this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+				template = null;
+			});
+
+			return this;
+		},
+
 // Access: Protected
 
 		delegateActionPrefix: "",
+
+		delegatorEventTypes: "",
 
 		delegator: null,
 
@@ -99,7 +140,7 @@ BaseView = Object.extend({
 		templateName: null,
 
 		getDelegatorEventTypes: function() {
-			return [];
+			return this.delegatorEventTypes.split(/[ ,]+/g);
 		},
 
 		getNode: function(idSuffix) {
@@ -150,6 +191,10 @@ BaseView = Object.extend({
 
 		getNodesFromCache: function(key) {
 			return (this.nodeCache[key]) ? this.nodeCache[key] : null;
+		},
+
+		handleAttributesChanged: function(model) {
+			console.info("FormView#handleAttributesChanged");
 		},
 
 		nodeCachingEnabled: function() {

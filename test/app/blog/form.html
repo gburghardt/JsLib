@@ -1,0 +1,22 @@
+#{include blog/post/header}
+
+<form action="#" data-action-submit="create">
+	<h1>New Blog Post</h1>
+	<div class="form-errors" style="display: none;"></div>
+	<!-- div class="form-field-error-title form-field-error" style="display: none;"></div -->
+	<p>
+		<label>Title: <input type="text" size="60" name="title" id="blog-post-title" value="#{title}"></label>
+	</p>
+	<!-- div class="form-field-error-publish_date form-field-error" style="display: none;"></div -->
+	<p>
+		<label>Date: <input type="text" size="60" name="publish_date" id="blog-post-publish_date" value="#{publish_date}"></label>
+	</p>
+	<p>
+		<label for="blog-post-body">Body</label><br>
+		<textarea rows="18" cols="60" name="body" id="blog-post-body">#{body}</textarea>
+	</p>
+	<p>
+		<button type="button" data-action-click="cancel">Cancel</button>
+		<button type="submit">Create</button>
+	</p>
+</form>

@@ -73,9 +73,16 @@ BaseOperation = Object.extend({
 			events = null;
 		},
 
-		removeChildOperation: function(name) {
-			this.childOperations[name] = null;
-			delete this.childOperations[name];
+		removeChildOperation: function(childOperation) {
+			var name;
+
+			for (name in this.childOperations) {
+				if (this.childOperations.hasOwnProperty(name) && childOperation === this.childOperations[name]) {
+					this.childOperations[name] = null;
+				}
+			}
+
+			childOperation = null;
 		},
 
 		run: function() {

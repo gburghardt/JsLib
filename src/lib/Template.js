@@ -1,46 +1,138 @@
-/*
+// <script type="text/html" data-template-name="blog/post_body">
+// 	#{include blog/header}
+// 
+// 	<h1>#{title}</h1>
+// 	<p>#{body}</p>
+// 	<ol>
+// 		<li>#{render blog/post/comments with comments}</li>
+// 	</ol>
+// 
+// 	#{include blog/footer}
+// </script>
 
-<script type="text/html" data-template-name="blog/post_body">
-	#{include blog/header}
-
-	<h1>#{title}</h1>
-	<p>#{body}</p>
-	<ol>
-		<li>#{render blog/post/comments with comments}</li>
-	</ol>
-
-	#{include blog/footer}
-</script>
-
-*/
 Template = Object.extend({
 
 	self: {
 
+		cacheBuster: new Date().getTime(),
+
 		document: document,
+
+		REGEX_INCLUDE: /#\{\s*include\s+(.+?)\s*\}/g,
+		REGEX_RENDER: /#\{\s*render\s+(.+?)\s+with\s+(.*?)\s*\}/g,
 
 		templates: {},
 
+		fetch: function(name, context, callback) {
+			if (Template.templates[name]) {
+				callback.call(context, Template.templates[name]);
+			}
+			else {
+				var source = Template.getTemplateSourceNode(name);
+				var url = source.getAttribute("data-src");
+				var xhr;
+
+				var cleanup = function() {
+					context = callback = xhr = source = cleanup = null;
+				};
+
+				if (url) {
+					url = url + (/\?/.test(url) ? "&" : "?") + "cacheBuster=" + Template.cacheBuster;
+					xhr = new XMLHttpRequest();
+					xhr.open("GET", url);
+					xhr.onreadystatechange = function() {
+						if (this.readyState === 4 && this.status === 200) {
+							if (this.status === 200) {
+								Template.fetchSubTemplates(xhr.responseText, function() {
+									Template.templates[name] = new Template(name, xhr.responseText);
+									callback.call(context, Template.templates[name]);
+									cleanup();
+								});
+							}
+							else if (this.status === 403) {
+								cleanup();
+								throw new Error("Failed to fetch template from URL: " + url + ". Server returned 403 Not Authorized");
+							}
+							else if (this.status === 404) {
+								cleanup();
+								throw new Error("Failed to fetch template from URL: " + url + ". Server returned 404 Not Found.");
+							}
+							else if (this.status >= 400) {
+								cleanup();
+								throw new Error("Failed to fetch template from URL: " + url + ". Server returned an error (" + this.status + ")");
+							}
+						}
+					};
+					xhr.send(null);
+				}
+				else {
+					Template.templates[name] = new Template(name, source);
+					Template.fetchSubTemplates(Template.templates.source, function() {
+						callback.call(context, Template.templates[name]);
+						cleanup();
+					});
+				}
+			}
+		},
+
+		fetchSubTemplates: function(source, callback) {
+			var subTemplates = [], total, i = 0, count = 0;
+
+			var handleTemplateFetched = function() {
+				count++;
+
+				if (count === total) {
+					callback();
+				}
+			};
+
+			source.replace(this.REGEX_RENDER, function(tag, templateName, dataKey) {
+				subTemplates.push(templateName);
+			}).replace(this.REGEX_INCLUDE, function(tag, templateName) {
+				subTemplates.push(templateName);
+			});
+
+			total = subTemplates.length;
+
+			if (total) {
+				for (i = 0; i < total; i++) {
+					Template.fetch(subTemplates[i], this, handleTemplateFetched);
+				}
+			}
+			else {
+				callback();
+			}
+		},
+
 		find: function(name) {
-			if (!Template.templates.hasOwnProperty(name)) {
-				var source = Template.document.querySelector("script[data-template-name=" + name.replace(/\//g, "\\/") + "]");
-				Template.templates[name] = (source) ? new Template(name, source) : null;
+			if (!Template.templates[name]) {
+				var source = Template.getTemplateSourceNode(name);
+				Template.templates[name] = new Template(name, source);
 				source = null;
 			}
 
 			return Template.templates[name];
+		},
+
+		getTemplateSourceNode: function(name) {
+			var source = Template.document.querySelector("script[data-template-name=" + name.replace(/\//g, "\\/") + "]");
+
+			if (!source) {
+				throw new Error('Missing template ' + name + '. Required: <script type="text/html" data-template-name="' + name + '"></script>');
+			}
+
+			return source;
 		}
 
 	},
 
 	prototype: {
 
-		REGEX_INCLUDE: /#\{\s*include\s+(.+?)\s*\}/g,
-		REGEX_RENDER: /#\{\s*render\s+(.+?)\s+with\s+(.*?)\s*\}/g,
-
 		name: null,
 
 		source: null,
+
+		subTemplatesFetched: false,
 
 		initialize: function(name, source) {
 			this.name = name;
@@ -48,7 +140,7 @@ Template = Object.extend({
 		},
 
 		render: function(data) {
-			var key, source = this.source, regexRender = this.REGEX_RENDER, regexInclude = this.REGEX_INCLUDE;
+			var key, source = this.source, regexRender = Template.REGEX_RENDER, regexInclude = Template.REGEX_INCLUDE;
 
 			var renderReplacer = function(tag, templateName, dataKey) {
 				if (data[ dataKey ] instanceof Array) {

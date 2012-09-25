@@ -1,6 +1,6 @@
 FormOperation = MemberOperation.extend({
 	prototype: {
-		run: function() {
+		submit: function(action) {
 			
 		}
 	}

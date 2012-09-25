@@ -17,25 +17,8 @@
 		</div>
 		<div class="layout-container layout-secondary" data-layout-role="container" id="layout-secondary"></div>
 		<div class="layout-container layout-main" data-layout-role="container" id="layout-main"></div>
-		<script type="text/html" id="blog-new_post_init" data-template-name="blog/post/form">
-			<form action="#" data-action-submit="create">
-				<h1>New Blog Post</h1>
-				<p>
-					<label>Title: <input type="text" size="60" name="title" id="blog-post-title" value="#{title}"></label>
-				</p>
-				<p>
-					<label>Date: <input type="text" size="60" name="publish_date" id="blog-post-publish_date" value="#{publish_date}"></label>
-				</p>
-				<p>
-					<label for="blog-post-body">Body</label><br>
-					<textarea rows="18" cols="60" name="body" id="blog-post-body">#{body}</textarea>
-				</p>
-				<p>
-					<button type="button" data-action-click="blog-cancel_new_post">Cancel</button>
-					<button type="submit">Create</button>
-				</p>
-			</form>
-		</script>
+		<script type="text/html" data-template-name="blog/post/form" data-src="./blog/form.html"></script>
+		<script type="text/html" data-template-name="blog/post/header" data-src="./blog/header.html"></script>
 		<script type="text/javascript" src="/src/lib/patches/Function.js"></script>
 		<script type="text/javascript" src="/src/lib/patches/String.js"></script>
 		<script type="text/javascript" src="/src/lib/dom/events/Delegator.js"></script>
@@ -46,7 +29,7 @@
 		<script type="text/javascript" src="/src/lib/events/Event.js"></script>
 		<script type="text/javascript" src="/src/lib/Template.js"></script>
 		<script type="text/javascript" src="/src/framework/views/BaseView.js"></script>
-		<script type="text/javascript" src="/src/framework/views/FormView.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseView/Forms.js"></script>
 		<script type="text/javascript" src="/src/framework/models/BaseModel.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/Publisher.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/BasicValidation.js"></script>

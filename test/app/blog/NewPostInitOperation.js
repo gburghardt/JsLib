@@ -2,39 +2,28 @@ window.blog = window.blog || {};
 
 blog.NewPostInitOperation = InitOperation.extend({
 	prototype: {
-		operationMap: {
-			"blog-create_post": "create",
-			"blog-cancel_new_post": "cancel"
-		},
-
 		destructor: function() {
-			if (this.postView) {
-				this.postView.destructor();
-				this.postView = null;
-			}
-
 			this.post = null;
-
 			InitOperation.prototype.destructor.call(this);
 		},
 
 		run: function(action) {
 			this.post = new blog.Post({publish_date: "I am an invalid date"});
-			this.postView = new blog.PostFormView(this.element, this).render(this.post);
+			this.render("blog/post/form", this.post);
 		},
 
 		create: function(action) {
 			action.cancel();
-			this.post.attributes = this.postView.getFormData();
+			this.post.attributes = this.view.getFormData();
 			this.post.save(this, {
 				saved: function() {
 					console.info("blog.NewPostInitOperation#save - Saved");
-					this.destructor();
+					this.destroyOperationChain();
 				},
 				invalid: function(errors) {
 					console.warn("blog.NewPostInitOperation#save - Invalid");
 					console.debug(errors);
-					this.postView.setFieldErrors(errors);
+					this.view.setFieldErrors(errors);
 				}
 			});
 		}

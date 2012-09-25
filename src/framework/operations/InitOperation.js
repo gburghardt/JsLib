@@ -9,6 +9,8 @@ InitOperation = BaseOperation.extend({
 			location: "bottom"
 		},
 
+		delegatorEventTypes: "click submit",
+
 		element: null,
 
 		operationMap: null,
@@ -22,6 +24,7 @@ InitOperation = BaseOperation.extend({
 		},
 
 		destroyOperationChain: function() {
+			this.parentOperation.removeChildOperation(this);
 			this.destructor();
 		},
 
@@ -37,9 +40,9 @@ InitOperation = BaseOperation.extend({
 			parentOperation = action = null;
 		},
 
-		cancel: function(event, action) {
+		cancel: function(action) {
 			action.cancel();
-			this.destructor();
+			this.destroyOperationChain();
 		},
 
 		createElement: function() {
@@ -78,6 +81,20 @@ InitOperation = BaseOperation.extend({
 
 		getDocument: function() {
 			return this.containerElement ? this.containerElement.ownerDocument : null;
+		},
+
+		render: function(templateName, data) {
+			if (!this.view) {
+				this.view = BaseView.getInstance(this.element, this, templateName);
+				this.view.delegatorEventTypes = this.delegatorEventTypes;
+				this.view.init();
+			}
+			else {
+				this.view.templateName = templateName;
+			}
+
+			this.view.render(data);
+			data = null;
 		}
 
 	}
