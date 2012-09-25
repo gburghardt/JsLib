@@ -1,6 +1,6 @@
 window.blog = window.blog || {};
 
-blog.NewPostInitOperation = InitOperation.extend({
+blog.CreatePostOperation = InitOperation.extend({
 	prototype: {
 		destructor: function() {
 			this.post = null;
