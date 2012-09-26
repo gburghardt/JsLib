@@ -35,6 +35,10 @@ if (!Function.prototype.include) {
 			}
 		}
 
+		if (mixin.included) {
+			mixin.included(this);
+		}
+
 		mixin = null;
 	};
 }
