@@ -36,6 +36,7 @@ BaseModel = Object.extend({
 			// New class should manage its own instances
 			descriptor.self = descriptor.self || {};
 			descriptor.self.instances = {};
+			descriptor.self.attributesInitialized = false;
 
 			return Function.prototype.extend.call(this, descriptor);
 		},
@@ -106,7 +107,7 @@ BaseModel = Object.extend({
 		},
 
 		initAttributes: function() {
-			if (this.__proto__.attributesInitialized) {
+			if (this.constructor.attributesInitialized) {
 				return;
 			}
 
@@ -146,7 +147,7 @@ BaseModel = Object.extend({
 			}
 
 			this.applyModuleCallbacks("initAttributes");
-			this.__proto__.attributesInitialized = true;
+			this.constructor.attributesInitialized = true;
 		},
 
 		applyModuleCallbacks: function(callbackName, args) {
