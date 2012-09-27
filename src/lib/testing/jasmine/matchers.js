@@ -2,6 +2,10 @@ jasmine.Matchers.prototype.toBeArray = function() {
 	return (this.actual instanceof Array) ? true : false;
 };
 
+jasmine.Matchers.prototype.toBeObject = function() {
+	return this.actual.constructor === Object;
+};
+
 jasmine.Matchers.prototype.toBeFalse = function() {
 	return this.actual === false;
 };
