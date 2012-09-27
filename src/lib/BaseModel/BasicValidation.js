@@ -27,12 +27,17 @@ BaseModel.BasicValidation = {
 		},
 
 		getErrorMessage: function(key) {
-			var message = "", words;
+			var message = [], words, i, length, errors = this.errors[key];
 
-			if (this.errors[key]) {
-				words = this.convertKeyToWords(key);
-				message = words + " " + this.errors[key].join("\n" + words + " ");
+			if (errors) {
+				words = this.convertKeyToWords(key).capitalize();
+
+				for (i = 0, length = errors.length; i < length; i++) {
+					message.push(words + " " + errors[i]);
+				}
 			}
+
+			errors = null;
 
 			return message;
 		},
