@@ -31,9 +31,13 @@ Application = Object.extend({
 
 		delegator: null,
 
+		document: null,
+
 		eventDispatcher: null,
 
 		operationFactory: null,
+
+		window: null,
 
 		initialize: function() {
 			this.config = {
@@ -43,6 +47,7 @@ Application = Object.extend({
 		},
 
 		init: function() {
+			this.window.onerror = this.handleError.bind(this);
 			this.operationFactory.setEventDispatcher(this.eventDispatcher);
 			this.bootOperation = this.operationFactory.getOperation(this.config["bootOperation.name"]);
 			this.bootOperation.setApplication(this);
@@ -56,7 +61,18 @@ Application = Object.extend({
 			this.bootOperation.destructor();
 			this.eventDispatcher.destructor();
 			this.operationFactory.destructor();
-			this.document = this.delegator = this.bootOperation = this.operationFactory = this.eventDispatcher = null;
+			this.window.onerror = this.window = this.document = this.delegator = this.bootOperation = this.operationFactory = this.eventDispatcher = null;
+		},
+
+		getErrorInfo: function(message, fileName, lineNumber) {
+			var regex = /^Error: ([A-Z][a-zA-Z0-9]+Error) - (.*)$/;
+			var info = message.match(regex) || [];
+			return {
+				type: info[1] || "Error",
+				message: info[2] || "",
+				fileName: fileName || "",
+				lineNumber: lineNumber || 0
+			};
 		},
 
 		configure: function(config) {
@@ -69,6 +85,24 @@ Application = Object.extend({
 			}
 
 			config = null;
+		},
+
+		handleError: function(message, fileName, lineNumber) {
+			var info = this.getErrorInfo(message, fileName, lineNumber);
+
+			if (info.type === "AccessDeniedError") {
+				this.handleAccessDeniedError(info);
+				return true;
+			}
+		},
+
+		handleAccessDeniedError: function(info) {
+			if (info.message) {
+				console.warn(info.message);
+			}
+			else {
+				console.warn("Access denied!");
+			}
 		}
 
 	}
