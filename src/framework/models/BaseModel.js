@@ -65,6 +65,17 @@ BaseModel = Object.extend({
 
 			Function.prototype.include.call(this, descriptor);
 			descriptor = null;
+		},
+
+		register: function(instance) {
+			var id = instance.getPrimaryKey();
+
+			if (this.instances[id]) {
+				throw new Error("Cannot register two instances to the same Id: " + id);
+			}
+
+			this.instances[id] = instance;
+			instance = null;
 		}
 
 	},
