@@ -142,8 +142,8 @@ dom.events.Delegator = function() {
 					action.params = {error: error};
 					self.delegate.handleActionError(action);
 				}
-				else if (window.console && window.console.error) {
-					window.console.error(error);
+				else if (self.constructor.errorDelegate) {
+					self.constructor.errorDelegate.handleActionError(action);
 				}
 				else {
 					// prevent links and forms from submitting
