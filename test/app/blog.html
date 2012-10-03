@@ -21,6 +21,7 @@
 		<script type="text/html" data-template-name="blog/post/header" data-src="./blog/header.html"></script>
 		<script type="text/javascript" src="/src/lib/patches/Function.js"></script>
 		<script type="text/javascript" src="/src/lib/patches/String.js"></script>
+		<script type="text/javascript" src="/src/lib/errors.js"></script>
 		<script type="text/javascript" src="/src/lib/dom/events/Delegator.js"></script>
 		<script type="text/javascript" src="/src/lib/dom/events/action.js"></script>
 		<script type="text/javascript" src="/src/lib/OperationFactory.js"></script>
@@ -35,7 +36,11 @@
 		<script type="text/javascript" src="/src/lib/BaseModel/BasicValidation.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/ExtendedValidation.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/Serialization.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Serialization/Json.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/Serialization/QueryString.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Persistence.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Persistence/RestClient.js"></script>
+		<script type="text/javascript" src="/src/lib/BaseModel/Persistence/LocalStorage.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/TemplateDataKeys.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/BaseOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/BootOperation.js"></script>
@@ -46,6 +51,7 @@
 		<script type="text/javascript" src="./blog/Post.js"></script>
 		<script type="text/javascript">
 			var app = new Application();
+			app.window = window;
 			app.document = document;
 			app.operationFactory = new OperationFactory();
 			app.eventDispatcher = new events.Dispatcher();

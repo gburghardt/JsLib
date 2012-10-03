@@ -8,7 +8,11 @@ blog.CreatePostOperation = InitOperation.extend({
 		},
 
 		run: function(action) {
-			this.post = new blog.Post({publish_date: "I am an invalid date"});
+			this.post = new blog.Post({
+				title: "Just testing",
+				publish_date: "2012/10/02",
+				body: "Test test"
+			});
 			this.render("blog/post/form", this.post);
 		},
 
@@ -17,12 +21,16 @@ blog.CreatePostOperation = InitOperation.extend({
 			this.post.attributes = this.view.getFormData();
 			this.post.save(this, {
 				saved: function() {
-					console.info("blog.NewPostInitOperation#save - Saved");
+					console.info("blog.CreatePostOperation#save - Saved");
 					this.destroyOperationChain();
 				},
 				invalid: function(errors) {
-					console.warn("blog.NewPostInitOperation#save - Invalid");
+					console.warn("blog.CreatePostOperation#save - Invalid");
 					console.debug(errors);
+					this.view.setFieldErrors(errors);
+				},
+				error: function(errors) {
+					console.error("blog.CreatePostOperation#save - Error");
 					this.view.setFieldErrors(errors);
 				}
 			});

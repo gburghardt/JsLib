@@ -86,11 +86,7 @@ BaseModel = Object.extend({
 
 		_changedAttributes: null,
 
-		destroyed: false,
-
 		guid: null,
-
-		newRecord: true,
 
 		previouslyChanged: null,
 
@@ -217,41 +213,16 @@ BaseModel = Object.extend({
 			};
 		},
 
-		destroy: function() {
-			if (!this.destroyed) {
-				this.applyModuleCallbacks("destroy", []);
-				this.destroyed = true;
-				this.publish("destroyed");
-			}
-		},
-
 		getAttribute: function(key) {
 			return (this._attributes[key] === undefined) ? null : this._attributes[key];
 		},
 
-		isValidAttributeKey: function(key) {
-			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
+		getPrimaryKey: function() {
+			return this._attributes[this.primaryKey];
 		},
 
-		save: function(context, callbacks) {
-			// TODO: Actually save this to something
-			if (this.destroyed) {
-				callbacks.invalid.call(context, {base: "has been deleted"});
-			}
-			else if (!this.validate()) {
-				callbacks.invalid.call(context, this.getErrorMessages());
-			}
-			else if (this.newRecord) {
-				this.applyModuleCallbacks("create");
-				this.newRecord = false;
-				callbacks.saved.call(context);
-				this.publish("created");
-			}
-			else {
-				this.applyModuleCallbacks("update");
-				callbacks.saved.call(context);
-				this.publish("updated");
-			}
+		isValidAttributeKey: function(key) {
+			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 		},
 
 		setAttribute: function(key, value) {
