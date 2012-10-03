@@ -30,10 +30,10 @@ BaseModel.BasicValidation = {
 			var message = [], words, i, length, errors = this.errors[key];
 
 			if (errors) {
-				words = this.convertKeyToWords(key).capitalize();
+				words = (key === "base") ? "" : this.convertKeyToWords(key).capitalize() + " ";
 
 				for (i = 0, length = errors.length; i < length; i++) {
-					message.push(words + " " + errors[i]);
+					message.push(words + errors[i]);
 				}
 			}
 
