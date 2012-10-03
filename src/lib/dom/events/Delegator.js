@@ -122,12 +122,8 @@ dom.events.Delegator = function() {
 
 		if (self.delegate[method]) {
 			try {
-				action = new dom.events.Action();
-				action.name = actionName;
 				// TODO: support params
-				action.params = {};
-				action.event = event;
-				action.element = event.actionTarget;
+				action = new dom.events.Action(event, event.actionTarget, {}, actionName);
 				self.delegate[method](action);
 			}
 			catch (error) {
@@ -135,18 +131,13 @@ dom.events.Delegator = function() {
 				event.stopPropagation();
 
 				if (self.delegate.handleActionError) {
-					action = new dom.events.Action();
-					action.name = actionName;
-					action.event = event;
-					action.element = action.actionTarget;
-					action.params = {error: error};
+					action = new dom.events.Action(event, event.actionTarget, {error: error}, actionName);
 					self.delegate.handleActionError(action);
 				}
 				else if (self.constructor.errorDelegate) {
 					self.constructor.errorDelegate.handleActionError(action);
 				}
 				else {
-					// prevent links and forms from submitting
 					// Give up. Throw the error and let the developer fix this.
 					throw error;
 				}
