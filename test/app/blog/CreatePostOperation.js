@@ -9,6 +9,7 @@ blog.CreatePostOperation = InitOperation.extend({
 
 		run: function(action) {
 			this.post = new blog.Post({
+				blog_id: action.params.blog_id,
 				title: "Just testing",
 				publish_date: "2012/10/02",
 				body: "Test test"

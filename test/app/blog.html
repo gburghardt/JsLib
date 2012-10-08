@@ -9,11 +9,15 @@
 	</head>
 	<body>
 		<div class="layout-container layout-nav" data-layout-role="container" id="layout-nav">
-			<nav>
-				<ul>
-					<li><button type="button" data-action-click="init" data-operation="blog-create_post" data-operation-container="layout-main">Create Blog Post</button></li>
-				</ul>
-			</nav>
+			<section>
+				<nav>
+					<ul>
+						<li><button type="button" data-action-click="init" data-actionParams-click='{"blog_id": 1}' data-operation="blog-create_post" data-operation-container="layout-main">Create Blog Post</button></li>
+					</ul>
+				</nav>
+				<!-- TODO: Support domload init operations -->
+				<ol class="blog-posts" data-action-domload="init" data-actionParams-domload='{"blog_id": 1}' data-operation="blog-posts_list"></ol>
+			</section>
 		</div>
 		<div class="layout-container layout-secondary" data-layout-role="container" id="layout-secondary"></div>
 		<div class="layout-container layout-main" data-layout-role="container" id="layout-main"></div>

@@ -47,6 +47,7 @@ Application = Object.extend({
 		},
 
 		init: function() {
+			// TODO: Grab all *[data-action-domload] elements and run init operations on them
 			this.window.onerror = this.handleError.bind(this);
 			this.operationFactory.setEventDispatcher(this.eventDispatcher);
 			this.bootOperation = this.operationFactory.getOperation(this.config["bootOperation.name"]);
