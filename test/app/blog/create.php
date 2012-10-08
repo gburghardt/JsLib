@@ -1,36 +1,37 @@
 <?php
-function to_json($data) {
-	return str_replace( "\n", '\\n', json_encode( $data ) );
-}
+header('Content-type: text/json; charset=utf-8');
+$request_method = $_SERVER['REQUEST_METHOD'];
 
-if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
-	$_REQUEST['id'] = time();
-	header('HTTP/1.1 201 Created');
-	echo to_json($_REQUEST);
+if ($request_method == 'PUT') {
+	$_POST['id'] = time();
+	header('HTTP/1.1 200 OK');
+	echo json_encode($_POST);
 }
-else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+else if ($request_method == 'POST') {
 	header('HTTP/1.1 201 Created');
-	echo to_json($_REQUEST);
+	$_POST['id'] = time();
+	echo json_encode($_POST);
 }
-else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-	if (empty($_REQUEST['id'])) {
+else if ($request_method == 'GET') {
+	if (empty($_GET['id'])) {
 		header("HTTP/1.1 404 Not Found");
 	}
 	else {
 		header("HTTP/1.1 200 OK");
 		$blog_post = array(
-			'id' => $_REQUEST['id'],
+			'id' => $_GET['id'],
 			'title' => 'I came from a database!',
 			'publish_date' => '2012/10/02',
 			'body' => '<p>Yup. I certainly did.</p>'
 		);
-		echo to_json($blog_post);
+		echo json_encode($blog_post);
 	}
 }
-else if ($_SERVER['REQUEST_METHOD'] == 'DELETE' && !empty($_REQUEST['id'])) {
+else if ($request_method == 'DELETE' && !empty($_GET['id'])) {
 	header("HTTP/1.1 200 OK");
 }
 else {
 	header("HTTP/1.1 404 Not Found");
 }
+
 ?>

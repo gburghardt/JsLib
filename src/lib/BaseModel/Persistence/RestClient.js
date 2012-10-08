@@ -126,13 +126,14 @@ BaseModel.Persistence.RestClient = {
 			var xhr = this.createRequest(), model = this;
 
 			if (method === "GET" || method === "DELETE") {
-				url += ( url.indexOf("?") > -1 ? "?" : "&" ) + data;
+				url += ( url.indexOf("?") < 0 ? "?" : "&" ) + data;
 				data = null;
 			}
 
 			xhr.onreadystatechange = onreadystatechange;
 			xhr.open(method, url, async);
-			xhr.setRequestHeader("X-REQUESTED-WITH", "XMLHTTPREQUEST");
+			xhr.setRequestHeader("x-requested-with", "XMLHTTPREQUEST");
+			xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
 			xhr.send(data);
 		}
 
