@@ -1,6 +1,6 @@
 blog.Post = BaseModel.extend({
 	prototype: {
-		baseUrl: "/test/app/blog/create.php",
+		baseUrl: "/test/app/blog/post.php",
 		validAttributes: ["title", "body", "publish_date"],
 		requires: ["title"],
 		validatesFormatOf: {
