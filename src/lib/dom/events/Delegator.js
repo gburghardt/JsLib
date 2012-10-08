@@ -86,6 +86,12 @@ dom.events.Delegator = function() {
 
 	this.delegate = null;
 
+	function getActionParams(element, eventType) {
+		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) || element.getAttribute("data-actionParams");
+		element = null;
+		return (paramsAttr) ? JSON.parse(paramsAttr) : {};
+	}
+
 	function stopPropagationPatch() {
 		this._stopPropagation();
 		this.propagationStopped = true;
@@ -102,7 +108,7 @@ dom.events.Delegator = function() {
 			event.actionTarget = event.target;
 		}
 
-		var action = null, actionName = null, method;
+		var action = null, actionName = null, method, params;
 		
 		if (event.actionTarget.getAttribute) {
 			// DOM node
@@ -122,8 +128,8 @@ dom.events.Delegator = function() {
 
 		if (self.delegate[method]) {
 			try {
-				// TODO: support params
-				action = new dom.events.Action(event, event.actionTarget, {}, actionName);
+				params = getActionParams(event.actionTarget, event.type);
+				action = new dom.events.Action(event, event.actionTarget, params, actionName);
 				self.delegate[method](action);
 			}
 			catch (error) {
