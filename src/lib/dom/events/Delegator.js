@@ -74,6 +74,13 @@ dom.events.Delegator = function() {
 		this.actionRegex = new RegExp("^" + this.actionPrefix.replace(/\./g, '\\.'));
 	};
 
+	this.triggerEvent = function(type) {
+		var event = getDocument().createEvent("CustomEvent");
+		event.initCustomEvent(type, true, false, null);
+		this.node.dispatchEvent(event);
+		event = null;
+	};
+
 // Access: Private
 
 	var self = this;
@@ -90,6 +97,10 @@ dom.events.Delegator = function() {
 		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) || element.getAttribute("data-actionParams");
 		element = null;
 		return (paramsAttr) ? JSON.parse(paramsAttr) : {};
+	}
+
+	function getDocument() {
+		return self.node.ownerDocument;
 	}
 
 	function stopPropagationPatch() {
