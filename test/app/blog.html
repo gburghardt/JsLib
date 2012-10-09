@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html>
+<html data-action-domload="domload">
 	<head>
 		<meta charset="utf-8">
 		<title>Test Application</title>
@@ -15,7 +15,6 @@
 						<li><button type="button" data-action-click="init" data-actionParams-click='{"blog_id": 1}' data-operation="blog-create_post" data-operation-container="layout-main">Create Blog Post</button></li>
 					</ul>
 				</nav>
-				<!-- TODO: Support domload init operations -->
 				<ol class="blog-posts" data-action-domload="init" data-actionParams-domload='{"blog_id": 1}' data-operation="blog-posts_list"></ol>
 			</section>
 		</div>
@@ -36,6 +35,7 @@
 		<script type="text/javascript" src="/src/framework/views/BaseView.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseView/Forms.js"></script>
 		<script type="text/javascript" src="/src/framework/models/BaseModel.js"></script>
+		<script type="text/javascript" src="/src/framework/models/BaseCollection.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/Publisher.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/BasicValidation.js"></script>
 		<script type="text/javascript" src="/src/lib/BaseModel/ExtendedValidation.js"></script>
@@ -52,7 +52,9 @@
 		<script type="text/javascript" src="/src/framework/operations/SubOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/application/Application.js"></script>
 		<script type="text/javascript" src="./blog/CreatePostOperation.js"></script>
+		<script type="text/javascript" src="./blog/PostsListOperation.js"></script>
 		<script type="text/javascript" src="./blog/Post.js"></script>
+		<script type="text/javascript" src="./blog/Posts.js"></script>
 		<script type="text/javascript">
 			var app = new Application();
 			app.window = window;

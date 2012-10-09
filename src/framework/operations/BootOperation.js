@@ -21,7 +21,11 @@ BootOperation = BaseOperation.extend({
 		},
 
 		handleAction: function(action) {
-			if ("init" === action.name) {
+			if ("domload" === action.event.type) {
+				// TODO: Get all *[data-action-domload] elements and run "init" operations on them
+				this.runDomloadOperations(action);
+			}
+			else if ("init" === action.name) {
 				this.runChildOperation(action);
 			}
 			else {
@@ -42,6 +46,18 @@ BootOperation = BaseOperation.extend({
 			var childOperation = this.getChildOperation(name);
 			childOperation.call(this, action);
 			childOperation = null;
+		},
+
+		domload: function(action) {
+			var actionElement = action.element;
+			var i = 0, elements = action.element.querySelectorAll("[data-action-domload=init]"), length = elements.length;
+
+			for (i; i < length; i++) {
+				action.element = elements[i];
+				this.runChildOperation(action);
+			}
+
+			action.element = actionElement;
 		},
 
 		setApplication: function(application) {

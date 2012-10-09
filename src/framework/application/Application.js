@@ -42,12 +42,11 @@ Application = Object.extend({
 		initialize: function() {
 			this.config = {
 				"bootOperation.name": "boot",
-				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup"]
+				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domload"]
 			};
 		},
 
 		init: function() {
-			// TODO: Grab all *[data-action-domload] elements and run init operations on them
 			this.window.onerror = this.handleError.bind(this);
 			this.operationFactory.setEventDispatcher(this.eventDispatcher);
 			this.bootOperation = this.operationFactory.getOperation(this.config["bootOperation.name"]);
@@ -55,6 +54,7 @@ Application = Object.extend({
 			this.bootOperation.setEventDispatcher(this.eventDispatcher);
 			this.bootOperation.setDelegator(this.delegator);
 			this.bootOperation.call(null);
+			this.delegator.triggerEvent("domload");
 		},
 
 		destructor: function() {
@@ -63,17 +63,6 @@ Application = Object.extend({
 			this.eventDispatcher.destructor();
 			this.operationFactory.destructor();
 			this.window.onerror = this.window = this.document = this.delegator = this.bootOperation = this.operationFactory = this.eventDispatcher = null;
-		},
-
-		getErrorInfo: function(message, fileName, lineNumber) {
-			var regex = /^Error: ([A-Z][a-zA-Z0-9]+Error) - (.*)$/;
-			var info = message.match(regex) || [];
-			return {
-				type: info[1] || "Error",
-				message: info[2] || "",
-				fileName: fileName || "",
-				lineNumber: lineNumber || 0
-			};
 		},
 
 		configure: function(config) {
@@ -86,6 +75,17 @@ Application = Object.extend({
 			}
 
 			config = null;
+		},
+
+		getErrorInfo: function(message, fileName, lineNumber) {
+			var regex = /^Error: ([A-Z][a-zA-Z0-9]+Error) - (.*)$/;
+			var info = message.match(regex) || [];
+			return {
+				type: info[1] || "Error",
+				message: info[2] || "",
+				fileName: fileName || "",
+				lineNumber: lineNumber || 0
+			};
 		},
 
 		handleError: function(message, fileName, lineNumber) {
