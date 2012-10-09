@@ -5,7 +5,7 @@ blog.PostsListOperation = InitOperation.extend({
 		run: function(action) {
 			console.info("blog.PostsListOperation#run");
 			this.posts = new blog.Posts({blog_id: 1});
-			this.render("blog/list", this.posts);
+			this.render("blog/posts/index", this.posts);
 		}
 	}
 });

@@ -110,13 +110,17 @@ BaseView = Object.extend({
 
 		render: function(model) {
 			Template.fetch(this.templateName, this, function(template) {
-				if (this.model) {
+				if (this.model && this.model.unsubscribe) {
 					this.model.unsubscribe("attributes:changed", this);
 				}
 
 				this.model = model;
 				this.rootNode.innerHTML = template.render(this.model);
-				this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+
+				if (this.model.subscribe) {
+					this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+				}
+
 				template = null;
 			});
 

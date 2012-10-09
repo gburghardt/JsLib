@@ -14,7 +14,7 @@ blog.CreatePostOperation = InitOperation.extend({
 				publish_date: "2012/10/02",
 				body: "Test test"
 			});
-			this.render("blog/post/form", this.post);
+			this.render("blog/posts/form", this.post);
 		},
 
 		create: function(action) {
