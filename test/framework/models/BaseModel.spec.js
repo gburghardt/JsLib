@@ -262,62 +262,6 @@ describe("BaseModel", function() {
 		});
 	});
 
-	// describe("destroy", function() {
-	// 	beforeEach(function() {
-	// 		this.model = new TestModelAttributes();
-	// 	});
-	// 
-	// 	it("sets the destroyed flag to true", function() {
-	// 		this.model.destroy();
-	// 		expect(this.model.destroyed).toBeTrue();
-	// 	});
-	// 
-	// 	it("publishes the destroyed event", function() {
-	// 		spyOn(this.model, "publish");
-	// 		this.model.destroy();
-	// 		this.model.destroy();
-	// 		expect(this.model.publish).wasCalledWith("destroyed");
-	// 		expect(this.model.publish.callCount).toEqual(1);
-	// 	});
-	// 
-	// 	it("applies module callbacks", function() {
-	// 		spyOn(this.model, "applyModuleCallbacks");
-	// 		this.model.destroy();
-	// 		expect(this.model.applyModuleCallbacks).toHaveBeenCalledWith("destroy", []);
-	// 	});
-	// });
-
-	// describe("save", function() {
-	// 	beforeEach(function() {
-	// 		this.model = new TestModelAttributes();
-	// 	});
-	// 
-	// 	it("publishes the created event", function() {
-	// 		this.model.attributes = {firstName: "Jane", lastName: "McJanerson"};
-	// 		spyOn(this.model, "publish");
-	// 		expect(this.model.newRecord).toBeTrue();
-	// 		this.model.save();
-	// 		expect(this.model.publish).toHaveBeenCalledWith("created");
-	// 		expect(this.model.newRecord).toBeFalse();
-	// 	});
-	// 
-	// 	it("publishes the updated event", function() {
-	// 		this.model.attributes = {firstName: "Jane", lastName: "McJanerson", id: 1234};
-	// 		spyOn(this.model, "publish");
-	// 		expect(this.model.newRecord).toBeFalse();
-	// 		this.model.save();
-	// 		expect(this.model.publish).toHaveBeenCalledWith("updated");
-	// 		expect(this.model.newRecord).toBeFalse();
-	// 	});
-	// 
-	// 	it("sets newRecord to false", function() {
-	// 		this.model.attributes = {firstName: "Abby"};
-	// 		expect(this.model.newRecord).toBeTrue();
-	// 		this.model.save();
-	// 		expect(this.model.newRecord).toBeFalse();
-	// 	});
-	// });
-
 	describe("subscribe", function() {
 		beforeEach(function() {
 			this.model = new TestModelAttributes();
