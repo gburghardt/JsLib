@@ -485,7 +485,7 @@ describe("BaseModel", function() {
 					expect(actual).toEqual(expected);
 				});
 
-				xit("serializes multiple hasMany relationships", function() {
+				it("serializes multiple hasMany relationships", function() {
 					var attributes = {
 						id: 123,
 						distribution_centers: [
