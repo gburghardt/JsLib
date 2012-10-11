@@ -2,7 +2,9 @@ BaseModel.Serialization = {
 
 	prototype: {
 
-		serializeOptions: {},
+		serializeOptions: {
+			format: "queryString"
+		},
 
 		escapeHTML: function(x) {
 			return String(x).replace(/&/g, "&amp;")
@@ -28,10 +30,9 @@ BaseModel.Serialization = {
 			return options;
 		},
 
-		serialize: function(type, options) {
-			type = type || "queryString";
+		serialize: function(options) {
 			options = this.mergeOptions(this.serializeOptions, options || {});
-			var methodName = "to" + type.capitalize();
+			var methodName = "to" + options.format.capitalize();
 			var x = this[methodName](options);
 			return x;
 		}
