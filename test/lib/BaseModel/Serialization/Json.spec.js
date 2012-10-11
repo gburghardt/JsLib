@@ -3,6 +3,7 @@ describe("BaseModel", function() {
 	describe("Serialization", function() {
 
 		describe("toJson", function() {
+
 			beforeEach(function() {
 				this.model = new TestValidation({
 					id: 1234,
@@ -62,6 +63,54 @@ describe("BaseModel", function() {
 				var json = '{"id":1234}';
 				expect(this.model.toJson({changedAttributesOnly: true})).toEqual(json);
 			});
+
+			describe("default options", function() {
+
+				it("sets the format", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json" },
+							validAttributes: ["name"]
+						}
+					});
+					var model = new Klass({name: "Testing", id: 123});
+					var expected = '{"name":"Testing","id":123}';
+					var actual = model.serialize();
+
+					expect(actual).toEqual(expected);
+				});
+
+				it("includes a root element", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json", rootElement: "klass" },
+							validAttributes: ["name"]
+						}
+					});
+					var model = new Klass({name: "Testing", id: 123});
+					var expected = '{"klass":{"name":"Testing","id":123}}';
+					var actual = model.serialize();
+
+					expect(actual).toEqual(expected);
+				});
+
+				it("includes only changed attributes", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json", changedAttributesOnly: true },
+							validAttributes: ["name", "description"]
+						}
+					});
+					var model = new Klass({name: "Testing", description: "foo", id: 123});
+					var expected = '{"name":"Testing changed","id":123}';
+					model.name = "Testing changed";
+					var actual = model.serialize();
+
+					expect(actual).toEqual(expected);
+				});
+
+			});
+
 		});
 
 	});
