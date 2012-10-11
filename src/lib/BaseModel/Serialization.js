@@ -31,7 +31,7 @@ BaseModel.Serialization = {
 		},
 
 		serialize: function(options) {
-			options = this.mergeOptions(this.serializeOptions, options || {});
+			options = this.mergeOptions(BaseModel.Serialization.prototype.serializeOptions, this.serializeOptions, options || {});
 			var methodName = "to" + options.format.capitalize();
 			var x = this[methodName](options);
 			return x;
