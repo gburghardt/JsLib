@@ -131,6 +131,49 @@ describe("BaseModel", function() {
 					expect(actual).toEqual(expected);
 				});
 
+				it("allows the root element to be overrided", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json", rootElement: "wrong" }
+						}
+					});
+					var model = new Klass({id: 123});
+					var expected = '{"right":{"id":123}}';
+					var actual = model.serialize({rootElement: "right"});
+
+					expect(actual).toEqual(expected);
+				});
+
+				it("allows changed attributes only flag to be overrided", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json", changedAttributesOnly: true },
+							validAttributes: ["name", "description"]
+						}
+					});
+					var model = new Klass({name: "Test", description: "Foo", id: 123});
+					model.description = "Foo changed";
+					var expected = '{"name":"Test","description":"Foo changed","id":123}';
+					var actual = model.serialize({changedAttributesOnly: false});
+
+					expect(actual).toEqual(expected);
+				});
+
+				it("allows all options to be overrided", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json", changedAttributesOnly: true, rootElement: "wrong" },
+							validAttributes: ["name", "description"]
+						}
+					});
+					var model = new Klass({name: "Test", description: "Foo", id: 123});
+					model.description = "Foo changed";
+					var expected = '{"right":{"name":"Test","description":"Foo changed","id":123}}';
+					var actual = model.serialize({changedAttributesOnly: false, rootElement: "right"});
+
+					expect(actual).toEqual(expected);
+				});
+
 			});
 
 		});
