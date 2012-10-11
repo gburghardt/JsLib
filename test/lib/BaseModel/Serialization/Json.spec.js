@@ -59,6 +59,13 @@ describe("BaseModel", function() {
 				expect(this.model.toJson({changedAttributesOnly: true})).toEqual(json);
 			});
 
+			it("serializes attributes into with a root element", function() {
+				this.model.name = "Ink";
+				var expected = '{"test_validation":{"name":"Ink","id":1234}}';
+				var actual = this.model.toJson({rootElement: "test_validation", changedAttributesOnly: true});
+				expect(actual).toEqual(expected);
+			});
+
 			it("serializes only the primary key when no changed attributes exist", function() {
 				var json = '{"id":1234}';
 				expect(this.model.toJson({changedAttributesOnly: true})).toEqual(json);
@@ -104,6 +111,21 @@ describe("BaseModel", function() {
 					var model = new Klass({name: "Testing", description: "foo", id: 123});
 					var expected = '{"name":"Testing changed","id":123}';
 					model.name = "Testing changed";
+					var actual = model.serialize();
+
+					expect(actual).toEqual(expected);
+				});
+
+				it("includes changed attributes, a root element and sets the format", function() {
+					var Klass = BaseModel.extend({
+						prototype: {
+							serializeOptions: { format: "json", changedAttributesOnly: true, rootElement: "klass" },
+							validAttributes: ["name", "description"]
+						}
+					});
+					var model = new Klass({name: "Testing", description: "foo", id: 123});
+					var expected = '{"klass":{"name":"Test Changed","id":123}}';
+					model.name = "Test Changed";
 					var actual = model.serialize();
 
 					expect(actual).toEqual(expected);
