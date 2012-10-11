@@ -6,7 +6,23 @@ describe("BaseModel", function() {
 
 		describe("mergeOptions", function() {
 
-			xit("should be tested");
+			it("performs a shallow merge of one argument into the next", function() {
+				var model = new BaseModel();
+				var a = {
+					format: "queryString",
+					foo: {bar: 1}
+				};
+				var b = {
+					rootElement: "test",
+					foo: {bar: 2}
+				};
+				var c = model.mergeOptions(a, b);
+
+				expect(c.format).toEqual("queryString");
+				expect(c.rootElement).toEqual("test");
+				expect(c.foo).toStrictlyEqual(b.foo);
+				expect(c.foo.bar).toEqual(b.foo.bar);
+			});
 
 		});
 
