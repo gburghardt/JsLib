@@ -49,7 +49,7 @@ BaseModel.Persistence.LocalStorage = {
 
 	prototype: {
 
-		localStorageKey: "base_model.:id",
+		localStorageOptions: {key: "base_model.:id"},
 
 		createLocalStorageKey: function(x) {
 			if (!x) {

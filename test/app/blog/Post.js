@@ -1,6 +1,8 @@
 blog.Post = BaseModel.extend({
 	prototype: {
-		baseUrl: "/test/app/blog/post.php",
+		serializeOptions: {rootElement: "post"},
+		restClientOptions: {rootElement: "post", baseUrl: "/test/app/blog/post.php"},
+		localStorageKey: "blog.post.:id",
 		validAttributes: ["title", "body", "publish_date", "blog_id"],
 		requires: ["title"],
 		validatesFormatOf: {

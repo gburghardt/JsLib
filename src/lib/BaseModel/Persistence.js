@@ -1,9 +1,8 @@
 BaseModel.Persistence = {
 
 	included: function(Klass) {
-		Klass.persistence = {
-			types: []
-		};
+		Klass.persistence = {types: []};
+		Klass.prototype.persistence = {};
 		Klass = null;
 	},
 

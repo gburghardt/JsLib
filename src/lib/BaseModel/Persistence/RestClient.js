@@ -2,31 +2,56 @@ BaseModel.Persistence.RestClient = {
 
 	included: function(Klass) {
 		Klass.persistence.types.push("restClient");
+		Klass = null;
+	},
+
+	callbacks: {
+		initialize: function(attributes) {
+			var defaultOptions = BaseModel.Persistence.RestClient.prototype.restClientOptions;
+			var options = {};
+
+			if (this.restClientOptions !== defaultOptions) {
+				this.restClientOptions = options.merge(defaultOptions, this.restClientOptions);
+			}
+			else {
+				this.restClientOptions = options.merge(defaultOptions);
+			}
+
+			options = defaultOptions = attributes = null;
+		}
 	},
 
 	prototype: {
-		attributeRoot: "",
-		baseUrl: null,
-		createMethod: "POST",
-		createUrl: ":baseUrl",
-		destroyMethod: "DELETE",
-		destroyUrl: ":baseUrl/:id",
-		showMethod: "GET",
-		showUrl: ":baseUrl/:id",
-		updateMethod: "PUT",
-		updateUrl: ":baseUrl/:id",
 
-		authorizationRequiredError: "You must be logged in to complete this operation.",
-		generalError: "An error occurred, please try again.",
+		restClientOptions: {
+			authorizationRequiredError: "You must be logged in to complete this operation.",
+			baseUrl: null,
+			create: "POST :baseUrl",
+			destroy: "DELETE :baseUrl/:id",
+			show: "GET :baseUrl/:id",
+			update: "PUT :baseUrl/:id",
+			generalError: "An error occurred, please try again.",
+			rootElement: null
+		},
 
 		createRequest: function() {
 			return new XMLHttpRequest();
 		},
 
-		createRestClientUrl: function(url, data) {
-			return url.replace(/:(\w+)/g, function(match, key) {
+		createRestClientUri: function(type, data) {
+			var uri, method, path, uriString = this.restClientOptions[type];
+
+			uriString = uriString.replace(/:baseUrl/, this.restClientOptions.baseUrl);
+			uriString = uriString.replace(/:(\w+)/g, function(match, key) {
 				return data[key];
 			});
+
+			uri = uriString.split(" ");
+			method = uri[0];
+			path = uri[1];
+			data = null;
+
+			return {method: method, path: path};
 		},
 
 		getErrorsFromResponse: function(xhr) {
@@ -43,31 +68,17 @@ BaseModel.Persistence.RestClient = {
 		},
 
 		saveToRestClient: function(context, callbacks) {
-			var method, url;
+			var uri = this.createRestClientUri((this.persisted) ? "update" : "create", this.attributes);
 
-			if (this.persisted) {
-				method = this.updateMethod;
-				url = this.createRestClientUrl(this.updateUrl, {
-					baseUrl: this.baseUrl,
-					id: this.getPrimaryKey()
-				});
-			}
-			else {
-				method = this.createMethod;
-				url = this.createRestClientUrl(this.createUrl, {
-					baseUrl: this.baseUrl
-				});
-			}
-
-			this.sendRequest(method, url, this, {
+			this.sendRequest(uri.method, uri.path, this, {
 				created: function(xhr) {
 					var attributes = JSON.parse(xhr.responseText);
-					this.attributes = (this.attributeRoot) ? attributes[this.attributeRoot] : attributes;
+					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
 					callbacks.saved.call(context);
 				},
 				updated: function(xhr) {
 					var attributes = JSON.parse(xhr.responseText);
-					this.attributes = (this.attributeRoot) ? attributes[this.attributeRoot] : attributes;
+					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
 					callbacks.saved.call(context);
 				},
 				invalid: function(xhr) {

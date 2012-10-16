@@ -3,13 +3,13 @@ header('Content-type: text/json; charset=utf-8');
 $request_method = $_SERVER['REQUEST_METHOD'];
 
 if ($request_method == 'PUT') {
-	$_POST['id'] = time();
+	$_POST['post']['id'] = time();
 	header('HTTP/1.1 200 OK');
 	echo json_encode($_POST);
 }
 else if ($request_method == 'POST') {
 	header('HTTP/1.1 201 Created');
-	$_POST['id'] = time();
+	$_POST['post']['id'] = time();
 	echo json_encode($_POST);
 }
 else if ($request_method == 'GET') {
@@ -19,10 +19,12 @@ else if ($request_method == 'GET') {
 	else {
 		header("HTTP/1.1 200 OK");
 		$blog_post = array(
-			'id' => $_GET['id'],
-			'title' => 'I came from a database!',
-			'publish_date' => '2012/10/02',
-			'body' => '<p>Yup. I certainly did.</p>'
+			'post' => array(
+				'id' => $_GET['id'],
+				'title' => 'I came from a database!',
+				'publish_date' => '2012/10/02',
+				'body' => '<p>Yup. I certainly did.</p>'
+			)
 		);
 		echo json_encode($blog_post);
 	}
