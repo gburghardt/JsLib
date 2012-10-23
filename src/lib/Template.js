@@ -19,7 +19,7 @@ Template = Object.extend({
 		document: document,
 
 		REGEX_INCLUDE: /#\{\s*include\s+(.+?)\s*\}/g,
-		REGEX_RENDER: /#\{\s*render\s+(.+?)\s+with\s+(.*?)\s*\}/g,
+		REGEX_RENDER: /#\{\s*render\s+(.+?)(\s+with\s+(.*?)\s*)?\}/g,
 
 		templates: {},
 
@@ -142,12 +142,13 @@ Template = Object.extend({
 		render: function(data) {
 			var key, source = this.source, regexRender = Template.REGEX_RENDER, regexInclude = Template.REGEX_INCLUDE;
 
-			var renderReplacer = function(tag, templateName, dataKey) {
-				if (data[ dataKey ] instanceof Array) {
-					var buffer = [], i = 0, length = data[ dataKey ].length, template = Template.find(templateName), str;
+			var renderReplacer = function(tag, templateName, withClause, dataKey) {
+				var renderData = (!dataKey) ? data : data[ dataKey ];
+				if (renderData instanceof Array) {
+					var buffer = [], i = 0, length = renderData.length, template = Template.find(templateName), str;
 					
 					for (i; i < length; i++) {
-						buffer.push(template.render(data[dataKey][i]));
+						buffer.push( template.render( renderData[i] ) );
 					}
 
 					str = buffer.join("");
@@ -157,7 +158,7 @@ Template = Object.extend({
 					return str;
 				}
 				else {
-					return Template.find(templateName).render( data[ dataKey ] );
+					return Template.find(templateName).render( renderData );
 				}
 			};
 

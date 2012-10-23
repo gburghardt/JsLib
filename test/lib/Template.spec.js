@@ -13,8 +13,9 @@ describe("Template", function() {
 		});
 
 		it("returns null when no template source exists in the document", function() {
-			var template = Template.find("test/non_existent");
-			expect(template).toBeNull();
+			expect(function() {
+				Template.find("test/non_existent")
+			}).toThrowError();
 		});
 
 		it("returns an existing template instance", function() {
@@ -67,14 +68,14 @@ describe("Template", function() {
 			var source;
 
 			source = '#{include foo}';
-			source.replace(Template.prototype.REGEX_INCLUDE, function(tag, templateName) {
+			source.replace(Template.REGEX_INCLUDE, function(tag, templateName) {
 				expect(tag).toEqual('#{include foo}');
 				expect(templateName).toEqual('foo');
 				return "";
 			});
 
 			source = '#{include foo/bar}';
-			source.replace(Template.prototype.REGEX_INCLUDE, function(tag, templateName) {
+			source.replace(Template.REGEX_INCLUDE, function(tag, templateName) {
 				expect(tag).toEqual("#{include foo/bar}");
 				expect(templateName).toEqual("foo/bar");
 				return "";
@@ -82,7 +83,7 @@ describe("Template", function() {
 		});
 
 		it("should match regardless of white space", function() {
-			'#{ include   foo/bar }'.replace(Template.prototype.REGEX_INCLUDE, function(tag, templateName) {
+			'#{ include   foo/bar }'.replace(Template.REGEX_INCLUDE, function(tag, templateName) {
 				expect(tag).toEqual('#{ include   foo/bar }');
 				expect(templateName).toEqual("foo/bar");
 				return "";
@@ -91,26 +92,39 @@ describe("Template", function() {
 	});
 
 	describe("REGEX_RENDER", function() {
+		it("matches a template name with no data key", function() {
+			"#{render foo}".replace(Template.REGEX_RENDER, function(tag, templateName, withClause, dataKey) {
+				expect(tag).toEqual("#{render foo}");
+				expect(templateName).toEqual("foo");
+				expect(withClause).toEqual("");
+				expect(dataKey).toEqual("");
+				return "";
+			});
+		});
+
 		it("matches a template name and a data key", function() {
-			"#{render foo with bar}".replace(Template.prototype.REGEX_RENDER, function(tag, templateName, dataKey) {
+			"#{render foo with bar}".replace(Template.REGEX_RENDER, function(tag, templateName, withClause, dataKey) {
 				expect(tag).toEqual("#{render foo with bar}");
 				expect(templateName).toEqual("foo");
+				expect(withClause).toEqual(" with bar");
 				expect(dataKey).toEqual("bar");
 				return "";
 			});
 
-			"#{render foo/bar with baz}".replace(Template.prototype.REGEX_RENDER, function(tag, templateName, dataKey) {
+			"#{render foo/bar with baz}".replace(Template.REGEX_RENDER, function(tag, templateName, withClause, dataKey) {
 				expect(tag).toEqual("#{render foo/bar with baz}");
 				expect(templateName).toEqual("foo/bar");
+				expect(withClause).toEqual(" with baz");
 				expect(dataKey).toEqual("baz");
 				return "";
 			});
 		});
 
 		it("matches regardless of white space", function() {
-			"#{  render	foo/bar  	with baz }".replace(Template.prototype.REGEX_RENDER, function(tag, templateName, dataKey) {
+			"#{  render	foo/bar  	with baz }".replace(Template.REGEX_RENDER, function(tag, templateName, withClause, dataKey) {
 				expect(tag).toEqual("#{  render	foo/bar  	with baz }");
 				expect(templateName).toEqual("foo/bar");
+				expect(withClause).toEqual("  	with baz ");
 				expect(dataKey).toEqual("baz");
 				return "";
 			});
@@ -207,6 +221,28 @@ describe("Template", function() {
 		});
 
 		it("renders sub templates with data", function() {
+			var data = {
+				firstName: "John",
+				lastName: "Doe",
+				age: 30
+			};
+			var templateSource = [
+				'<h1>Person</h1>',
+				'#{render test/render/with_data}'
+			].join("");
+			var subTemplateSource = '#{firstName} #{lastName}, age #{age}';
+			var template = new Template("test/render/with_data_test", templateSource);
+			Template.templates["test/render/with_data"] = new Template("test/render/with_data", subTemplateSource);
+			var expectedSource = [
+				'<h1>Person</h1>',
+				'John Doe, age 30'
+			].join("");
+
+			var renderedSource = template.render(data);
+			expect(renderedSource).toEqual(expectedSource);
+		});
+
+		it("renders sub templates with a data key", function() {
 			var data = {
 				name: "Bob",
 				position: {
