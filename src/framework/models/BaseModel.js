@@ -58,6 +58,10 @@ BaseModel = Object.extend({
 			return this.instances[id] || null;
 		},
 
+		getPrimaryKey: function() {
+			return this.prototype.primaryKey;
+		},
+
 		include: function(descriptor) {
 			if (descriptor.callbacks) {
 				this.extendCallbacks(descriptor.callbacks);
