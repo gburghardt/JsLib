@@ -52,6 +52,10 @@ jasmine.Matchers.prototype.toBeInstanceof = function(klass) {
 	return (this.actual instanceof klass) ? true : false;
 };
 
+jasmine.Matchers.prototype.toNotBeInstanceof = function(klass) {
+	return (this.actual instanceof klass) ? false : true;
+};
+
 jasmine.Matchers.prototype.toStrictlyEqual = function(x) {
 	return this.actual === x;
 };
