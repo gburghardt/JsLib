@@ -312,43 +312,67 @@ describe("BaseCollection", function() {
 			this.collection.create({id: id++, name: "C", description: "B", price: 132.79, discount: 0.1});
 		});
 
-		it("returns an instance of Array, not BaseCollection", function() {
+		it("returns an instance of BaseCollection", function() {
 			var results = this.collection.sort("name");
 
 			expect(results).toBeInstanceof(Array);
-			expect(results).toNotBeInstanceof(specs.baseCollection.TestModel);
+			expect(results).toBeInstanceof(BaseCollection);
 		});
 
 		it("sorts by a single column name", function() {
-			var results = this.collection.sort("description");
+			var expectedResults = [
+				this.collection[2].discount,
+				this.collection[0].discount,
+				this.collection[1].discount
+			];
+			var results = this.collection.sort("discount");
+			var i = 0, length = expectedResults.length;
 
-			expect( results[0] ).toEqual( this.collection[1] );
-			expect( results[1] ).toEqual( this.collection[2] );
-			expect( results[2] ).toEqual( this.collection[0] );
+			for (i; i < length; i++) {
+				expect( results[i].discount ).toEqual( expectedResults[i] );
+			}
 		});
 
 		it("sorts by multiple column names", function() {
-			var results = this.collection.sort(["price", "description"]);
+			var expectedResults = [
+				this.collection[0].description,
+				this.collection[2].description,
+				this.collection[1].description
+			];
+			var results = this.collection.sort(["price", "discount"]);
+			var i = 0, length = expectedResults.length;
 
-			expect( results[0] ).toEqual( this.collection[1] );
-			expect( results[1] ).toEqual( this.collection[2] );
-			expect( results[2] ).toEqual( this.collection[0] );
+			for (i; i < length; i++) {
+				expect( results[i].description ).toEqual( expectedResults[i] );
+			}
 		});
 
 		it("sorts ascending", function() {
+			var expectedResults = [
+				this.collection[2].discount,
+				this.collection[0].discount,
+				this.collection[1].discount
+			];
 			var results = this.collection.sort("discount", "asc");
+			var i = 0, length = expectedResults.length;
 
-			expect( results[0] ).toEqual( this.collection[2] );
-			expect( results[1] ).toEqual( this.collection[0] );
-			expect( results[2] ).toEqual( this.collection[1] );
+			for (i; i < length; i++) {
+				expect( results[i].discount ).toEqual( expectedResults[i] );
+			}
 		});
 
 		it("sorts descending", function() {
-			var results = this.collection.sort("discount", "asc");
+			var expectedResults = [
+				this.collection[1].discount,
+				this.collection[0].discount,
+				this.collection[2].discount
+			];
+			var results = this.collection.sort("discount", "desc");
+			var i = 0, length = expectedResults.length;
 
-			expect( results[0] ).toEqual( this.collection[1] );
-			expect( results[1] ).toEqual( this.collection[0] );
-			expect( results[2] ).toEqual( this.collection[2] );
+			for (i; i < length; i++) {
+				expect( results[i].discount ).toEqual( expectedResults[i] );
+			}
 		});
 
 	});

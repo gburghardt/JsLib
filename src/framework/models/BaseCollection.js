@@ -1,4 +1,3 @@
-// TODO: iteration interface (next, prev, rewind)
 BaseCollection = Array.extend({
 
 	prototype: {
@@ -127,7 +126,7 @@ BaseCollection = Array.extend({
 				this.rewind();
 			}
 
-			return model
+			return model;
 		},
 
 		pop: function() {
@@ -167,11 +166,71 @@ BaseCollection = Array.extend({
 		},
 
 		sort: function(columns, direction) {
-			var sorter = function(a, b) {
-				
+			columns = (columns instanceof Array) ? columns : [columns];
+			direction = (direction || "asc").toLowerCase();
+
+			var getPropertyValues = function(a, b) {
+				var i = 0, length = columns.length, values = null, key;
+
+				if (length === 1) {
+					values = [ a[ columns[0] ], b[ columns[0] ] ];
+				}
+				else {
+					for (i; i < length; i++) {
+						key = columns[i];
+
+						if (a[key] !== b[key]) {
+							values = [ a[key], b[key] ];
+							break;
+						}
+					}
+
+					if (!values) {
+						values = [ a[ columns[0] ], b[columns[0] ] ];
+					}
+				}
+
+				a = b = null;
+
+				return values;
 			};
 
-			return Array.prototype.sort.call(this, sorter);
+			var ascendingSorter = function(a, b) {
+				var values = getPropertyValues(a, b);
+
+				a = b = null;
+
+				if (values[0] > values[1]) {
+					return 1;
+				}
+				else if (values[0] < values[1]) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			};
+
+			var descendingSorter = function(a, b) {
+				var values = getPropertyValues(a, b);
+
+				a = b = null;
+
+				if (values[0] < values[1]) {
+					return 1;
+				}
+				else if (values[0] > values[1]) {
+					return -1;
+				}
+				else {
+					return 0;
+				}
+			};
+
+			var sorter = (direction === "asc") ? ascendingSorter : descendingSorter;
+
+			Array.prototype.sort.call(this, sorter);
+			return this;
 		}
 
 	}
