@@ -63,3 +63,28 @@ jasmine.Matchers.prototype.toStrictlyEqual = function(x) {
 jasmine.Matchers.prototype.toStrictlyNotEqual = function(x) {
 	return this.actual !== x;
 };
+
+jasmine.Matchers.prototype.toBeEmptyArray = function() {
+	return this.actual.length === 0;
+};
+
+jasmine.Matchers.prototype.toBeEmptyObject = function() {
+	var empty = true;
+
+	for (var key in this.actual) {
+		if (this.actual.hasOwnProperty(key)) {
+			empty = false;
+			break;
+		}
+	}
+
+	return empty;
+};
+
+jasmine.Matchers.prototype.toHaveProperty = function(x) {
+	return this.actual.hasOwnProperty(x);
+};
+
+jasmine.Matchers.prototype.toNotHaveProperty = function(x) {
+	return !this.actual.hasOwnProperty(x);
+};
