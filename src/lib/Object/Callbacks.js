@@ -4,8 +4,6 @@ Object.Callbacks = {
 
 		callbacks: null,
 
-		compiledCallbacks: null,
-
 		initCallbacks: function() {
 			if (this.__proto__.hasOwnProperty("compiledCallbacks")) {
 				return;
@@ -22,8 +20,11 @@ Object.Callbacks = {
 							compiledCallbacks[name] = compiledCallbacks[name] || [];
 							callbacks[name] = callbacks[name] instanceof Array ? callbacks[name] : [ callbacks[name] ];
 
-							for (i = 0, length = callbacks[name].length; i < length; i++) {
-								compiledCallbacks[name].push( callbacks[name][i] );
+							// To keep callbacks executing in the order they were defined in the classes,
+							// we loop backwards and place the new callbacks at the top of the array.
+							i = callbacks[name].length;
+							while (i--) {
+								compiledCallbacks[name].unshift( callbacks[name][i] );
 							}
 						}
 					}
