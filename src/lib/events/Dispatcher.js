@@ -34,13 +34,8 @@ events.Dispatcher = Object.extend({
 			}
 		},
 
-		publish: function(type, publisher, data) {
-			if (!this.subscribers[type]) {
-				return false;
-			}
-
-			var event = new events.Event(type, publisher, data);
-			var subscribers = this.subscribers[type], i = 0, length = subscribers.length, subscriber;
+		dispatchEvent: function(event, subscribers) {
+			var i = 0, length = subscribers.length, subscriber;
 
 			for (i; i < length; i++) {
 				if (event.cancelled) {
@@ -53,20 +48,35 @@ events.Dispatcher = Object.extend({
 					subscriber.instance[ subscriber.method ](event, event.data);
 				}
 				catch (error) {
-					if (events.Dispatcher.logger) {
-						events.Dispatcher.logger.error("events.Dispatcher#publish - An error was thrown while publishing event " + type);
-						events.Dispatcher.logger.error(error);
+					if (this.constructor.logger) {
+						this.constructor.logger.error("events.Dispatcher#publish - An error was thrown while publishing event " + event.type);
+						this.constructor.logger.error(error);
 					}
 					else {
-						event = publisher = data = subscribers = null;
+						event = subscribers = subscriber = null;
 						throw error;
 					}
 				}
 			}
 
+			event = subscribers = subscriber = null;
+		},
+
+		publish: function(type, publisher, data) {
+			if (!this.subscribers[type]) {
+				return false;
+			}
+
+			var event = new events.Event(type, publisher, data);
+			var subscribers = this.subscribers[type];
+			var cancelled = false;
+
+			this.dispatchEvent(event, subscribers);
+			cancelled = event.cancelled;
+
 			event = publisher = data = subscribers = null;
 
-			return true;
+			return !cancelled;
 		},
 
 		subscribe: function(type, instance, method) {
