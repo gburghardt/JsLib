@@ -47,9 +47,36 @@ BaseModel.Persistence.LocalStorage = {
 
 	},
 
+  callbacks: {
+    initialize: function(attributes) {
+      if (!this.localStorageOptions.frozen) {
+        var options = {frozen: true}, proto = this, protos = [], i, length;
+
+        // climb the prototype chain merging in local storage options
+        while (proto && proto != Object.prototype) {
+          if (proto.hasOwnProperty("localStorageOptions")) {
+            protos.unshift(proto)
+          }
+
+          proto = proto.__proto__;
+        }
+
+        for (i = 0, length = protos.length; i < length; i++) {
+          options.merge(protos[i].localStorageOptions);
+        }
+
+        this.localStorageOptions = options;
+
+        proto = protos = options = null;
+      }
+
+      attributes = null;
+    }
+  },
+
 	prototype: {
 
-		localStorageOptions: {key: "base_model.:id"},
+		localStorageOptions: {table: "base_model", key: ":table.:id"},
 
 		createLocalStorageKey: function(x) {
 			if (!x) {
@@ -57,10 +84,21 @@ BaseModel.Persistence.LocalStorage = {
 				x[this.primaryKey] = this.getPrimaryKey();
 			}
 
-			return this.localStorageKey.replace(/:(\w+)/g, function(match, key) {
-				return x[key];
+			return this.localStorageOptions.key.replace(/:table/g, this.localStorageOptions.table).replace(/:(\w+)/g, function(match, key) {
+        var value = x[key];
+
+        if (value === null || value === undefined) {
+          throw new Error("Value at " + key + " cannot be null or undefined");
+        }
+        else {
+  				return x[key];
+        }
 			});
 		},
+
+    createNewPrimaryKey: function() {
+      return new Date().getTime() + "" + Math.round(Math.random() * 10000000000000000);
+    },
 
 		destroyFromLocalStorage: function(context, callbacks) {
 			if (!this.getPrimaryKey()) {
@@ -86,7 +124,7 @@ BaseModel.Persistence.LocalStorage = {
 			var key;
 
 			if (!this.getPrimaryKey()) {
-				this[ this.primaryKey ] = this.guid;
+				this[ this.primaryKey ] = this.createNewPrimaryKey();
 			}
 
 			key = this.createLocalStorageKey(this);

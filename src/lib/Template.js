@@ -170,7 +170,7 @@ Template = Object.extend({
 				var regex = new RegExp("#\\{\\s*" + key.replace(/\./g, "\\\.", "g") + "\\s*\\}", "g");
 
 				// replace #{foo} tags with value at data[foo]
-				source = source.replace(regex, data[key]);
+				source = source.replace(regex, data[key] || "");
 
 				// replace #{render with foo} tags by rendering data[foo]
 				if (source.match(regexRender)) {

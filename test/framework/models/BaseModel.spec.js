@@ -226,7 +226,6 @@ describe("BaseModel", function() {
 				expect(o.id).toEqual(123);
 				expect(o.firstName).toBeNull();
 				expect(o.lastName).toBeNull();
-
 			});
 		});
 
@@ -259,6 +258,12 @@ describe("BaseModel", function() {
 			expect(o.newRecord).toBeTrue();
 			o.attributes = {id: 1234};
 			expect(o.newRecord).toBeFalse();
+		});
+	});
+
+	describe("mergePropertyChain", function() {
+		it("does not require arguments", function() {
+			
 		});
 	});
 

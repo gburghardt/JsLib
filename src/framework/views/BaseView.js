@@ -46,7 +46,7 @@ BaseView = Object.extend({
 		},
 
 		getInstance: function(rootNode, delegate, templateName) {
-			var className = templateName.replace(/\//g, "-").toClassName();
+			var className = (templateName.replace(/\//g, "-") + "_view").toClassName();
 			var ViewClass = className.constantize();
 			var view;
 

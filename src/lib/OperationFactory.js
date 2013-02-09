@@ -9,10 +9,11 @@ OperationFactory = Object.extend({
 		},
 
 		getOperation: function(name) {
-			var Klass = null;
+			var Klass = null, KlassName;
 			
 			try {
-				Klass = (name + "Operation").constantize();
+        KlassName = (name + "_operation").toClassName();
+				Klass = KlassName.constantize();
 			}
 			catch (e) {
 				Klass = null;

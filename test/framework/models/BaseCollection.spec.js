@@ -115,8 +115,8 @@ describe("BaseCollection", function() {
 
 		beforeEach(function() {
 			this.collection = new BaseCollection("specs.baseCollection.TestModel");
-			this.collection.create({id: id++, name: "Test A"});
-			this.collection.create({id: id++, name: "Test B"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test A"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test B"});
 		});
 
 		it("iterates over the collection passing the item and index", function() {
@@ -151,9 +151,9 @@ describe("BaseCollection", function() {
 
 		beforeEach(function() {
 			this.collection = new BaseCollection("specs.baseCollection.TestModel");
-			this.collection.create({id: id++, name: "Test A"});
-			this.collection.create({id: id++, name: "Test B"});
-			this.collection.create({id: id++, name: "Test C"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test A"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test B"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test C"});
 		});
 
 		it("returns the next item in the collection and returns null after the last item has been returned", function() {
@@ -214,9 +214,9 @@ describe("BaseCollection", function() {
 
 		beforeEach(function() {
 			this.collection = new BaseCollection("specs.baseCollection.TestModel");
-			this.collection.create({id: id++, name: "Test A"});
-			this.collection.create({id: id++, name: "Test B"});
-			this.collection.create({id: id++, name: "Test C"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test A"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test B"});
+			this.collection.create({id: specs.baseCollection.id++, name: "Test C"});
 		});
 
 		it("returns null if on the first item", function() {
@@ -307,9 +307,9 @@ describe("BaseCollection", function() {
 
 		beforeEach(function() {
 			this.collection = new BaseCollection("specs.baseCollection.TestModel");
-			this.collection.create({id: id++, name: "A", description: "C", price: 13.00, discount: 0.25});
-			this.collection.create({id: id++, name: "B", description: "A", price: 132.79, discount: 0.35});
-			this.collection.create({id: id++, name: "C", description: "B", price: 132.79, discount: 0.1});
+			this.collection.create({id: specs.baseCollection.id++, name: "A", description: "C", price: 13.00, discount: 0.25});
+			this.collection.create({id: specs.baseCollection.id++, name: "B", description: "A", price: 132.79, discount: 0.35});
+			this.collection.create({id: specs.baseCollection.id++, name: "C", description: "B", price: 132.79, discount: 0.1});
 		});
 
 		it("returns an instance of BaseCollection", function() {
@@ -382,6 +382,8 @@ describe("BaseCollection", function() {
 window.specs = window.specs || {};
 
 window.specs.baseCollection = {
+	id: new Date().getTime(),
+
 	TestModel: BaseModel.extend({
 		prototype: {
 			validAttributes: [

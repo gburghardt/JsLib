@@ -26,12 +26,18 @@ if (!String.prototype.singularize) {
 }
 
 String.prototype.constantize = function() {
+  var value;
+
 	if ( this.match( /^[a-zA-Z][-_.a-zA-Z0-9]*$/ ) ) {
-		return eval( this.toString() );
+    try {
+  		value = eval( this.toString() );
+    }
+    catch (error) {
+      
+    }
 	}
-	else {
-		throw new Error( "Cannot convert '" + this + "' into a class or variable reference." );
-	}
+
+  return value || null;
 };
 
 String.prototype.toClassName = function() {

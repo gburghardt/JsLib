@@ -2,12 +2,10 @@ BaseModel.TemplateDataKeys = {
 	prototype: {
 		getTemplateKeys: function() {
 			if (!this._templateKeys) {
-				var keys = [], key, attrs = this.attributes;
+				var keys = [], i = 0, length = this.validAttributes.length;
 
-				for (key in attrs) {
-					if (attrs.hasOwnProperty(key)) {
-						keys.push(key);
-					}
+				for (i; i < length; i++) {
+					keys.push(this.validAttributes[i]);
 				}
 
 				// No need to capture a return value because module callbacks push items

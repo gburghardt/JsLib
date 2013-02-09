@@ -12,15 +12,25 @@
 			<section>
 				<nav>
 					<ul>
-						<li><button type="button" data-action-click="init" data-actionParams-click='{"blog_id": 1}' data-operation="blog-create_post" data-operation-container="layout-main">Create Blog Post</button></li>
+						<li><button type="button" data-action-click="init" data-operation="blog-create_blog" data-operation-container="layout-main">New Blog</button></li>
+					</ul>
+				</nav>
+				<ol class="blogs" data-action-domload="init" data-operation="blog-blogs_list"></ol>
+			</section>
+			<!-- section>
+				<nav>
+					<ul>
+						<li><button type="button" data-action-click="init" data-actionParams-click='{"blog_id": 1}' data-operation="blog-create_post" data-operation-container="layout-main">New Post</button></li>
 					</ul>
 				</nav>
 				<ol class="blog-posts" data-action-domload="init" data-actionParams-domload='{"blog_id": 1}' data-operation="blog-posts_list"></ol>
-			</section>
+			</section -->
 		</div>
 		<div class="layout-container layout-secondary" data-layout-role="container" id="layout-secondary"></div>
 		<div class="layout-container layout-main" data-layout-role="container" id="layout-main"></div>
 		<script type="text/html" data-template-name="blog/posts/form" data-src="./blog/posts/form.html"></script>
+		<script type="text/html" data-template-name="blog/create" data-src="./blog/create.html"></script>
+		<script type="text/html" data-template-name="blog/form" data-src="./blog/form.html"></script>
 		<script type="text/html" data-template-name="blog/posts/index" data-src="./blog/index.html"></script>
 		<script type="text/html" data-template-name="blog/post/header" data-src="./blog/posts/header.html"></script>
 		<script type="text/javascript" src="/src/lib/patches/Object.js"></script>
@@ -53,8 +63,11 @@
 		<script type="text/javascript" src="/src/framework/operations/InitOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/operations/SubOperation.js"></script>
 		<script type="text/javascript" src="/src/framework/application/Application.js"></script>
+		<script type="text/javascript" src="./blog/CreateBlogOperation.js"></script>
 		<script type="text/javascript" src="./blog/CreatePostOperation.js"></script>
+		<script type="text/javascript" src="./blog/BlogsListOperation.js"></script>
 		<script type="text/javascript" src="./blog/PostsListOperation.js"></script>
+		<script type="text/javascript" src="./blog/Blog.js"></script>
 		<script type="text/javascript" src="./blog/Post.js"></script>
 		<script type="text/javascript" src="./blog/Posts.js"></script>
 		<script type="text/javascript">

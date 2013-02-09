@@ -22,7 +22,7 @@ BaseOperation = Object.extend({
 
 			if (this.childOperations) {
 				for (name in this.childOperations) {
-					if (this.childOperations.hasOwnProperty(name)) {
+					if (this.childOperations.hasOwnProperty(name) && this.childOperations[name]) {
 						this.childOperations[name].destructor();
 						this.childOperations[name] = null;
 					}

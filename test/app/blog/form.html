@@ -1,0 +1,14 @@
+<div class="form-errors" style="display: none;"></div>
+<p>
+	<label>Title: <input type="text" size="60" name="title" id="blog-title" value="#{title}"></label>
+</p>
+<p>
+	<label>Author: <input type="text" size="60" name="author" id="blog-author" value="#{author}"></label>
+</p>
+<p>
+	<button type="button" data-action-click="cancel">Cancel</button>
+	<button type="submit">Create</button>
+	<input type="hidden" name="id" value="#{id}" id="blog-id">
+	<input type="hidden" name="created_at" value="#{created_at}" id="blog-created_at">
+	<input type="hidden" name="updated_at" value="#{updated_at}" id="blog-updated_at">
+</p>

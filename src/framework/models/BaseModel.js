@@ -229,6 +229,29 @@ BaseModel = Object.extend({
 			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 		},
 
+		mergePropertyChain: function(key, defaults) {
+			defaults = defaults || {};
+      var proto = this, properties = [], i, length;
+
+      // climb the prototype chain and get references to all properties in reverse order
+      while (proto && proto != Object.prototype) {
+        if (proto.hasOwnProperty(key)) {
+          properties.unshift(proto[key])
+        }
+
+        proto = proto.__proto__;
+      }
+
+			// merge properties together with defaults
+      for (i = 0, length = properties.length; i < length; i++) {
+        defaults.merge(properties[i]);
+      }
+
+      this[key] = defaults;
+
+      proto = protos = options = null;
+		},
+
 		setAttribute: function(key, value) {
 			if (this.isValidAttributeKey(key) && value !== this._attributes[key] && this._attributes[key] !== undefined) {
 				this._changedAttributes[key] = this._attributes[key];
