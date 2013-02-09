@@ -11,6 +11,7 @@ dom.events.Delegator = function() {
 		this.setActionPrefix(actionPrefix || "");
 		this.eventTypes = [];
 		this.eventTypesAdded = {};
+		this.eventActionMapping = null;
 	};
 
 	this.destructor = function() {
@@ -74,6 +75,28 @@ dom.events.Delegator = function() {
 		this.actionRegex = new RegExp("^" + this.actionPrefix.replace(/\./g, '\\.'));
 	};
 
+	this.setEventActionMapping = function(mapping) {
+		var actionName;
+
+		if (this.eventActionMapping) {
+			for (actionName in this.eventActionMapping) {
+				if (this.eventActionMapping.hasOwnProperty(actionName)) {
+					this.removeEventType( this.eventActionMapping[actionName] );
+				}
+			}
+		}
+
+		this.eventActionMapping = mapping;
+
+		for (actionName in this.eventActionMapping) {
+			if (this.eventActionMapping.hasOwnProperty(actionName)) {
+				this.addEventType( this.eventActionMapping[actionName] );
+			}
+		}
+
+		mapping = null;
+	};
+
 	this.triggerEvent = function(type) {
 		var event = getDocument().createEvent("CustomEvent");
 		event.initCustomEvent(type, true, false, null);
@@ -112,48 +135,74 @@ dom.events.Delegator = function() {
 		this.propagationStopped = true;
 	}
 
-	function handleEvent(event) {
+	function patchEvent(event) {
 		if (!event._stopPropagation) {
 			event._stopPropagation = event.stopPropagation;
 			event.stopPropagation = stopPropagationPatch;
 			event.propagationStopped = false;
+			event.stop = function() {
+				this.preventDefault();
+				this.stopPropagation();
+			};
 		}
 
+		return event;
+	}
+
+	function handleEvent(event) {
+		event = patchEvent(event);
+
 		if (!event.actionTarget) {
+			// This event has not been delegated yet. Start the delegation at the target
+			// element for the event. Note that event.target !== self.node. The
+			// event.target object is the element that got clicked, for instance.
 			event.actionTarget = event.target;
 		}
 
-		var action = null, actionName = null, method, params;
+		// The default method to call on the delegate is "handleAction". This will only
+		// get called if the delegate has defined a "handleAction" method.
+		var action = null, actionName = null, method = "handleAction", params;
+
+		// Try inferring the action from the data-action attribute specific to this event...
+		actionName = event.actionTarget.getAttribute("data-action-" + event.type);
 		
-		if (event.actionTarget.getAttribute) {
-			// DOM node
-			actionName = event.actionTarget.getAttribute("data-action-" + event.type) ||
-							     event.actionTarget.getAttribute("data-action");
-		}
-		else if (event.actionTarget.documentURI) {
-			// document object
-			actionName = event.actionTarget["data-action-" + event.type] ||
-							     event.actionTarget["data-action"];
+		if (!actionName) {
+			// No event specifc data-action attribute was found. Try the generic one...
+			actionName = event.actionTarget.getAttribute("data-action");
+
+			if (actionName && self.eventActionMapping && self.eventActionMapping[ actionName ] !== event.type) {
+				// An action-to-event mapping was found, but not for this action + event combo. Do nothing.
+				// For instance, the action is "foo", and the event is "click", but eventActionMapping.foo
+				// is either undefined or maps to a different event type.
+				actionName = null;
+			}
 		}
 
 		if (actionName) {
+			// We found an action, so set that as the method name to call on the delegate object.
+			// FIXME: if the action prefix doesn't match, the method gets fired anyhow
 			actionName = actionName.replace(self.actionRegex, "");
-			method = self.delegate[actionName] ? actionName : "handleAction";
+			method = actionName;
 		}
 
 		if (self.delegate[method]) {
+			// The method exists on the delegate object. Try calling it...
 			try {
 				params = getActionParams(event.actionTarget, event.type);
 				self.delegate[method](event, event.actionTarget, params, actionName);
 			}
 			catch (error) {
+				// The delegate method threw an error. Try to recover gracefully...
 				event.preventDefault();
 				event.stopPropagation();
 
 				if (self.delegate.handleActionError) {
+					// The delegate has a generic error handler, call that, passing in the error object.
 					self.delegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
 				}
 				else if (self.constructor.errorDelegate) {
+					// A master error delegate was found (for instance, and application object). Call "handleActionError"
+					// so this one object can try handling errors gracefully.
 					self.constructor.errorDelegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
 				}
 				else {
@@ -164,6 +213,8 @@ dom.events.Delegator = function() {
 		}
 
 		if (!event.propagationStopped && event.actionTarget !== self.node && event.actionTarget.parentNode) {
+			// The delegate has not explicitly stopped the event, so keep looking for more data-action
+			// attributes on the next element up in the document tree.
 			event.actionTarget = event.actionTarget.parentNode;
 			handleEvent(event);
 		}
