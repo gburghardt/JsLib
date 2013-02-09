@@ -88,10 +88,6 @@ BaseModule = Object.extend({
 			this.__proto__.delegatorEventActionMapping = mapping;
 
 			mapping = actions = null;
-		},
-
-		setUpCallbacks: function() {
-			// Child classes may override this to do something special with adding callbacks.
 		}
 
 	}
