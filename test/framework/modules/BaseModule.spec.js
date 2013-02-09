@@ -167,7 +167,7 @@ describe("BaseModule", function() {
 
 			expect(module.notify).wasCalledWith("afterInit", module);
 			expect(module.foo).wasCalledWith(module);
-			expect(module.bar).wasCallWith(module);
+			expect(module.bar).wasCalledWith(module);
 			expect(callOrder.join(",")).toEqual("foo,bar");
 		});
 
