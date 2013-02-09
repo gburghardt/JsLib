@@ -94,9 +94,13 @@ dom.events.Delegator = function() {
 	this.delegate = null;
 
 	function getActionParams(element, eventType) {
-		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) || element.getAttribute("data-actionParams");
+		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) ||
+		                 element.getAttribute("data-actionParams") ||
+										 "{}";
+
 		element = null;
-		return (paramsAttr) ? JSON.parse(paramsAttr) : {};
+
+		return JSON.parse(paramsAttr);
 	}
 
 	function getDocument() {
@@ -140,19 +144,17 @@ dom.events.Delegator = function() {
 		if (self.delegate[method]) {
 			try {
 				params = getActionParams(event.actionTarget, event.type);
-				action = new dom.events.Action(event, event.actionTarget, params, actionName);
-				self.delegate[method](action);
+				self.delegate[method](event, event.actionTarget, params, actionName);
 			}
 			catch (error) {
 				event.preventDefault();
 				event.stopPropagation();
 
 				if (self.delegate.handleActionError) {
-					action = new dom.events.Action(event, event.actionTarget, {error: error}, actionName);
-					self.delegate.handleActionError(action);
+					self.delegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
 				}
 				else if (self.constructor.errorDelegate) {
-					self.constructor.errorDelegate.handleActionError(action);
+					self.constructor.errorDelegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
 				}
 				else {
 					// Give up. Throw the error and let the developer fix this.
