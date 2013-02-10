@@ -72,11 +72,14 @@ Application = Object.extend({
 		},
 
 		createModules: function(event, element, params) {
-			console.info("Application#createModules - called");
-			// console.dir({event: event, element: element, params: params});
-			// var elements = element.querySelectorAll("[data-action-domready=createModule]");
-			// console.info("Application#createModules - elements");
-			// console.dir(elements);
+			var elements = element.getElementsByTagName("*");
+			var i = 0, length = elements.length;
+
+			for (i; i < length; i++) {
+				if (elements[i].getAttribute("data-action-domready") === "createModule") {
+					this.moduleFactory.createModules(elements[i]);
+				}
+			}
 		},
 
 		createModule: function(event, element, params) {
