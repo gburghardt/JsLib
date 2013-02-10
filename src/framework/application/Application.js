@@ -1,15 +1,8 @@
 /*
 
-Operation tree:
-
-	init
-	- load widgets
-		- respond to user events
-	- teardown
-
 Sample Use:
 
-	var app = new Application(new OperationFactory(), new events.Dispatcher());
+	var app = new Application();
 
 	jQuery(function() {
 		app.init();
@@ -25,44 +18,44 @@ Application = Object.extend({
 
 	prototype: {
 
-		bootOperation: null,
-
 		config: null,
 
 		delegator: null,
 
 		document: null,
 
+		element: null,
+
 		eventDispatcher: null,
 
-		operationFactory: null,
+		moduleFactory: null,
 
 		window: null,
 
 		initialize: function() {
 			this.config = {
-				"bootOperation.name": "boot",
 				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domload"]
 			};
+
+			this.eventDispatcher = new events.Dispatcher();
+			this.moduleFactory = new ModuleFactory(this.eventDispatcher);
 		},
 
-		init: function() {
+		init: function(element) {
+			this.element = element;
+			this.document = element.ownerDocument;
 			this.window.onerror = this.handleError.bind(this);
-			this.operationFactory.setEventDispatcher(this.eventDispatcher);
-			this.bootOperation = this.operationFactory.getOperation(this.config["bootOperation.name"]);
-			this.bootOperation.setApplication(this);
-			this.bootOperation.setEventDispatcher(this.eventDispatcher);
-			this.bootOperation.setDelegator(this.delegator);
-			this.bootOperation.call(null);
+			this.delegator = new dom.events.Delegator(this, element);
+			this.delegator.addEventTypes( this.config["delegator.eventTypes"] );
 			this.delegator.triggerEvent("domload");
+			element = null;
 		},
 
 		destructor: function() {
 			this.delegator.destructor();
-			this.bootOperation.destructor();
 			this.eventDispatcher.destructor();
-			this.operationFactory.destructor();
-			this.window.onerror = this.window = this.document = this.delegator = this.bootOperation = this.operationFactory = this.eventDispatcher = null;
+			this.moduleFactory.destructor();
+			this.window.onerror = this.window = this.document = this.element = this.delegator = this.moduleFactory = this.eventDispatcher = null;
 		},
 
 		configure: function(config) {
@@ -94,15 +87,6 @@ Application = Object.extend({
 			if (info.type === "AccessDeniedError") {
 				this.handleAccessDeniedError(info);
 				return true;
-			}
-		},
-
-		handleAccessDeniedError: function(info) {
-			if (info.message) {
-				console.warn(info.message);
-			}
-			else {
-				console.warn("Access denied!");
 			}
 		}
 
