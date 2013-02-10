@@ -13,12 +13,27 @@
 	<nav>
 		<ul>
 			<li><button data-action-click="createModule"
-			            data-actionparams='{"containerSelector": "#main"}'
 			            data-module="products.CreateModule"
+			            data-module-info='{"container": "#main", "element": "div"}'
 			>Create Product</button></li>
 		</ul>
 	</nav>
-	<section id="main"></section>
+	<section id="main">
+		<form method="get" action="#" data-action-domready="createModule" data-module="LoginModule" data-action="submit">
+			<p>
+				<label for="login-username">Username:</label>
+				<input type="text" size="30" name="username" id="login-username">
+			</p>
+			<p>
+				<label for="login-password">Password:</label>
+				<input type="password" size="30" name="password" id="login-password">
+			</p>
+			<p>
+				<button type="reset">Cancel</button>
+				<button type="submit">Login</button>
+			</p>
+		</form>
+	</section>
 
 	<!-- client side templates -->
 	<script type="text/html" data-template-name="products/create_view" data-src="/test/app/store/js/app/views/products/create.html.tpl"></script>
@@ -41,8 +56,9 @@
 	<script type="text/javascript" src="/src/lib/BaseModel/TemplateDataKeys.js"></script>
 	<script type="text/javascript" src="/test/app/store/js/app/models/products/Base.js"></script>
 	<script type="text/javascript" src="/src/framework/modules/BaseModule.js"></script>
-	<script type="text/javascript" src="/test/app/store/js/app/modules/products/CreateModule.js"></script>
 	<script type="text/javascript" src="/src/framework/application/Application.js"></script>
+	<script type="text/javascript" src="/test/app/store/js/app/modules/products/CreateModule.js"></script>
+	<script type="text/javascript" src="/test/app/store/js/app/modules/LoginModule.js"></script>
 	<script type="text/javascript">
 		var app = new Application();
 		app.init( document.getElementsByTagName("html")[0] );
