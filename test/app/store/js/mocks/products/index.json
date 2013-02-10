@@ -1,0 +1,24 @@
+[
+	{
+		"id": Math.round( Math.random() * 1000000000000000 ),
+		"name": "Nylon Rope",
+		"description": "Good sturdy all purpose rope. Perfect for boating and camping.",
+		"created_at": "2012/07/22",
+		"updated_at": "2013/01/30",
+		"price": 12.50
+	},{
+		"id": Math.round( Math.random() * 1000000000000000 ),
+		"name": "Wood Glue",
+		"description": "This must have for every woodworker combines grip strength with a good price",
+		"created_at": "2010/03/12",
+		"updated_at": "2010/09/17",
+		"price": 5.99
+	},{
+		"id": Math.round( Math.random() * 1000000000000000 ),
+		"name": "Candy Bar",
+		"description": "Cuz you know you want to...",
+		"created_at": "2007/02/18",
+		"updated_at": "2009/10/06",
+		"price": 0.85
+	}
+]
