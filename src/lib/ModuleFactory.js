@@ -45,6 +45,7 @@ ModuleFactory = Object.extend({
 
 			if (moduleInfo.container) {
 				containerElement = containerElement.querySelectorAll(moduleInfo.container)[0];
+				moduleInfo.element = moduleInfo.element || "div";
 
 				if (!containerElement) {
 					throw new Error("Could not find module container element with selector " + moduleInfo.container);
