@@ -49,7 +49,7 @@ products.CreateModule = BaseModule.extend({
 					xhr = that = null;
 				}
 			};
-			xhr.open("GET", "/test/app/store/js/mocks/products/create.json?_=" + new Date().getTime());
+			xhr.open("GET", "/demo/store/js/mocks/products/create.json?_=" + new Date().getTime());
 			xhr.send(null);
 		}
 
