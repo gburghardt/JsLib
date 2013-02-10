@@ -31,7 +31,25 @@ products.CreateModule = BaseModule.extend({
 			event.stop();
 
 			console.info("products.CreateModule#save - Save the new product!");
-			this.destructor();
+			this.product.attributes = this.view.getFormData();
+
+			// TODO: The model should make this Ajax call
+			var xhr = new XMLHttpRequest(), that = this;
+			xhr.onreadystatechange = function() {
+				if (this.readyState === 4 && this.status === 200) {
+					var data = eval("(" + this.responseText + ")");
+					that.product.attributes = data.product;
+					console.info("Finished saving product", that.product);
+					that.destructor();
+					that = data = xhr = null;
+				}
+				else if (this.status >= 400) {
+					console.error("Network error " + this.status);
+					xhr = that = null;
+				}
+			};
+			xhr.open("GET", "/test/app/store/js/mocks/products/create.json?_=" + new Date().getTime());
+			xhr.send(null);
 		}
 
 	}

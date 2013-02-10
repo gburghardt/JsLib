@@ -8,9 +8,9 @@ BaseView.Forms = {
 
 		getFormData: function(fromCache) {
 			if (!fromCache || !this.currentData) {
-				var inputs = this.rootNode.getElementsByTagName("input");
-				var selects = this.rootNode.getElementsByTagName("select");
-				var textareas = this.rootNode.getElementsByTagName("textarea");
+				var inputs = this.element.getElementsByTagName("input");
+				var selects = this.element.getElementsByTagName("select");
+				var textareas = this.element.getElementsByTagName("textarea");
 
 				this.currentData = {};
 				this.extractFormControlsData(inputs, this.currentData);
@@ -107,7 +107,7 @@ BaseView.Forms = {
 		},
 
 		getControlsByName: function(name) {
-			var nodes = this.rootNode.getElementsByTagName("*"), i = 0, length = nodes.length, controls = [];
+			var nodes = this.element.getElementsByTagName("*"), i = 0, length = nodes.length, controls = [];
 
 			for (i; i < length; ++i) {
 				if (nodes[i].name === name) {
@@ -120,8 +120,8 @@ BaseView.Forms = {
 		},
 
 		hideFieldErrors: function() {
-			var errorElements = this.rootNode.querySelectorAll(".form-field-error");
-			var formErrorElement = this.rootNode.querySelector(".form-errors");
+			var errorElements = this.element.querySelectorAll(".form-field-error");
+			var formErrorElement = this.element.querySelector(".form-errors");
 			var i = 0, length = errorElements.length;
 
 			for (i; i < length; i++) {
@@ -136,7 +136,7 @@ BaseView.Forms = {
 		},
 
 		setFieldErrors: function(errors) {
-			var errorElement = this.rootNode.querySelector(".form-errors");
+			var errorElement = this.element.querySelector(".form-errors");
 			var errorsMarkup, key, control;
 
 			this.hideFieldErrors();
@@ -161,7 +161,7 @@ BaseView.Forms = {
 
 				for (key in errors) {
 					if (errors.hasOwnProperty(key)) {
-						errorElement = this.rootNode.querySelector(".form-field-error-" + key);
+						errorElement = this.element.querySelector(".form-field-error-" + key);
 
 						if (!errorElement) {
 							errorElement = this.ownerDocument.createElement(this.fieldErrorNodeName);
