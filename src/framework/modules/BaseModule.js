@@ -126,3 +126,5 @@ BaseModule = Object.extend({
 	}
 
 });
+
+// TODO: Make sub module properties a dynamic getter property.
