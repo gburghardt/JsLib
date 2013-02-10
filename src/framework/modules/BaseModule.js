@@ -120,7 +120,7 @@ BaseModule = Object.extend({
 		},
 
 		run: function() {
-			throw new Error("Child classes must define a method called run to begin the life cycle of a module");
+			// Child classes can define a method called run to begin the life cycle of a module. This is just a stub.
 		}
 
 	}

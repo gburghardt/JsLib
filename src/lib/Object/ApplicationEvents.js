@@ -36,7 +36,9 @@ Object.ApplicationEvents = {
 	prototype: {
 
 		destroyApplicationEvents: function() {
-			this.constructor.unsubscribe(this);
+			if (this.constructor.getEventDispatcher()) {
+				this.constructor.unsubscribe(this);
+			}
 		},
 
 		publish: function(eventName, data) {

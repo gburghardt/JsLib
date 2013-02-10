@@ -18,6 +18,38 @@ ModuleFactory = Object.extend({
 			this.eventDispatcher = null;
 		},
 
+		createModule: function(className, element, moduleInfo) {
+			var containerElement = document.getElementsByTagName("body")[0];
+			var module, moduleElement;
+
+			if (moduleInfo.container) {
+				containerElement = containerElement.querySelectorAll(moduleInfo.container)[0];
+
+				if (!containerElement) {
+					throw new Error("Could not find module container element with selector " + moduleInfo.container);
+				}
+			}
+
+			moduleElement = (moduleInfo.element) ? document.createElement(moduleInfo.element) : element;
+			module = this.getInstance(className, moduleElement, moduleInfo.options);
+
+			if (moduleInfo.insert === "bottom") {
+				containerElement.appendChild(module.element);
+			}
+			else if (containerElement.firstChild) {
+				containerElement.insertBefore(module.element, containerElement.firstChild);
+			}
+			else {
+				containerElement.appendChild(module.element);
+			}
+
+			module.init();
+
+			element = moduleInfo = containerElement = moduleElement = element = null;
+
+			return module;
+		},
+
 		getClassReference: function(className) {
 			if ( /^[a-zA-Z][a-zA-z0-9.]+[a-zA-z0-9]$/.test(className) ) {
 				return eval(className);
@@ -27,9 +59,8 @@ ModuleFactory = Object.extend({
 			}
 		},
 
-		getInstance: function(className, options) {
+		getInstance: function(className, element, options) {
 			var Klass = this.getClassReference(className);
-			var element = document.createElement("div");
 			element.className = "module module-" + className.namify();
 			var module = new Klass(element, options);
 
