@@ -2,60 +2,39 @@
 
 class BaseView extends Object
 	Public:
-		static disableNodeCaching()
-		static enableNodeCaching()
 		constructor(String | HTMLElement id)
 		init()
 		destructor()
 	Protected:
-		delegator <dom.events.Delegator>
 		id <String>
 		ownerDocument <Document>
-		rootNode <HTMLElement>
-		getDelegatorEventTypes() returns Array
-		getNode(String idSuffix) returns HTMLElement
-		handleNodeEvent(Event event)
-		purgeNodeCache()
+		element <HTMLElement>
+		getElementBySiffux(String idSuffix) returns HTMLElement
 		querySelector(String selector) returns HTMLElement or undefined
 		querySelectorAll(String selector) returns HTMLCollection
-	Private:
-		static generateNodeId() returns String
-		nodeCache <Object>
-		getNodesFromCache(String key) returns HTMLElement or HTMLCollection or null
-		nodeCachingEnabled() returns Boolean
 
 */
 BaseView = Object.extend({
 
 	self: {
 
-		nodeCachingEnabled: false,
-
 		nodeIdIndex: 0,
 
-		disableNodeCaching: function() {
-			this.nodeCachingEnabled = false;
-		},
-
-		enableNodeCaching: function() {
-			this.nodeCachingEnabled = true;
-		},
-
 		generateNodeId: function() {
-			return "anonymous-node-" + (BaseView.nodeIdIndex++);
+			return "anonymous-element-" + (BaseView.nodeIdIndex++);
 		},
 
-		getInstance: function(rootNode, delegate, templateName) {
+		getInstance: function(element, templateName) {
 			var className = (templateName.replace(/\//g, "-") + "_view").toClassName();
 			var ViewClass = className.constantize();
 			var view;
 
 			if (!ViewClass) {
-				ViewClass = BaseView;
+				ViewClass = this;
 			}
 
-			view = new ViewClass(rootNode, delegate, templateName);
-			ViewClass = rootNode = delegate = null;
+			view = new ViewClass(element, templateName);
+			ViewClass = element = null;
 			return view;
 		}
 
@@ -65,23 +44,21 @@ BaseView = Object.extend({
 
 // Access: Public
 
-		initialize: function(rootNode, delegate, templateName) {
-			this.nodeCache = {};
-
-			if (typeof rootNode === "string") {
+		initialize: function(element, templateName) {
+			if (typeof element === "string") {
 				if (!this.ownerDocument) {
 					this.ownerDocument = document;
 				}
 
-				this.rootNode = this.ownerDocument.getElementById(rootNode);
+				this.element = this.ownerDocument.getElementById(element);
 			}
 			else {
-				this.rootNode = rootNode;
-				this.ownerDocument = this.rootNode.ownerDocument;
+				this.element = element;
+				this.ownerDocument = this.element.ownerDocument;
 
-				if (!this.rootNode.getAttribute("id")) {
-					this.rootNode.setAttribute("id", BaseView.generateNodeId());
-					this.id = this.rootNode.getAttribute("id");
+				if (!this.element.getAttribute("id")) {
+					this.element.setAttribute("id", BaseView.generateNodeId());
+					this.id = this.element.getAttribute("id");
 				}
 			}
 
@@ -89,120 +66,76 @@ BaseView = Object.extend({
 				this.templateName = templateName;
 			}
 
-			this.delegator = new dom.events.Delegator(delegate, this.rootNode, this.delegatorActionPrefix);
-			rootNode = delegate = null;
-		},
+			if (!this.element.childNodes.length) {
+				this.element.innerHTML = this.getDefaultHTML();
+			}
 
-		init: function() {
-			this.delegator.addEventTypes(this.getDelegatorEventTypes());
-			this.delegator.init();
-			return this;
+			element = null;
 		},
 
 		destructor: function() {
-			if (this.delegator) {
-				this.delegator.destructor();
-				this.delegator = null;
-			}
+			this.element = this.ownerDocument = null;
+		},
 
-			this.rootNode = this.ownerDocument = null;
+		getDefaultHTML: function() {
+			return '<div class="view-loading"></div><div class="view-content"></div>';
 		},
 
 		render: function(model) {
+			this.toggleLoading(true);
+
 			Template.fetch(this.templateName, this, function(template) {
-				if (this.model && this.model.unsubscribe) {
-					this.model.unsubscribe("attributes:changed", this);
-				}
-
 				this.model = model;
-				this.rootNode.innerHTML = template.render(this.model);
+				this.querySelector(".view-content").innerHTML = template.render(this.model);
+				this.toggleLoading(false);
 
-				if (this.model.subscribe) {
-					this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+				var firstField = this.querySelector("input,textarea,select");
+
+				if (firstField) {
+					firstField.focus();
+
+					if (firstField.select) {
+						firstField.select();
+					}
 				}
 
-				template = null;
+				firstField = template = null;
 			});
 
 			return this;
 		},
 
+		toggleLoading: function(loading) {
+			if (loading) {
+				this.querySelector(".view-loading").style.display = "block";
+				this.querySelector(".view-content").style.display = "none";
+			}
+			else {
+				this.querySelector(".view-loading").style.display = "none";
+				this.querySelector(".view-content").style.display = "block";
+			}
+		},
+
 // Access: Protected
-
-		delegateActionPrefix: "",
-
-		delegatorEventTypes: "",
-
-		delegator: null,
 
 		id: null,
 
 		ownerDocument: null,
 
-		rootNode: null,
+		element: null,
 
 		templateName: null,
 
-		getDelegatorEventTypes: function() {
-			return this.delegatorEventTypes.split(/[ ,]+/g);
-		},
-
-		getNode: function(idSuffix) {
+		getElementBySuffix: function(idSuffix) {
 			return this.ownerDocument.getElementById(this.id + "-" + idSuffix);
 		},
 
-		purgeNodeCache: function() {
-			this.nodeCache = {};
-		},
-
 		querySelector: function(selector) {
-			if (this.nodeCachingEnabled()) {
-				var node = this.getNodesFromCache("selector-" + selector);
-
-				if (!node) {
-					node = this.rootNode.querySelector(selector);
-					this.nodeCache["selector-" + selector] = node;
-				}
-
-				return node;
-			}
-			else {
-				return this.rootNode.querySelector(selector);
-			}
+			return this.element.querySelectorAll(selector)[0];
 		},
 
 		querySelectorAll: function(selector) {
-			var nodes = [];
-
-			if (this.nodeCachingEnabled()) {
-				nodes = this.getNodesFromCache("selectorAll-" + selector);
-
-				if (!nodes) {
-					nodes = this.rootNode.querySelectorAll(selector);
-					this.nodeCache["selectorAll-" + selector] = nodes;
-				}
-			}
-			else {
-				nodes = this.rootNode.querySelectorAll(selector);
-			}
-
-			return nodes;
-		},
-
-// Access: Private
-
-		nodeCache: null,
-
-		getNodesFromCache: function(key) {
-			return (this.nodeCache[key]) ? this.nodeCache[key] : null;
-		},
-
-		handleAttributesChanged: function(model) {
-			console.info("FormView#handleAttributesChanged");
-		},
-
-		nodeCachingEnabled: function() {
-			return BaseView.nodeCachingEnabled;
+			return this.element.querySelectorAll(selector);
 		}
 
 	}

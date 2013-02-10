@@ -4,8 +4,12 @@ Object.ApplicationEvents = {
 
 		eventDispatcher: null,
 
+		getEventDispatcher: function() {
+			return this.eventDispatcher;
+		},
+
 		checkEventDispatcher: function() {
-			if (!this.eventDispatcher) {
+			if (!this.getEventDispatcher()) {
 				throw new Error("No application event dispatcher was found.");
 			}
 
@@ -14,29 +18,17 @@ Object.ApplicationEvents = {
 
 		publish: function(eventName, publisher, data) {
 			this.checkEventDispatcher();
-			this.eventDispatcher.publish(eventName, publisher, data);
-		},
-
-		setEventDispatcher: function(eventDispatcher) {
-			if (typeof eventDispatcher.publish !== "function" ||
-			    typeof eventDispatcher.subscribe !== "function" ||
-			    typeof eventDispatcher.unsubscribe !== "function")
-			{
-				throw new TypeError("Invalid interface for BaseModule.eventDispatcher. Must have publish, publishOnce, subscribe and unsubscribe methods.");
-			}
-			else {
-				BaseModule.eventDispatcher = eventDispatcher;
-			}
+			this.getEventDispatcher().publish(eventName, publisher, data);
 		},
 
 		subscribe: function(eventName, context, callback) {
 			this.checkEventDispatcher();
-			this.eventDispatcher.subscribe(eventName, context, callback);
+			this.getEventDispatcher().subscribe(eventName, context, callback);
 		},
 
 		unsubscribe: function(eventName, context, callback) {
 			this.checkEventDispatcher();
-			this.eventDispatcher.unsubscribe(eventName, context, callback);
+			this.getEventDispatcher().unsubscribe(eventName, context, callback);
 		}
 
 	},

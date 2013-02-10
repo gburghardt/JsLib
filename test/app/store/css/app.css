@@ -1,0 +1,49 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+}
+header {
+	background-color: #00c;
+	color: #fff;
+	height: 48px;
+	left: 0;
+	padding: 6px .5em;
+	position: fixed;
+	overflow: hidden;
+	right: 0;
+	top: 0;
+}
+header h1 {
+	margin: 0;
+}
+nav {
+	background-color: #f0f0f0;
+	bottom: 0;
+	left: 0;
+	padding: .5em;
+	position: fixed;
+	right: 70%;
+	top: 60px;
+}
+nav ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+section#main {
+	border-left: 1px solid #000;
+	bottom: 0;
+	left: 30%;
+	padding: .67em;
+	position: fixed;
+	overflow: auto;
+	right: 0;
+	top: 60px;
+}
+.module {
+	border-bottom: 1px solid #000;
+}
+.view-loading {
+	background: transparent url(../images/ajax-spinner.gif) no-repeat scroll center center;
+	min-height: 100px;
+}

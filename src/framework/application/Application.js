@@ -34,7 +34,7 @@ Application = Object.extend({
 
 		initialize: function() {
 			this.config = {
-				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domload"]
+				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domready"]
 			};
 
 			this.eventDispatcher = new events.Dispatcher();
@@ -44,10 +44,11 @@ Application = Object.extend({
 		init: function(element) {
 			this.element = element;
 			this.document = element.ownerDocument;
+			this.window = this.document.defaultView;
 			this.window.onerror = this.handleError.bind(this);
 			this.delegator = new dom.events.Delegator(this, element);
 			this.delegator.addEventTypes( this.config["delegator.eventTypes"] );
-			this.delegator.triggerEvent("domload");
+			this.delegator.triggerEvent("domready");
 			element = null;
 		},
 
@@ -68,6 +69,45 @@ Application = Object.extend({
 			}
 
 			config = null;
+		},
+
+		createModules: function(event, element, params) {
+			console.info("Application#createModules - called");
+			// console.dir({event: event, element: element, params: params});
+			// var elements = element.querySelectorAll("[data-action-domready=createModule]");
+			// console.info("Application#createModules - elements");
+			// console.dir(elements);
+		},
+
+		createModule: function(event, element, params) {
+			event.stop();
+
+			// console.info("Application#createModule - called");
+			// console.dir({event: event, element: element, params: params});
+
+			var moduleClassName = element.getAttribute("data-module");
+			var containerElement = element;
+			var moduleOptions = JSON.parse( element.getAttribute("data-module-options") || "{}" );
+
+			if (params.containerSelector) {
+				containerElement = this.element.querySelectorAll(params.containerSelector)[0];
+			}
+
+			var module = this.moduleFactory.getInstance(moduleClassName, moduleOptions);
+
+			if (params.insert === "bottom") {
+				containerElement.appendChild(module.element);
+			}
+			else if (containerElement.firstChild) {
+				containerElement.insertBefore(module.element, containerElement.firstChild);
+			}
+			else {
+				containerElement.appendChild(module.element);
+			}
+
+			module.init();
+
+			containerElement = module = event = element = params = options = null;
 		},
 
 		getErrorInfo: function(message, fileName, lineNumber) {

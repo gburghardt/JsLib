@@ -2,6 +2,14 @@ BaseModule = Object.extend({
 
 	includes: [ Object.ApplicationEvents, Object.Callbacks ],
 
+	self: {
+		factory: null,
+
+		getEventDispatcher: function() {
+			return BaseModule.eventDispatcher;
+		}
+	},
+
 	prototype: {
 
 		actions: null,
@@ -13,6 +21,8 @@ BaseModule = Object.extend({
 		element: null,
 
 		options: null,
+
+		view: null,
 
 		initialize: function(element, options) {
 			if (this.__proto__ === BaseModule.prototype) {
@@ -45,12 +55,17 @@ BaseModule = Object.extend({
 			this.delegator = new dom.events.Delegator(this, this.element, this.options.delegatorActionPrefix || null);
 			this.delegator.setEventActionMapping(this.delegatorEventActionMapping);
 			this.notify("afterInit", this);
+			this.run();
 
 			return this;
 		},
 
 		destructor: function() {
 			this.notify("beforeDestroy", this);
+
+			if (BaseModule.factory) {
+				BaseModule.factory.unregisterModule(this);
+			}
 
 			if (this.delegator) {
 				this.delegator.destructor();
@@ -60,7 +75,12 @@ BaseModule = Object.extend({
 			this.destroyApplicationEvents();
 			this.destroyCallbacks();
 
-			this.actions = this.delegatorEventActionMapping = this.options = this.element = null;
+			if (this.element) {
+				this.element.parentNode.removeChild(this.element);
+				this.element = null;
+			}
+
+			this.actions = this.delegatorEventActionMapping = this.options = null;
 		},
 
 		compileDelegatorEventActionMapping: function() {
@@ -88,6 +108,19 @@ BaseModule = Object.extend({
 			this.__proto__.delegatorEventActionMapping = mapping;
 
 			mapping = actions = null;
+		},
+
+		render: function(templateName, context) {
+			if (!this.view) {
+				this.view = BaseView.getInstance(this.element, templateName);
+			}
+
+			this.view.templateName = templateName;
+			this.view.render(context);
+		},
+
+		run: function() {
+			throw new Error("Child classes must define a method called run to begin the life cycle of a module");
 		}
 
 	}

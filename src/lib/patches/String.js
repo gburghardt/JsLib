@@ -4,6 +4,14 @@ if (!String.prototype.capitalize) {
 	};
 }
 
+if (!String.prototype.namify) {
+	String.prototype.namify = function() {
+		return this.replace(/\./g, "-").replace(/([a-z][A-Z][a-z])/g, function(match, $1) {
+			return $1.charAt(0) + "_" + $1.charAt(1).toLowerCase() + $1.charAt(2);
+		}).toLowerCase();
+	};
+}
+
 if (!String.prototype.singularize) {
 	String.prototype.singularize = function() {
 		if (/ies$/.test(this)) {
