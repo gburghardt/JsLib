@@ -2,7 +2,7 @@ Object.Callbacks = {
 
 	prototype: {
 
-		callbackListeners: null,
+		callbackDispatcher: null,
 
 		callbacks: null,
 
@@ -11,7 +11,7 @@ Object.Callbacks = {
 				this.compileCallbacks();
 			}
 
-			this.callbackListeners = {};
+			this.callbackDispatcher = new events.Dispatcher();
 
 			var name, i, length, callbacks;
 
@@ -59,24 +59,10 @@ Object.Callbacks = {
 		},
 
 		destroyCallbacks: function() {
-			if (!this.callbackListeners) {
-				return;
+			if (this.callbackDispatcher) {
+				this.callbackDispatcher.destructor();
+				this.callbackDispatcher = null;
 			}
-
-			var listeners = this.callbackListeners, listener, message, i, length;
-
-			for (message in listeners) {
-				if (listeners.hasOwnProperty(message)) {
-					for (i = 0, length = listeners[message].length; i < length; i++) {
-						listener = listeners[message][i];
-						listener.callback = listener.context = null;
-					}
-
-					listeners[message] = null;
-				}
-			}
-
-			listener = listeners = this.callbackListners = null;
 		},
 
 		setUpCallbacks: function() {
@@ -84,90 +70,17 @@ Object.Callbacks = {
 		},
 
 		notify: function(message, data) {
-			if (!this.callbackListeners[message]) {
-				return false;
-			}
-
-			var listeners = this.callbackListeners[message], listener, result;
-
-			for (var i = 0, length = listeners.length; i < length; i++) {
-				listener = listeners[i];
-
-				if (listener.type === "function") {
-					result = listener.callback.call(listener.context, data);
-				}
-				else if (listener.type === "string") {
-					result = listener.context[ listener.callback ]( data );
-				}
-
-				if (result === false) {
-					break;
-				}
-			}
-
-			listeners = listener = null;
-
-			return result !== false;
+			this.callbackDispatcher.publish(message, this, data);
+			data = null;
 		},
 
 		listen: function(message, context, callback) {
-			var contextType = typeof context;
-			var callbackType = typeof callback;
-
-			this.callbackListeners[message] = this.callbackListeners[message] || [];
-
-			if (contextType === "function") {
-				this.callbackListeners[message].push({
-					context: null,
-					callback: context,
-					type: "function"
-				});
-			}
-			else if (contextType === "object") {
-				if (callbackType === "string" && typeof context[ callback ] !== "function") {
-					throw new Error("Cannot listen for " + message + " because " + callback + " is not a function");
-				}
-
-				this.callbackListeners[message].push({
-					context: context || null,
-					callback: callback,
-					type: callbackType
-				});
-			}
+			this.callbackDispatcher.subscribe(message, context, callback);
+			context = callback = null;
 		},
 		
 		ignore: function(message, context, callback) {
-			if (this.callbackListeners[message]) {
-				var contextType = typeof context;
-				var callbackType = typeof callback;
-				var listeners = this.callbackListeners[message];
-				var i = listeners.length;
-				var listener;
-
-				if (contextType === "undefined" && callbackType === "undefined") {
-					// assume message is an object that wants all of its listeners removed
-				}
-				else if (contextType === "function") {
-					callback = context;
-					context = null;
-					callbackType = "function";
-				}
-				else if (contextType === "object" && callbackType === "undefined") {
-					callbackType = "any";
-				}
-
-				while (i--) {
-					listener = listeners[i];
-
-					if (
-					    (callbackType === "any" && listener.context === context) ||
-							(listener.type === callbackType && listener.context === context && listener.callback === callback)
-					) {
-						listeners.splice(i, 1);
-					}
-				}
-			}
-
+			this.callbackDispatcher.unsubscribe(message, context, callback);
 			context = callback = null;
 		}
 
