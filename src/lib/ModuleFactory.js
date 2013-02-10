@@ -18,6 +18,27 @@ ModuleFactory = Object.extend({
 			this.eventDispatcher = null;
 		},
 
+		createModules: function(element) {
+			var classNames = element.getAttribute("data-module").replace(/^\s+|\s+$/g, "").split(/\s+/g);
+			var modules = [], moduleInfo, i, length, className;
+
+			moduleInfo = JSON.parse(element.getAttribute("data-module-info"));
+
+			if (classNames.length === 1) {
+				modules.push( this.createModule(classNames[0], element, moduleInfo) );
+			}
+			else {
+				for (i = 0, length = classNames.length; i < length; i++) {
+					className = classNames[i];
+					modules.push( this.createModule( classNames[i], element, moduleInfo[className] || {} ) );
+				}
+			}
+
+			element = params = null;
+
+			return modules;
+		},
+
 		createModule: function(className, element, moduleInfo) {
 			var containerElement = document.getElementsByTagName("body")[0];
 			var module, moduleElement;

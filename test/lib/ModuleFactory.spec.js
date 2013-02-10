@@ -155,4 +155,74 @@ describe("ModuleFactory", function() {
 
 	});
 
+	describe("createModules", function() {
+
+		beforeEach(function() {
+			this.element = document.createElement("div");
+			this.factory = new ModuleFactory();
+		});
+
+		ModuleFactoryTest.Foo = BaseModule.extend();
+		ModuleFactoryTest.Bar = BaseModule.extend();
+
+		it("creates a single module", function() {
+			var moduleInfo = {
+				options: { id: 1 }
+			};
+
+			this.element.setAttribute("data-module", "ModuleFactoryTest.Foo");
+			this.element.setAttribute("data-module-info", JSON.stringify(moduleInfo));
+
+			var modules = this.factory.createModules(this.element);
+
+			expect(modules.length).toEqual(1);
+			expect(modules[0]).toBeInstanceof(ModuleFactoryTest.Foo);
+			expect(modules[0].options.id).toEqual(1);
+		});
+
+		describe("creating modules in bulk", function() {
+
+			it("gets module info based on the class name", function() {
+				var moduleInfo = {
+					"ModuleFactoryTest.Foo": {
+						options: { id: 1 }
+					},
+					"ModuleFactoryTest.Bar": {
+						options: { id: 2 }
+					}
+				};
+
+				this.element.setAttribute("data-module", "ModuleFactoryTest.Foo ModuleFactoryTest.Bar");
+				this.element.setAttribute("data-module-info", JSON.stringify(moduleInfo));
+
+				var modules = this.factory.createModules(this.element);
+
+				expect(modules.length).toEqual(2);
+				expect(modules[0]).toBeInstanceof(ModuleFactoryTest.Foo);
+				expect(modules[0].options.id).toEqual(1);
+				expect(modules[1]).toBeInstanceof(ModuleFactoryTest.Bar);
+				expect(modules[1].options.id).toEqual(2);
+
+				modules[0].destructor();
+				modules[1].destructor();
+			});
+
+			it("does not require module info specific to a class", function() {
+				this.element.setAttribute("data-module", "ModuleFactoryTest.Foo ModuleFactoryTest.Bar");
+				this.element.setAttribute("data-module-info", "{}");
+
+				var modules = this.factory.createModules(this.element);
+
+				expect(modules.length).toEqual(2);
+				expect(modules[0]).toBeInstanceof(ModuleFactoryTest.Foo);
+				expect(modules[1]).toBeInstanceof(ModuleFactoryTest.Bar);
+
+				modules[0].destructor();
+				modules[1].destructor();
+			});
+
+		});
+
+	});
+
 });
