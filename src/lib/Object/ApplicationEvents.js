@@ -5,26 +5,20 @@ Object.ApplicationEvents = {
 		eventDispatcher: null,
 
 		checkEventDispatcher: function() {
-			if (!BaseModule.eventDispatcher) {
-				throw new Error("No application event dispatcher was found in BaseModule.eventDispatcher");
+			if (!this.eventDispatcher) {
+				throw new Error("No application event dispatcher was found.");
 			}
 
 			return true;
 		},
 
-		publish: function(eventName, data) {
+		publish: function(eventName, publisher, data) {
 			this.checkEventDispatcher();
-			this.eventDispatcher.publish(eventName, data);
-		},
-
-		publishOnce: function(eventName, data) {
-			this.checkEventDispatcher();
-			this.eventDispatcher.publishOnce(eventName, data);
+			this.eventDispatcher.publish(eventName, publisher, data);
 		},
 
 		setEventDispatcher: function(eventDispatcher) {
 			if (typeof eventDispatcher.publish !== "function" ||
-			    typeof eventDispatcher.publishOnce !== "function" ||
 			    typeof eventDispatcher.subscribe !== "function" ||
 			    typeof eventDispatcher.unsubscribe !== "function")
 			{
@@ -54,11 +48,7 @@ Object.ApplicationEvents = {
 		},
 
 		publish: function(eventName, data) {
-			this.constructor.publish(eventName, data);
-		},
-
-		publishOnce: function(eventName, data) {
-			this.constructor.publishOnce(eventName, data);
+			this.constructor.publish(eventName, this, data);
 		},
 
 		subscribe: function(eventName, context, callback) {
