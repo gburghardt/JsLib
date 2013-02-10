@@ -11,10 +11,17 @@ describe("ModuleFactory", function() {
 			this.factory = new ModuleFactory();
 		});
 
-		it("instantiates a module based on the class", function() {
+		it("instantiates a module based on the class and registers it with the factory", function() {
+			spyOn(this.factory, "registerModule").andCallThrough();
 			var element = document.createElement("div");
-			var module = this.factory.getInstance("ModuleFactoryTest.TestModule", element);
+			var className = "ModuleFactoryTest.TestModule";
+			var module = this.factory.getInstance(className, element);
+
 			expect(module.element.className).toEqual("module module-module_factory_test-test_module");
+			expect(this.factory.registerModule).wasCalledWith(className, module);
+			expect(this.factory.modules[className]).toBeArray();
+			expect(this.factory.modules[className].length).toEqual(1);
+			expect(this.factory.modules[className][0]).toStrictlyEqual(module);
 		});
 
 	});
