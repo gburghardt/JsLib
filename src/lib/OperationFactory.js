@@ -1,8 +1,14 @@
-OperationFactory = Object.extend({
+ModuleFactory = Object.extend({
 
 	prototype: {
 
 		eventDispatcher: null,
+
+		initialize: function(eventDispatcher) {
+			this.eventDispatcher = eventDispatcher;
+			BaseModule.setEventDispatcher(eventDispatcher);
+			eventDispatcher = null;
+		},
 
 		destructor: function() {
 			this.eventDispatcher = null;
@@ -20,11 +26,6 @@ OperationFactory = Object.extend({
 			}
 
 			return Klass ? new Klass(this, this.eventDispatcher) : null;
-		},
-
-		setEventDispatcher: function(eventDispatcher) {
-			this.eventDispatcher = eventDispatcher;
-			eventDispatcher = null;
 		}
 
 	}
