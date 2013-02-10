@@ -32,6 +32,7 @@ products.CreateModule = BaseModule.extend({
 
 			console.info("products.CreateModule#save - Save the new product!");
 			this.product.attributes = this.view.getFormData();
+			this.view.toggleLoading(true);
 
 			// TODO: The model should make this Ajax call
 			var xhr = new XMLHttpRequest(), that = this;
