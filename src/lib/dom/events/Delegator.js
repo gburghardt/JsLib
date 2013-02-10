@@ -1,11 +1,11 @@
-window.dom = window.dom || {};
-window.dom.events = window.dom.events || {};
+dom = window.dom || {};
+dom.events = dom.events || {};
 
 dom.events.Delegator = function() {
 
 // Access: Public
 
-	this.constructor = function(delegate, node, actionPrefix) {
+	this.initialize = function(delegate, node, actionPrefix) {
 		this.delegate = delegate;
 		this.node = node;
 		this.setActionPrefix(actionPrefix || "");
@@ -117,9 +117,9 @@ dom.events.Delegator = function() {
 	this.delegate = null;
 
 	function getActionParams(element, eventType) {
-		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) ||
-		                 element.getAttribute("data-actionParams") ||
-										 "{}";
+		var paramsAttr = element.getAttribute("data-actionparams-" + eventType) ||
+		                 element.getAttribute("data-actionparams") ||
+		                 "{}";
 
 		element = null;
 
@@ -205,6 +205,11 @@ dom.events.Delegator = function() {
 					// so this one object can try handling errors gracefully.
 					self.constructor.errorDelegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
 				}
+				else if (self.constructor.logger) {
+					// A class level logger was found, so log an error level message.
+					self.constructor.logger.warn("An error was thrown while executing method \"" + method + "\", action \"" + actionName + "\", during a \"" + event.type + "\" event on element " + self.node.nodeName + "." + self.node.className.split(/\s+/g).join(".") + "#" + self.node.identify() + ".");
+					self.constructor.logger.error(error);
+				}
 				else {
 					// Give up. Throw the error and let the developer fix this.
 					throw error;
@@ -229,6 +234,10 @@ dom.events.Delegator = function() {
 
 		event = null;
 	}
-
-	this.constructor.apply(this, arguments);
+ 
+	this.constructor = dom.events.Delegator;
+	this.initialize.apply(this, arguments);
 };
+
+dom.events.Delegator.logger = window.console || null;
+
