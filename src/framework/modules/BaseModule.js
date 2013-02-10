@@ -75,12 +75,11 @@ BaseModule = Object.extend({
 			this.destroyApplicationEvents();
 			this.destroyCallbacks();
 
-			if (this.element) {
+			if (this.element && this.element.parentNode) {
 				this.element.parentNode.removeChild(this.element);
-				this.element = null;
 			}
 
-			this.actions = this.delegatorEventActionMapping = this.options = null;
+			this.element = this.actions = this.delegatorEventActionMapping = this.options = null;
 		},
 
 		compileDelegatorEventActionMapping: function() {
