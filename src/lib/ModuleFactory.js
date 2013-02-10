@@ -22,7 +22,7 @@ ModuleFactory = Object.extend({
 			var classNames = element.getAttribute("data-module").replace(/^\s+|\s+$/g, "").split(/\s+/g);
 			var modules = [], moduleInfo, i, length, className;
 
-			moduleInfo = JSON.parse(element.getAttribute("data-module-info"));
+			moduleInfo = JSON.parse(element.getAttribute("data-module-info") || "{}");
 
 			if (classNames.length === 1) {
 				modules.push( this.createModule(classNames[0], element, moduleInfo) );
@@ -54,14 +54,16 @@ ModuleFactory = Object.extend({
 			moduleElement = (moduleInfo.element) ? document.createElement(moduleInfo.element) : element;
 			module = this.getInstance(className, moduleElement, moduleInfo.options);
 
-			if (moduleInfo.insert === "bottom") {
-				containerElement.appendChild(module.element);
-			}
-			else if (containerElement.firstChild) {
-				containerElement.insertBefore(module.element, containerElement.firstChild);
-			}
-			else {
-				containerElement.appendChild(module.element);
+			if (!moduleElement.parentNode) {
+				if (moduleInfo.insert === "bottom") {
+					containerElement.appendChild(module.element);
+				}
+				else if (containerElement.firstChild) {
+					containerElement.insertBefore(module.element, containerElement.firstChild);
+				}
+				else {
+					containerElement.appendChild(module.element);
+				}
 			}
 
 			module.init();
