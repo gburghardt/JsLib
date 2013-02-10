@@ -1,44 +1,3 @@
-/* File: src/lib/patches/Object.js */
-if (!Object.defineProperty) {
-	if ( ({}).__defineGetter__ ) {
-		Object.defineProperty = function(obj, property, descriptor) {
-			if (descriptor.readable) {
-				obj.__defineGetter__(property, descriptor.get);
-			}
-
-			if (descriptor.writable) {
-				obj.__defineSetter(property, descriptor.set);
-			}
-
-			if (descriptor.value !== undefined) {
-				obj[property] = descriptor.value;
-			}
-		};
-	}
-	else {
-		throw new Error("This browser is incompatible with Object.defineProperty (" + navigator.userAgent + ").");
-	}
-}
-
-if (!Object.prototype.merge) {
-	Object.prototype.merge = function() {
-		var key, args = arguments, i = 0, length = args.length, arg;
-
-		for (i; i < length; i++) {
-			arg = args[i];
-
-			for (key in arg) {
-				if (arg.hasOwnProperty(key)) {
-					this[key] = arg[key];
-				}
-			}
-		}
-
-		arg = args = null;
-		return this;
-	};
-}
-
 /* File: src/lib/patches/Function.js */
 if (!Function.prototype.bind) {
 	Function.prototype.bind = function(context) {
@@ -149,10 +108,60 @@ if (!Function.prototype.extend) {
 	};
 }
 
+/* File: src/lib/patches/Object.js */
+Object.include({
+	self: {
+
+		defineProperty: function(obj, property, descriptor) {
+			if (descriptor.readable) {
+				obj.__defineGetter__(property, descriptor.get);
+			}
+
+			if (descriptor.writable) {
+				obj.__defineSetter(property, descriptor.set);
+			}
+
+			if (descriptor.value !== undefined) {
+				obj[property] = descriptor.value;
+			}
+		}
+
+	},
+	prototype: {
+
+		merge: function() {
+			var key, args = arguments, i = 0, length = args.length, arg;
+
+			for (i; i < length; i++) {
+				arg = args[i];
+
+				for (key in arg) {
+					if (arg.hasOwnProperty(key)) {
+						this[key] = arg[key];
+					}
+				}
+			}
+
+			arg = args = null;
+
+			return this;
+		}
+
+	}
+});
+
 /* File: src/lib/patches/String.js */
 if (!String.prototype.capitalize) {
 	String.prototype.capitalize = function() {
 		return this.charAt(0).toUpperCase() + this.slice(1, this.length);
+	};
+}
+
+if (!String.prototype.namify) {
+	String.prototype.namify = function() {
+		return this.replace(/\./g, "-").replace(/([a-z][A-Z][a-z])/g, function(match, $1) {
+			return $1.charAt(0) + "_" + $1.charAt(1).toLowerCase() + $1.charAt(2);
+		}).toLowerCase();
 	};
 }
 
@@ -208,39 +217,50 @@ String.prototype.toClassName = function() {
 	return pieces.length ? pieces.join(".") + "." + className : className;
 };
 
-/* File: src/lib/errors.js */
-BaseError = Error.extend({
-	self: {
-		create: function(type, descriptor) {
-			descriptor = descriptor || {};
-			descriptor.self = descriptor.self || {};
-			descriptor.self.type = type;
-			return this.extend(descriptor);
-		}
-	},
-	prototype: {
-		initialize: function(message) {
-			Error.apply(this, arguments);
-			this.message = this.constructor.type + " - " + (message || "");
-		}
-	}
-});
+/* File: src/lib/HTMLElement/Adaptors.js */
+(function() {
+	var idIndex = 0;
 
-AccessDeniedError = BaseError.create("AccessDeniedError");
+	HTMLElement.Adaptors = {
+		self: {
+			include: function(mixin) {
+				Function.prototype.include.call(this, mixin);
+			}
+		},
+		prototype: {
+			identify: function() {
+				if (!this.id) {
+					this.id = this.getAttribute("id") || 'anonoymous-' + this.nodeName.toLowerCase() + '-' + (idIndex++);
+					this.setAttribute("id", this.id);
+				}
+
+				return this.id;
+			},
+			querySelector: document.querySelector = function(selector) {
+				return this.querySelectorAll(selector)[0] || null;
+			}
+		}
+	};
+})();
+
+// HTMLElement is a special object which is not instantiable, but has a prototype.
+Function.prototype.include.call(HTMLElement, HTMLElement.Adaptors);
+
 /* File: src/lib/dom/events/Delegator.js */
-window.dom = window.dom || {};
-window.dom.events = window.dom.events || {};
+dom = window.dom || {};
+dom.events = dom.events || {};
 
 dom.events.Delegator = function() {
 
 // Access: Public
 
-	this.constructor = function(delegate, node, actionPrefix) {
+	this.initialize = function(delegate, node, actionPrefix) {
 		this.delegate = delegate;
 		this.node = node;
 		this.setActionPrefix(actionPrefix || "");
 		this.eventTypes = [];
 		this.eventTypesAdded = {};
+		this.eventActionMapping = null;
 	};
 
 	this.destructor = function() {
@@ -304,6 +324,28 @@ dom.events.Delegator = function() {
 		this.actionRegex = new RegExp("^" + this.actionPrefix.replace(/\./g, '\\.'));
 	};
 
+	this.setEventActionMapping = function(mapping) {
+		var actionName;
+
+		if (this.eventActionMapping) {
+			for (actionName in this.eventActionMapping) {
+				if (this.eventActionMapping.hasOwnProperty(actionName)) {
+					this.removeEventType( this.eventActionMapping[actionName] );
+				}
+			}
+		}
+
+		this.eventActionMapping = mapping;
+
+		for (actionName in this.eventActionMapping) {
+			if (this.eventActionMapping.hasOwnProperty(actionName)) {
+				this.addEventType( this.eventActionMapping[actionName] );
+			}
+		}
+
+		mapping = null;
+	};
+
 	this.triggerEvent = function(type) {
 		var event = getDocument().createEvent("CustomEvent");
 		event.initCustomEvent(type, true, false, null);
@@ -324,9 +366,13 @@ dom.events.Delegator = function() {
 	this.delegate = null;
 
 	function getActionParams(element, eventType) {
-		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) || element.getAttribute("data-actionParams");
+		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) ||
+										 element.getAttribute("data-actionParams") ||
+										 "{}";
+
 		element = null;
-		return (paramsAttr) ? JSON.parse(paramsAttr) : {};
+
+		return JSON.parse(paramsAttr);
 	}
 
 	function getDocument() {
@@ -338,51 +384,80 @@ dom.events.Delegator = function() {
 		this.propagationStopped = true;
 	}
 
-	function handleEvent(event) {
+	function patchEvent(event) {
 		if (!event._stopPropagation) {
 			event._stopPropagation = event.stopPropagation;
 			event.stopPropagation = stopPropagationPatch;
 			event.propagationStopped = false;
+			event.stop = function() {
+				this.preventDefault();
+				this.stopPropagation();
+			};
 		}
 
+		return event;
+	}
+
+	function handleEvent(event) {
+		event = patchEvent(event);
+
 		if (!event.actionTarget) {
+			// This event has not been delegated yet. Start the delegation at the target
+			// element for the event. Note that event.target !== self.node. The
+			// event.target object is the element that got clicked, for instance.
 			event.actionTarget = event.target;
 		}
 
-		var action = null, actionName = null, method, params;
+		// The default method to call on the delegate is "handleAction". This will only
+		// get called if the delegate has defined a "handleAction" method.
+		var action = null, actionName = null, method = "handleAction", params;
+
+		// Try inferring the action from the data-action attribute specific to this event...
+		actionName = event.actionTarget.getAttribute("data-action-" + event.type);
 		
-		if (event.actionTarget.getAttribute) {
-			// DOM node
-			actionName = event.actionTarget.getAttribute("data-action-" + event.type) ||
-							     event.actionTarget.getAttribute("data-action");
-		}
-		else if (event.actionTarget.documentURI) {
-			// document object
-			actionName = event.actionTarget["data-action-" + event.type] ||
-							     event.actionTarget["data-action"];
+		if (!actionName) {
+			// No event specifc data-action attribute was found. Try the generic one...
+			actionName = event.actionTarget.getAttribute("data-action");
+
+			if (actionName && self.eventActionMapping && self.eventActionMapping[ actionName ] !== event.type) {
+				// An action-to-event mapping was found, but not for this action + event combo. Do nothing.
+				// For instance, the action is "foo", and the event is "click", but eventActionMapping.foo
+				// is either undefined or maps to a different event type.
+				actionName = null;
+			}
 		}
 
 		if (actionName) {
+			// We found an action, so set that as the method name to call on the delegate object.
+			// FIXME: if the action prefix doesn't match, the method gets fired anyhow
 			actionName = actionName.replace(self.actionRegex, "");
-			method = self.delegate[actionName] ? actionName : "handleAction";
+			method = actionName;
 		}
 
 		if (self.delegate[method]) {
+			// The method exists on the delegate object. Try calling it...
 			try {
 				params = getActionParams(event.actionTarget, event.type);
-				action = new dom.events.Action(event, event.actionTarget, params, actionName);
-				self.delegate[method](action);
+				self.delegate[method](event, event.actionTarget, params, actionName);
 			}
 			catch (error) {
+				// The delegate method threw an error. Try to recover gracefully...
 				event.preventDefault();
 				event.stopPropagation();
 
 				if (self.delegate.handleActionError) {
-					action = new dom.events.Action(event, event.actionTarget, {error: error}, actionName);
-					self.delegate.handleActionError(action);
+					// The delegate has a generic error handler, call that, passing in the error object.
+					self.delegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
 				}
 				else if (self.constructor.errorDelegate) {
-					self.constructor.errorDelegate.handleActionError(action);
+					// A master error delegate was found (for instance, and application object). Call "handleActionError"
+					// so this one object can try handling errors gracefully.
+					self.constructor.errorDelegate.handleActionError(event, event.actionTarget, {error: error}, actionName);
+				}
+				else if (self.constructor.logger) {
+					// A class level logger was found, so log an error level message.
+					self.constructor.logger.warn("An error was thrown while executing method \"" + method + "\", action \"" + actionName + "\", during a \"" + event.type + "\" event on element " + self.node.nodeName + "." + self.node.className.split(/\s+/g).join(".") + "#" + self.node.identify() + ".");
+					self.constructor.logger.error(error);
 				}
 				else {
 					// Give up. Throw the error and let the developer fix this.
@@ -392,6 +467,8 @@ dom.events.Delegator = function() {
 		}
 
 		if (!event.propagationStopped && event.actionTarget !== self.node && event.actionTarget.parentNode) {
+			// The delegate has not explicitly stopped the event, so keep looking for more data-action
+			// attributes on the next element up in the document tree.
 			event.actionTarget = event.actionTarget.parentNode;
 			handleEvent(event);
 		}
@@ -406,221 +483,225 @@ dom.events.Delegator = function() {
 
 		event = null;
 	}
-
-	this.constructor.apply(this, arguments);
+ 
+	this.constructor = dom.events.Delegator;
+	this.initialize.apply(this, arguments);
 };
 
-/* File: src/lib/dom/events/action.js */
-window.dom = window.dom || {};
-dom.events = dom.events || {};
+dom.events.Delegator.logger = window.console || null;
 
-dom.events.Action = Object.extend({
-	prototype: {
-		name: null,
-		params: null,
-		event: null,
-		element: null,
 
-		initialize: function(event, element, params, name) {
-			this.event = event;
-			this.element = element;
-			this.params = params;
-			this.name = name;
-			event = element = params = null;
-		},
-
-		destructor: function() {
-			this.params = this.event = this.element = null;
-		},
-
-		cancel: function() {
-			this.event.preventDefault();
-			this.event.stopPropagation();
-		}
-	}
-});
-
-/* File: src/lib/OperationFactory.js */
-OperationFactory = Object.extend({
+/* File: src/lib/ModuleFactory.js */
+ModuleFactory = Object.extend({
 
 	prototype: {
 
 		eventDispatcher: null,
 
+		modules: null,
+
+		initialize: function(eventDispatcher) {
+			this.eventDispatcher = eventDispatcher;
+			BaseModule.eventDispatcher = eventDispatcher;
+			BaseModule.factory = this;
+			this.modules = {};
+			eventDispatcher = null;
+		},
+
 		destructor: function() {
 			this.eventDispatcher = null;
 		},
 
-		getOperation: function(name) {
-			var Klass = null, KlassName;
-			
-			try {
-        KlassName = (name + "_operation").toClassName();
-				Klass = KlassName.constantize();
+		getClassReference: function(className) {
+			if ( /^[a-zA-Z][a-zA-z0-9.]+[a-zA-z0-9]$/.test(className) ) {
+				return eval(className);
 			}
-			catch (e) {
-				Klass = null;
+			else {
+				throw new Error(className + " is an invalid class name");
 			}
-
-			return Klass ? new Klass(this, this.eventDispatcher) : null;
 		},
 
-		setEventDispatcher: function(eventDispatcher) {
-			this.eventDispatcher = eventDispatcher;
-			eventDispatcher = null;
+		getInstance: function(className, options) {
+			var Klass = this.getClassReference(className);
+			var element = document.createElement("div");
+			element.className = "module module-" + className.namify();
+			var module = new Klass(element, options);
+
+			this.registerModule(className, module);
+
+			return module;
+		},
+
+		registerModule: function(className, module) {
+			this.modules[className] = this.modules[className] || [];
+			this.modules[className].push(module);
+			module = null;
+		},
+
+		unregisterModule: function(module) {
+			var className, i, length, modules;
+
+			for (className in this.modules) {
+				if (this.modules.hasOwnProperty(className)) {
+					modules = this.modules[className];
+
+					for (i = 0, length = modules.length; i < length; i++) {
+						if (modules[i] === module) {
+							modules.splice(i, 1);
+							break;
+						}
+					}
+				}
+			}
+
+			modules = module = null;
 		}
 
 	}
 
 });
 
+// TODO: Create method to find a module, instantiate it and inject it into another module as a property.
 /* File: src/lib/events/Dispatcher.js */
 window.events = window.events || {};
 
-events.Dispatcher = function() {
-	this.subscribers = {};
-};
+events.Dispatcher = Object.extend({
 
-events.Dispatcher.logger = null;
-
-events.Dispatcher.prototype = {
-
-	subscribers: null,
-
-	destructor: function() {
-		var type, i, length, subscribers;
-
-		if (this.subscribers) {
-			for (type in this.subscribers) {
-				if (this.subscribers.hasOwnProperty(type)) {
-					subscribers = this.subscribers[type];
-
-					for (i = 0, length = subscribers.length; i < length; i++) {
-						subscribers[i] = null;
-					}
-
-					this.subscribers[type] = null;
-				}
-			}
-
-			this.subscribers = null;
-		}
+	self: {
+		logger: null
 	},
-
-	publish: function(type, publisher, data) {
-		if (!this.subscribers[type]) {
-			return false;
-		}
-
-		var event = new events.Event(type, publisher, data);
-		var subscribers = this.subscribers[type], i = 0, length = subscribers.length, subscriber;
-
-		for (i; i < length; i++) {
-			if (event.cancelled) {
-				break;
-			}
-
-			subscriber = subscribers[i];
-
-			try {
-				subscriber.instance[ subscriber.method ](event, event.data);
-			}
-			catch (error) {
-				if (events.Dispatcher.logger) {
-					events.Dispatcher.logger.error("events.Dispatcher#publish - An error was thrown while publishing event " + type);
-					events.Dispatcher.logger.error(error);
-				}
-				else {
-					event = publisher = data = subscribers = null;
-					throw error;
-				}
-			}
-		}
-
-		event = publisher = data = subscribers = null;
-
-		return true;
-	},
-
-	subscribe: function(type, instance, method) {
-		this.subscribers[type] = this.subscribers[type] || [];
-		this.subscribers[type].push({instance: instance, method: method || "handleEvent"});
-		instance = null;
-	},
-
-	unsubscribe: function(type, instance) {
-		if (this.subscribers[type]) {
-			var subscribers = this.subscribers[type], i = subscribers.length;
-
-			while (i--) {
-				if (subscribers[i].instance === instance) {
-					subscribers.splice(i, 1);
-				}
-			}
-
-			subscribers = instance = null;
-		}
-	},
-
-	unsubscribeAll: function(instance) {
-		var type, i;
-
-		for (type in this.subscribers) {
-			if (this.subscribers.hasOwnProperty(type)) {
-				i = this.subscribers[type].length;
-
-				while (i--) {
-					if (this.subscribers[type][i].instance === instance) {
-						this.subscribers[type].splice(i, 1);
-					}
-				}
-			}
-		}
-	}
-
-};
-
-/* File: src/lib/events/Publisher.js */
-window.events = window.events || {};
-
-events.Publisher = {
 
 	prototype: {
 
-		dispatcher: null,
-		
-		initEventPublishing: function() {
-			if (this.dispatcher) {
+		subscribers: null,
+
+		initialize: function() {
+			this.subscribers = {};
+		},
+
+		destructor: function() {
+			if (!this.subscribers) {
 				return;
 			}
 
-			this.dispatcher = new events.Dispatcher();
-		},
-		
-		destroyEventPublishing: function() {
-			if (!this.dispatcher) {
-				return;
+			var subscribers = this.subscribers, subscriber, eventType, i, length;
+
+			for (eventType in subscribers) {
+				if (subscribers.hasOwnProperty(eventType)) {
+					for (i = 0, length = subscribers[eventType].length; i < length; i++) {
+						subscriber = subscribers[eventType][i];
+						subscriber.callback = subscriber.context = null;
+					}
+
+					subscribers[eventType] = null;
+				}
 			}
 
-			this.dispatcher.destructor();
-			this.dispatcher = null;
+			subscriber = subscribers = this.subscribers = null;
 		},
-		
-		publish: function(type, data) {
-			this.dispatcher.publish(type, this, data);
+
+		dispatchEvent: function(event, subscribers) {
+			var subscriber;
+
+			for (var i = 0, length = subscribers.length; i < length; i++) {
+				subscriber = subscribers[i];
+
+				if (subscriber.type === "function") {
+					subscriber.callback.call(subscriber.context, event, event.publisher, event.data);
+				}
+				else if (subscriber.type === "string") {
+					subscriber.context[ subscriber.callback ]( event, event.publisher, event.data );
+				}
+
+				if (event.cancelled) {
+					break;
+				}
+			}
+
+			subscribers = subscriber = event = null;
 		},
-		
-		subscribe: function(type, instance, method) {
-			this.dispatcher.subscribe(type, instance, method);
+
+		publish: function(eventType, publisher, data) {
+			if (!this.subscribers[eventType]) {
+				return false;
+			}
+
+			var event = new events.Event(eventType, publisher, data);
+			var subscribers = this.subscribers[eventType];
+			var cancelled = false;
+
+			this.dispatchEvent(event, subscribers);
+			cancelled = event.cancelled;
+			event.destructor();
+
+			event = publisher = data = subscribers = null;
+
+			return !cancelled;
 		},
-		
-		unsubscribe: function(type, instance) {
-			this.dispatcher.unsubscribe(type, instance);
+
+		subscribe: function(eventType, context, callback) {
+			var contextType = typeof context;
+			var callbackType = typeof callback;
+			
+			this.subscribers[eventType] = this.subscribers[eventType] || [];
+			
+			if (contextType === "function") {
+				this.subscribers[eventType].push({
+					context: null,
+					callback: context,
+					type: "function"
+				});
+			}
+			else if (contextType === "object") {
+				if (callbackType === "string" && typeof context[ callback ] !== "function") {
+					throw new Error("Cannot subscribe to " + eventType + " because " + callback + " is not a function");
+				}
+			
+				this.subscribers[eventType].push({
+					context: context || null,
+					callback: callback,
+					type: callbackType
+				});
+			}
+		},
+
+		unsubscribe: function(eventType, context, callback) {
+			if (this.subscribers[eventType]) {
+				var contextType = typeof context;
+				var callbackType = typeof callback;
+				var subscribers = this.subscribers[eventType];
+				var i = subscribers.length;
+				var subscriber;
+
+				if (contextType === "undefined" && callbackType === "undefined") {
+					// assume message is an object that wants all of its listeners removed
+				}
+				else if (contextType === "function") {
+					callback = context;
+					context = null;
+					callbackType = "function";
+				}
+				else if (contextType === "object" && callbackType === "undefined") {
+					callbackType = "any";
+				}
+
+				while (i--) {
+					subscriber = subscribers[i];
+
+					if (
+					    (callbackType === "any" && subscriber.context === context) ||
+							(subscriber.type === callbackType && subscriber.context === context && subscriber.callback === callback)
+					) {
+						subscribers.splice(i, 1);
+					}
+				}
+			}
+
+			context = callback = subscribers = subscriber = null;
 		}
-
 	}
 
-};
+});
 
 /* File: src/lib/events/Event.js */
 window.events = window.events || {};
@@ -883,60 +964,33 @@ Template = Object.extend({
 
 class BaseView extends Object
 	Public:
-		static disableNodeCaching()
-		static enableNodeCaching()
 		constructor(String | HTMLElement id)
 		init()
 		destructor()
 	Protected:
-		delegator <dom.events.Delegator>
 		id <String>
 		ownerDocument <Document>
-		rootNode <HTMLElement>
-		getDelegatorEventTypes() returns Array
-		getNode(String idSuffix) returns HTMLElement
-		handleNodeEvent(Event event)
-		purgeNodeCache()
+		element <HTMLElement>
+		getElementBySiffux(String idSuffix) returns HTMLElement
 		querySelector(String selector) returns HTMLElement or undefined
 		querySelectorAll(String selector) returns HTMLCollection
-	Private:
-		static generateNodeId() returns String
-		nodeCache <Object>
-		getNodesFromCache(String key) returns HTMLElement or HTMLCollection or null
-		nodeCachingEnabled() returns Boolean
 
 */
 BaseView = Object.extend({
 
 	self: {
 
-		nodeCachingEnabled: false,
-
-		nodeIdIndex: 0,
-
-		disableNodeCaching: function() {
-			this.nodeCachingEnabled = false;
-		},
-
-		enableNodeCaching: function() {
-			this.nodeCachingEnabled = true;
-		},
-
-		generateNodeId: function() {
-			return "anonymous-node-" + (BaseView.nodeIdIndex++);
-		},
-
-		getInstance: function(rootNode, delegate, templateName) {
+		getInstance: function(element, templateName) {
 			var className = (templateName.replace(/\//g, "-") + "_view").toClassName();
 			var ViewClass = className.constantize();
 			var view;
 
 			if (!ViewClass) {
-				ViewClass = BaseView;
+				ViewClass = this;
 			}
 
-			view = new ViewClass(rootNode, delegate, templateName);
-			ViewClass = rootNode = delegate = null;
+			view = new ViewClass(element, templateName);
+			ViewClass = element = null;
 			return view;
 		}
 
@@ -946,144 +1000,94 @@ BaseView = Object.extend({
 
 // Access: Public
 
-		initialize: function(rootNode, delegate, templateName) {
-			this.nodeCache = {};
-
-			if (typeof rootNode === "string") {
+		initialize: function(element, templateName) {
+			if (typeof element === "string") {
 				if (!this.ownerDocument) {
 					this.ownerDocument = document;
 				}
 
-				this.rootNode = this.ownerDocument.getElementById(rootNode);
+				this.element = this.ownerDocument.getElementById(element);
 			}
 			else {
-				this.rootNode = rootNode;
-				this.ownerDocument = this.rootNode.ownerDocument;
-
-				if (!this.rootNode.getAttribute("id")) {
-					this.rootNode.setAttribute("id", BaseView.generateNodeId());
-					this.id = this.rootNode.getAttribute("id");
-				}
+				this.element = element;
+				this.ownerDocument = this.element.ownerDocument;
+				this.id = this.element.identify();
 			}
 
 			if (templateName) {
 				this.templateName = templateName;
 			}
 
-			this.delegator = new dom.events.Delegator(delegate, this.rootNode, this.delegatorActionPrefix);
-			rootNode = delegate = null;
-		},
+			if (!this.element.childNodes.length) {
+				this.element.innerHTML = this.getDefaultHTML();
+			}
 
-		init: function() {
-			this.delegator.addEventTypes(this.getDelegatorEventTypes());
-			this.delegator.init();
-			return this;
+			element = null;
 		},
 
 		destructor: function() {
-			if (this.delegator) {
-				this.delegator.destructor();
-				this.delegator = null;
-			}
+			this.element = this.ownerDocument = null;
+		},
 
-			this.rootNode = this.ownerDocument = null;
+		getDefaultHTML: function() {
+			return '<div class="view-loading"></div><div class="view-content"></div>';
 		},
 
 		render: function(model) {
+			this.toggleLoading(true);
+
 			Template.fetch(this.templateName, this, function(template) {
-				if (this.model && this.model.unsubscribe) {
-					this.model.unsubscribe("attributes:changed", this);
-				}
-
 				this.model = model;
-				this.rootNode.innerHTML = template.render(this.model);
+				this.querySelector(".view-content").innerHTML = template.render(this.model);
+				this.toggleLoading(false);
 
-				if (this.model.subscribe) {
-					this.model.subscribe("attributes:changed", this, "handleAttributesChanged");
+				var firstField = this.querySelector("input,textarea,select");
+
+				if (firstField) {
+					firstField.focus();
+
+					if (firstField.select) {
+						firstField.select();
+					}
 				}
 
-				template = null;
+				firstField = template = null;
 			});
 
 			return this;
 		},
 
+		toggleLoading: function(loading) {
+			if (loading) {
+				this.querySelector(".view-loading").style.display = "block";
+				this.querySelector(".view-content").style.display = "none";
+			}
+			else {
+				this.querySelector(".view-loading").style.display = "none";
+				this.querySelector(".view-content").style.display = "block";
+			}
+		},
+
 // Access: Protected
-
-		delegateActionPrefix: "",
-
-		delegatorEventTypes: "",
-
-		delegator: null,
 
 		id: null,
 
 		ownerDocument: null,
 
-		rootNode: null,
+		element: null,
 
 		templateName: null,
 
-		getDelegatorEventTypes: function() {
-			return this.delegatorEventTypes.split(/[ ,]+/g);
-		},
-
-		getNode: function(idSuffix) {
+		getElementBySuffix: function(idSuffix) {
 			return this.ownerDocument.getElementById(this.id + "-" + idSuffix);
 		},
 
-		purgeNodeCache: function() {
-			this.nodeCache = {};
-		},
-
 		querySelector: function(selector) {
-			if (this.nodeCachingEnabled()) {
-				var node = this.getNodesFromCache("selector-" + selector);
-
-				if (!node) {
-					node = this.rootNode.querySelector(selector);
-					this.nodeCache["selector-" + selector] = node;
-				}
-
-				return node;
-			}
-			else {
-				return this.rootNode.querySelector(selector);
-			}
+			return this.element.querySelectorAll(selector)[0];
 		},
 
 		querySelectorAll: function(selector) {
-			var nodes = [];
-
-			if (this.nodeCachingEnabled()) {
-				nodes = this.getNodesFromCache("selectorAll-" + selector);
-
-				if (!nodes) {
-					nodes = this.rootNode.querySelectorAll(selector);
-					this.nodeCache["selectorAll-" + selector] = nodes;
-				}
-			}
-			else {
-				nodes = this.rootNode.querySelectorAll(selector);
-			}
-
-			return nodes;
-		},
-
-// Access: Private
-
-		nodeCache: null,
-
-		getNodesFromCache: function(key) {
-			return (this.nodeCache[key]) ? this.nodeCache[key] : null;
-		},
-
-		handleAttributesChanged: function(model) {
-			console.info("FormView#handleAttributesChanged");
-		},
-
-		nodeCachingEnabled: function() {
-			return BaseView.nodeCachingEnabled;
+			return this.element.querySelectorAll(selector);
 		}
 
 	}
@@ -1101,9 +1105,9 @@ BaseView.Forms = {
 
 		getFormData: function(fromCache) {
 			if (!fromCache || !this.currentData) {
-				var inputs = this.rootNode.getElementsByTagName("input");
-				var selects = this.rootNode.getElementsByTagName("select");
-				var textareas = this.rootNode.getElementsByTagName("textarea");
+				var inputs = this.element.getElementsByTagName("input");
+				var selects = this.element.getElementsByTagName("select");
+				var textareas = this.element.getElementsByTagName("textarea");
 
 				this.currentData = {};
 				this.extractFormControlsData(inputs, this.currentData);
@@ -1200,7 +1204,7 @@ BaseView.Forms = {
 		},
 
 		getControlsByName: function(name) {
-			var nodes = this.rootNode.getElementsByTagName("*"), i = 0, length = nodes.length, controls = [];
+			var nodes = this.element.getElementsByTagName("*"), i = 0, length = nodes.length, controls = [];
 
 			for (i; i < length; ++i) {
 				if (nodes[i].name === name) {
@@ -1213,8 +1217,8 @@ BaseView.Forms = {
 		},
 
 		hideFieldErrors: function() {
-			var errorElements = this.rootNode.querySelectorAll(".form-field-error");
-			var formErrorElement = this.rootNode.querySelector(".form-errors");
+			var errorElements = this.element.querySelectorAll(".form-field-error");
+			var formErrorElement = this.element.querySelector(".form-errors");
 			var i = 0, length = errorElements.length;
 
 			for (i; i < length; i++) {
@@ -1229,7 +1233,7 @@ BaseView.Forms = {
 		},
 
 		setFieldErrors: function(errors) {
-			var errorElement = this.rootNode.querySelector(".form-errors");
+			var errorElement = this.element.querySelector(".form-errors");
 			var errorsMarkup, key, control;
 
 			this.hideFieldErrors();
@@ -1254,7 +1258,7 @@ BaseView.Forms = {
 
 				for (key in errors) {
 					if (errors.hasOwnProperty(key)) {
-						errorElement = this.rootNode.querySelector(".form-field-error-" + key);
+						errorElement = this.element.querySelector(".form-field-error-" + key);
 
 						if (!errorElement) {
 							errorElement = this.ownerDocument.createElement(this.fieldErrorNodeName);
@@ -1275,6 +1279,7 @@ BaseView.Forms = {
 };
 
 BaseView.include(BaseView.Forms);
+
 /* File: src/framework/models/BaseModel.js */
 BaseModel = Object.extend({
 
@@ -1507,6 +1512,29 @@ BaseModel = Object.extend({
 			return new RegExp("(^|\\s+)" + key + "(\\s+|$)").test(this.validAttributes.join(" "));
 		},
 
+		mergePropertyChain: function(key, defaults) {
+			defaults = defaults || {};
+      var proto = this, properties = [], i, length;
+
+      // climb the prototype chain and get references to all properties in reverse order
+      while (proto && proto != Object.prototype) {
+        if (proto.hasOwnProperty(key)) {
+          properties.unshift(proto[key])
+        }
+
+        proto = proto.__proto__;
+      }
+
+			// merge properties together with defaults
+      for (i = 0, length = properties.length; i < length; i++) {
+        defaults.merge(properties[i]);
+      }
+
+      this[key] = defaults;
+
+      proto = protos = options = null;
+		},
+
 		setAttribute: function(key, value) {
 			if (this.isValidAttributeKey(key) && value !== this._attributes[key] && this._attributes[key] !== undefined) {
 				this._changedAttributes[key] = this._attributes[key];
@@ -1531,1064 +1559,6 @@ BaseModel = Object.extend({
 
 });
 
-/* File: src/framework/models/BaseCollection.js */
-BaseCollection = Array.extend({
-
-	prototype: {
-
-		className: null,
-
-		classReference: null,
-
-		pointer: 0,
-
-		initialize: function(className) {
-			this.className = className || null;
-			Array.apply(this, arguments);
-		},
-
-		contains: function(x) {
-			if (typeof x === "object") {
-				if (x.__proto__ === Object.prototype) {
-					return this.containsId( x[ this.getClassReference().getPrimaryKey() ] );
-				}
-				else if (x.getPrimaryKey() ) {
-					return this.containsId( x.getPrimaryKey() );
-				}
-				else {
-					return this.containsInstance(x);
-				}
-			}
-			else {
-				return this.containsId(x);
-			}
-		},
-
-		containsId: function(id) {
-			if (!id) {
-				return false;
-			}
-
-			var i = this.length;
-
-			while (i--) {
-				if (this[i].getPrimaryKey() == id) {
-					return true;
-				}
-			}
-
-			return false;
-		},
-
-		containsInstance: function(instance) {
-			var i = this.length;
-
-			while(i--) {
-				if (this[i] === instance) {
-					return true;
-				}
-			}
-
-			return false;
-		},
-
-		create: function(attributesOrInstance) {
-			if (!attributesOrInstance || attributesOrInstance.__proto__ === Object.prototype) {
-				attributesOrInstance = this.getModelInstance(attributesOrInstance);
-			}
-			else {
-				throw new Error("Attributes passed to BaseCollection#create must be a direct instance of Object");
-			}
-
-			return this.push(attributesOrInstance);
-		},
-
-		each: function(context, callback) {
-			var i = 0, length = this.length;
-
-			if (!callback) {
-				callback = context;
-				context = this;
-			}
-
-			for (i; i < length; i++) {
-				callback.call(context, this[i], i);
-			}
-		},
-
-		fastForward: function() {
-			this.pointer = this.length;
-		},
-
-		getClassReference: function() {
-			if (!this.classReference) {
-				this.classReference = this.className.constantize();
-			}
-
-			return this.classReference;
-		},
-
-		getModelInstance: function(attributes) {
-			var Klass = this.getClassReference();
-			var model = null;
-			
-			if ( attributes && attributes[ Klass.getPrimaryKey() ] ) {
-				model = Klass.find( attributes[ Klass.getPrimaryKey() ] ) || new Klass();
-			}
-			else {
-				model = new Klass();
-			}
-
-			model.attributes = attributes;
-			Klass = null;
-
-			return model;
-		},
-
-		isCorrectType: function(model) {
-			return (model.__proto__ === this.getClassReference().prototype);
-		},
-
-		next: function() {
-			var model = null;
-
-			if (this.pointer < this.length) {
-				model = this[this.pointer];
-				this.pointer++;
-			}
-			else {
-				this.rewind();
-			}
-
-			return model;
-		},
-
-		pop: function() {
-			return (this.length === 0) ? null : Array.prototype.pop.call(this);
-		},
-
-		prev: function() {
-			var model = null;
-
-			this.pointer--;
-
-			if (this.pointer > -1) {
-				model = this[this.pointer];
-			}
-			else {
-				this.rewind();
-			}
-
-			return model;
-		},
-
-		push: function(model) {
-			if (!this.isCorrectType(model)) {
-				throw new Error("Item must be a direct instance of " + this.className);
-			}
-			else if (this.contains(model)) {
-				return null;
-			}
-			else {
-				Array.prototype.push.call(this, model);
-				return model;
-			}
-		},
-
-		rewind: function() {
-			this.pointer = 0;
-		},
-
-		sort: function(columns, direction) {
-			columns = (columns instanceof Array) ? columns : [columns];
-			direction = (direction || "asc").toLowerCase();
-
-			var getPropertyValues = function(a, b) {
-				var i = 0, length = columns.length, values = null, key;
-
-				if (length === 1) {
-					values = [ a[ columns[0] ], b[ columns[0] ] ];
-				}
-				else {
-					for (i; i < length; i++) {
-						key = columns[i];
-
-						if (a[key] !== b[key]) {
-							values = [ a[key], b[key] ];
-							break;
-						}
-					}
-
-					if (!values) {
-						values = [ a[ columns[0] ], b[columns[0] ] ];
-					}
-				}
-
-				a = b = null;
-
-				return values;
-			};
-
-			var ascendingSorter = function(a, b) {
-				var values = getPropertyValues(a, b);
-
-				a = b = null;
-
-				if (values[0] > values[1]) {
-					return 1;
-				}
-				else if (values[0] < values[1]) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			};
-
-			var descendingSorter = function(a, b) {
-				var values = getPropertyValues(a, b);
-
-				a = b = null;
-
-				if (values[0] < values[1]) {
-					return 1;
-				}
-				else if (values[0] > values[1]) {
-					return -1;
-				}
-				else {
-					return 0;
-				}
-			};
-
-			var sorter = (direction === "asc") ? ascendingSorter : descendingSorter;
-
-			Array.prototype.sort.call(this, sorter);
-			return this;
-		}
-
-	}
-});
-
-/* File: src/lib/BaseModel/Publisher.js */
-BaseModel.Publisher = {
-
-	self: {
-
-		dispatcher: null,
-
-		publish: function(eventName, data) {
-			if (BaseModel.dispatcher) {
-				BaseModel.dispatcher.publish(eventName, this, data);
-			}
-
-			data = null;
-		},
-
-		subscribe: function(eventName, instance, callback) {
-			if (BaseModel.dispatcher) {
-				BaseModel.dispatcher.subscribe(eventName, instance, callback);
-			}
-
-			instance = callback = null;
-		},
-
-		unsubscribe: function(eventName, instance) {
-			if (BaseModel.dispatcher) {
-				BaseModel.dispatcher.unsubscribe(eventName, instance);
-			}
-
-			instance = null;
-		},
-
-		unsubscribeAll: function(instance) {
-			if (BaseModel.dispatcher) {
-				BaseModel.dispatcher.unsubscribeAll(instance);
-			}
-
-			instance = null;
-		}
-
-	},
-
-	prototype: {
-
-		publish: function(eventName) {
-			BaseModel.publish(eventName, this);
-		},
-
-		subscribe: function(eventName, instance, callback) {
-			BaseModel.subscribe(eventName, instance, callback);
-			instance = callback = null;
-		},
-
-		unsubscribe: function(eventName, instance, callback) {
-			BaseModel.unsubscribe(eventName, instance, callback);
-			instance = callback = null;
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Publisher);
-
-/* File: src/lib/BaseModel/BasicValidation.js */
-BaseModel.BasicValidation = {
-
-	prototype: {
-
-		errors: null,
-
-		valid: false,
-
-		requires: null,
-
-		addError: function(key, message) {
-			this.errors[key] = this.errors[key] || [];
-			this.errors[key].push(message);
-		},
-
-		convertKeyToWords: function(key) {
-			key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
-				if (match.length > 1) {
-					return (index === 0) ? match : " " + match;
-				}
-				else {
-					return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
-				}
-			});
-
-			return key;
-		},
-
-		getErrorMessage: function(key) {
-			var message = [], words, i, length, errors = this.errors[key];
-
-			if (errors) {
-				words = (key === "base") ? "" : this.convertKeyToWords(key).capitalize() + " ";
-
-				for (i = 0, length = errors.length; i < length; i++) {
-					message.push(words + errors[i]);
-				}
-			}
-
-			errors = null;
-
-			return message;
-		},
-
-		getErrorMessages: function() {
-			var errorMessages = {}, key;
-
-			if (this.hasErrors()) {
-				for (key in this.errors) {
-					if (this.errors.hasOwnProperty(key)) {
-						errorMessages[key] = this.getErrorMessage(key);
-					}
-				}
-			}
-
-			return errorMessages;
-		},
-
-		hasErrors: function() {
-			return !this.valid;
-		},
-
-		validate: function() {
-			this.errors = {};
-			this.valid = true;
-			this.validateRequiredAttributes();
-			this.applyModuleCallbacks("validate");
-
-			return this.valid;
-		},
-
-		validateRequiredAttributes: function() {
-			if (!this.requires) {
-				return;
-			}
-
-			var key, i = 0, length = this.requires.length;
-
-			for (i; i < length; i++) {
-				key = this.requires[i];
-
-				if (this.valueIsEmpty(this.attributes[key])) {
-					this.addError(key, "is required");
-					this.valid = false;
-				}
-			}
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.BasicValidation);
-
-/* File: src/lib/BaseModel/ExtendedValidation.js */
-BaseModel.ExtendedValidation = {
-
-	callbacks: {
-
-		validate: function() {
-			this.validateAttributeDataTypes();
-			this.validateAttributeLengths();
-			this.validateAttributeFormats();
-		}
-
-	},
-
-	prototype: {
-
-		validatesNumeric: null,
-
-		validatesMaxLength: null,
-
-		validatesFormatOf: null,
-
-		validateAttributeDataTypes: function() {
-			if (!this.validatesNumeric) {
-				return;
-			}
-
-			var key, type, i = 0, length = this.validatesNumeric.length;
-
-			for (i; i < length; i++) {
-				key = this.validatesNumeric[i];
-
-				if (!this.valueIsEmpty(this._attributes[key]) && !this.valueIsNumeric(this._attributes[key])) {
-					this.addError(key, "must be a number");
-					this.valid = false;
-				}
-			}
-		},
-
-		validateAttributeLengths: function() {
-			if (!this.validatesMaxLength) {
-				return;
-			}
-
-			var key;
-
-			for (key in this.validatesMaxLength) {
-				if (this.validatesMaxLength.hasOwnProperty(key)) {
-					if (!this.valueIsEmpty(this._attributes[key]) && String(this._attributes[key]).length > this.validatesMaxLength[key]) {
-						this.addError(key, "cannot exceed " + this.validatesMaxLength[key] + " characters");
-						this.valid = false;
-					}
-				}
-			}
-		},
-
-		validateAttributeFormats: function() {
-			if (!this.validatesFormatOf) {
-				return;
-			}
-
-			var key, i, length, valid = true;
-
-			for (key in this.validatesFormatOf) {
-				if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this._attributes[key])) {
-					if (this.validatesFormatOf[key] instanceof Array) {
-						for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
-							if (!this.validatesFormatOf[key][i].test(this._attributes[key])) {
-								valid = false;
-							}
-							else {
-								valid = true;
-								break
-							}
-						}
-
-						if (!valid) {
-							this.addError(key, "is not in a valid format");
-							this.valid = false;
-						}
-					}
-					else if (!this.validatesFormatOf[key].test(this._attributes[key])) {
-						this.addError(key, "is not in a valid format");
-						this.valid = false;
-					}
-				}
-			}
-		},
-
-		valueIsNumeric: function(value) {
-			return (/^[-.\d]+$/).test(String(value)) && !isNaN(value);
-		}
-		
-	}
-
-};
-
-BaseModel.include(BaseModel.ExtendedValidation);
-
-/* File: src/lib/BaseModel/Serialization.js */
-BaseModel.Serialization = {
-
-	prototype: {
-
-		serializeOptions: {
-			format: "queryString"
-		},
-
-		escapeHTML: function(x) {
-			return String(x).replace(/&/g, "&amp;")
-			                .replace(/</g, "&lt;")
-			                .replace(/>/g, "&gt;")
-			                .replace(/"/g, "&quot;")
-			                .replace(/'/g, "&apos;");
-		},
-
-		mergeOptions: function() {
-			var options = {}, key, overrides;
-
-			for (i = 0, length = arguments.length; i < length; i++) {
-				overrides = arguments[i];
-
-				for (key in overrides) {
-					if (overrides.hasOwnProperty(key)) {
-						options[key] = overrides[key];
-					}
-				}
-			}
-
-			return options;
-		},
-
-		serialize: function(options) {
-			options = this.mergeOptions(BaseModel.Serialization.prototype.serializeOptions, this.serializeOptions, options || {});
-			var methodName = "to" + options.format.capitalize();
-			var x = this[methodName](options);
-			return x;
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Serialization);
-
-/* File: src/lib/BaseModel/Serialization/Json.js */
-BaseModel.Serialization.Json = {
-
-	prototype: {
-
-		objectIsEmpty: function(o) {
-			var empty = true, key;
-
-			if (o) {
-				for (key in o) {
-					if (o.hasOwnProperty(key)) {
-						empty = false;
-						break;
-					}
-				}
-			}
-
-			o = null;
-
-			return empty;
-		},
-
-		toJson: function(options) {
-			options = options || {};
-			var json = "", moduleCallbacksResult, attrs = {}, i, length, key, hasAttrs = false;
-
-			if (options.rootElement) {
-				json += '{"' + options.rootElement + '":';
-			}
-
-			if (options.changedAttributesOnly) {
-				for (key in this._changedAttributes) {
-					if (this._changedAttributes.hasOwnProperty(key) && this._changedAttributes[key]) {
-						attrs[key] = this._attributes[key];
-					}
-				}
-
-				hasAttrs = true;
-				attrs[this.primaryKey] = this.attributes[this.primaryKey];
-			}
-			else {
-				length = this.validAttributes.length;
-
-				for (i = 0; i < length; i++) {
-					key = this.validAttributes[i];
-
-					if (this._attributes.hasOwnProperty(key)) {
-						hasAttrs = true;
-						attrs[key] = this._attributes[key];
-					}
-				}
-			}
-
-			json += JSON.stringify(attrs);
-			moduleCallbacksResult = this.applyModuleCallbacks("toJson", [options]);
-
-			if (moduleCallbacksResult.length) {
-				json = json.replace(/\}$/, "");
-
-				if (hasAttrs) {
-					json += "," + moduleCallbacksResult.join("") + "}";
-				}
-				else {
-					json += moduleCallbacksResult.join("") + "}";
-				}
-			}
-
-			if (options.rootElement) {
-				json += '}';
-			}
-
-			return json;
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Serialization.Json);
-
-/* File: src/lib/BaseModel/Serialization/QueryString.js */
-BaseModel.Serialization.QueryString = {
-
-	prototype: {
-
-		toQueryString: function(options) {
-			options = options || {};
-			var attrs = null, key, queryString = [], moduleCallbacksResult;
-
-			if (options.changedAttributesOnly) {
-				attrs = {};
-
-				for (key in this.changedAttributes) {
-					if (this._changedAttributes.hasOwnProperty(key) && this._changedAttributes[key]) {
-						attrs[key] = this._attributes[key];
-					}
-				}
-
-				attrs[this.primaryKey] = this.attributes[this.primaryKey];
-			}
-			else {
-				attrs = this._attributes;
-			}
-
-			if (options.rootElement) {
-				for (key in attrs) {
-					if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-						queryString.push(options.rootElement + "[" + escape(key) + "]=" + escape(attrs[key]));
-					}
-				}
-			}
-			else {
-				for (key in attrs) {
-					if (attrs.hasOwnProperty(key) && !this.valueIsEmpty(attrs[key])) {
-						queryString.push(escape(key) + "=" + escape(attrs[key]));
-					}
-				}
-			}
-
-			moduleCallbacksResult = this.applyModuleCallbacks("toQueryString", [options]);
-
-			if (moduleCallbacksResult.length) {
-				queryString.push(moduleCallbacksResult.join(""));
-			}
-
-			return queryString.join("&");
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Serialization.QueryString);
-
-/* File: src/lib/BaseModel/Persistence.js */
-BaseModel.Persistence = {
-
-	included: function(Klass) {
-		Klass.persistence = {types: []};
-		Klass.prototype.persistence = {};
-		Klass = null;
-	},
-
-	prototype: {
-
-		destroyed: false,
-
-		newRecord: true,
-
-		destroy: function(context, callbacks) {
-			if (this.destroyed) {
-				callbacks.notFound.call(context);
-			}
-			else {
-				this.doDestroy(context, callbacks);
-			}
-		},
-
-		doDestroy: function(context, callbacks) {
-			var types = this.constructor.persistence.types;
-			var length = types.length, i = 0, type, method, count = 0;
-
-			var callbacks = {
-				destroyed: function() {
-					
-				},
-				notFound: function() {
-					
-				}
-			};
-
-			for (i; i < length; i++) {
-				type = types[i];
-				method = "destroyFrom" + type.capitalize();
-
-				if (this[method]) {
-					this[method](this, callbacks);
-				}
-				else {
-					throw new Error("No method " + method + " found for persistence type " + type);
-				}
-			}
-		},
-
-		getPersistenceTypes: function() {
-			return this.constructor.persistence.types;
-		},
-
-		save: function(context, callbacks) {
-			if (this.destroyed) {
-				callbacks.invalid.call(context, {base: "has been deleted"});
-			}
-			else if (!this.validate()) {
-				callbacks.invalid.call(context, this.getErrorMessages());
-			}
-			else {
-				this.doSave(context, callbacks);
-			}
-
-			context = callbacks = null;
-		},
-
-		doSave: function(context, externalCallbacks) {
-			var types = this.getPersistenceTypes();
-			var length = types.length, type, method, count = 0, model = this;
-
-			var cleanup = function() {
-				types = externalCallbacks = doSaveCallbacks = context = model = null;
-			};
-
-			var performSave = function() {
-				if (count === length) {
-					if (model.newRecord) {
-						model.applyModuleCallbacks("save");
-						model.newRecord = false;
-						externalCallbacks.saved.call(context);
-						model.constructor.register(model);
-						model.publish("created");
-					}
-					else {
-						model.applyModuleCallbacks("update");
-						externalCallbacks.saved.call(context);
-						model.publish("updated");
-					}
-
-					cleanup();
-				}
-				else {
-					type = types[count];
-					method = "saveTo" + type.capitalize();
-					count++;
-
-					if (model[method]) {
-						model[method](model, doSaveCallbacks);
-					}
-					else {
-						throw new Error("No method " + method + " found for persistence type " + type);
-					}
-				}
-			};
-
-			var doSaveCallbacks = {
-				saved: function() {
-					performSave.call(model);
-				},
-				invalid: function(errors) {
-					externalCallbacks.invalid.call(context, errors);
-				}
-			};
-
-			performSave.call(model);
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Persistence);
-/* File: src/lib/BaseModel/Persistence/RestClient.js */
-BaseModel.Persistence.RestClient = {
-
-	included: function(Klass) {
-		Klass.persistence.types.push("restClient");
-		Klass = null;
-	},
-
-	callbacks: {
-		initialize: function(attributes) {
-			var defaultOptions = BaseModel.Persistence.RestClient.prototype.restClientOptions;
-			var options = {};
-
-			if (this.restClientOptions !== defaultOptions) {
-				this.restClientOptions = options.merge(defaultOptions, this.restClientOptions);
-			}
-			else {
-				this.restClientOptions = options.merge(defaultOptions);
-			}
-
-			options = defaultOptions = attributes = null;
-		}
-	},
-
-	prototype: {
-
-		restClientOptions: {
-			authorizationRequiredError: "You must be logged in to complete this operation.",
-			baseUrl: null,
-			create: "POST :baseUrl",
-			destroy: "DELETE :baseUrl/:id",
-			show: "GET :baseUrl/:id",
-			update: "PUT :baseUrl/:id",
-			generalError: "An error occurred, please try again.",
-			rootElement: null
-		},
-
-		createRequest: function() {
-			return new XMLHttpRequest();
-		},
-
-		createRestClientUri: function(type, data) {
-			var uri, method, path, uriString = this.restClientOptions[type];
-
-			uriString = uriString.replace(/:baseUrl/, this.restClientOptions.baseUrl);
-			uriString = uriString.replace(/:(\w+)/g, function(match, key) {
-				return data[key];
-			});
-
-			uri = uriString.split(" ");
-			method = uri[0];
-			path = uri[1];
-			data = null;
-
-			return {method: method, path: path};
-		},
-
-		getErrorsFromResponse: function(xhr) {
-			var errors = null;
-
-			try {
-				errors = JSON.parse(xhr.responseBody);
-			}
-			catch (error) {
-				// fail silently
-			}
-
-			return errors;
-		},
-
-		saveToRestClient: function(context, callbacks) {
-			var uri = this.createRestClientUri((this.persisted) ? "update" : "create", this.attributes);
-
-			this.sendRequest(uri.method, uri.path, this, {
-				created: function(xhr) {
-					var attributes = JSON.parse(xhr.responseText);
-					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
-					callbacks.saved.call(context);
-				},
-				updated: function(xhr) {
-					var attributes = JSON.parse(xhr.responseText);
-					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
-					callbacks.saved.call(context);
-				},
-				invalid: function(xhr) {
-					this.errors = this.getErrorsFromResponse(xhr);
-					callbacks.invalid.call(context, this.errors);
-					errors = null;
-				},
-				notAuthorized: function(xhr) {
-					this.addError("base", this.authorizationRequiredError);
-					callbacks.invalid.call(context, this.errors);
-				},
-				notFound: function(xhr) {
-					callbacks.notFound.call(context);
-				},
-				error: function(xhr) {
-					this.addError("base", this.generalError);
-					callbacks.error.call(context, this.errors);
-				}
-			});
-		},
-
-		sendRequest: function(method, url, context, callbacks) {
-			var onreadystatechange = function() {
-				if (this.readyState === 4) {
-					if (this.status === 200) {
-						if (method === "DELETE") {
-							callbacks.destroyed.call(context, this);
-						}
-						else {
-							callbacks.updated.call(context, this);
-						}
-					}
-					else if (this.status === 201) {
-						callbacks.created.call(context, this);
-					}
-					else if (this.status === 403) {
-						// not authorized
-						callbacks.notAuthorized.call(context, this);
-					}
-					else if (this.status === 404) {
-						// not found
-						callbacks.notFound.call(context, this);
-					}
-					else if (this.status === 412) {
-						// validation failed
-						callbacks.invalid.call(context, this);
-					}
-					else if (this.status > 399) {
-						// unhandled client or server error
-						callbacks.error.call(context, this);
-					}
-				}
-			};
-			var async = true;
-			var data = this.serialize();
-			var xhr = this.createRequest(), model = this;
-
-			if (method === "GET" || method === "DELETE") {
-				url += ( url.indexOf("?") < 0 ? "?" : "&" ) + data;
-				data = null;
-			}
-
-			xhr.onreadystatechange = onreadystatechange;
-			xhr.open(method, url, async);
-			xhr.setRequestHeader("x-requested-with", "XMLHTTPREQUEST");
-			xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-			xhr.send(data);
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Persistence.RestClient);
-/* File: src/lib/BaseModel/Persistence/LocalStorage.js */
-BaseModel.Persistence.LocalStorage = {
-
-	included: function(Klass) {
-		if (!window.localStorage) {
-			throw new Error("Your browser does not support localStorage.");
-		}
-		else if (!BaseModel.prototype.toJson) {
-			throw new Error("BaseModel.Persistence.LocalStorage requires the BaseModel.Serialization.Json module");
-		}
-
-		Klass.persistence.types.push("localStorage");
-	},
-
-	self: {
-
-		fetchFromLocalStorage: function(id, context, callbacks) {
-			var model = this.findFromLocalStorage(id);
-
-			if (model) {
-				callbacks.found.call(context, model);
-			}
-			else {
-				callbacks.notFound.call(context, model);
-			}
-
-			context = callbacks = model = null;
-		},
-
-		findFromLocalStorage: function(id) {
-			if (!this.instances[id]) {
-				var key = this.createLocalStorageKey({id: id});
-				var attributes = localStorage[key];
-				var instance = null;
-
-				if (attributes) {
-					attributes = JSON.parse(attributes);
-					instance = new this(attributes);
-				}
-
-				this.instances[id] = instance;
-				attributes = instance = null;
-			}
-
-
-			return this.instances[id];
-		}
-
-	},
-
-	prototype: {
-
-		localStorageOptions: {key: "base_model.:id"},
-
-		createLocalStorageKey: function(x) {
-			if (!x) {
-				x = {};
-				x[this.primaryKey] = this.getPrimaryKey();
-			}
-
-			return this.localStorageKey.replace(/:(\w+)/g, function(match, key) {
-				return x[key];
-			});
-		},
-
-		destroyFromLocalStorage: function(context, callbacks) {
-			if (!this.getPrimaryKey()) {
-				callbacks.notFound.call(context);
-			}
-			else {
-				var key = this.createLocalStorageKey();
-
-				if (!localStorage[key]) {
-					callbacks.notFound.call(context);
-				}
-				else {
-					localStorage[key] = null;
-					delete localStorage[key];
-					callbacks.destroyed.call(context);
-				}
-			}
-
-			context = callbacks = null;
-		},
-
-		saveToLocalStorage: function(context, callbacks) {
-			var key;
-
-			if (!this.getPrimaryKey()) {
-				this[ this.primaryKey ] = new Date().getTime() + "" + Math.round(Math.random() * 10000000000000000);
-			}
-
-			key = this.createLocalStorageKey(this);
-			localStorage[key] = this.toJson();
-			callbacks.saved.call(context);
-			context = callbacks = model = null;
-		}
-
-	}
-
-};
-
-BaseModel.include(BaseModel.Persistence.LocalStorage);
 /* File: src/lib/BaseModel/TemplateDataKeys.js */
 BaseModel.TemplateDataKeys = {
 	prototype: {
@@ -2612,316 +1582,143 @@ BaseModel.TemplateDataKeys = {
 };
 
 BaseModel.include(BaseModel.TemplateDataKeys);
-/* File: src/framework/operations/BaseOperation.js */
-BaseOperation = Object.extend({
+/* File: src/framework/modules/BaseModule.js */
+BaseModule = Object.extend({
 
-	prototype: {
+	includes: [ Object.ApplicationEvents, Object.Callbacks ],
 
-		childOperations: null,
+	self: {
+		factory: null,
 
-		eventDispatcher: null,
-
-		operationFactory: null,
-
-		parentOperation: null,
-
-		initialize: function(operationFactory, eventDispatcher) {
-			this.childOperations = {};
-			this.operationFactory = operationFactory;
-			this.eventDispatcher = eventDispatcher;
-			operationFactory = eventDispatcher = null;
-		},
-
-		destructor: function() {
-			var name;
-
-			if (this.childOperations) {
-				for (name in this.childOperations) {
-					if (this.childOperations.hasOwnProperty(name) && this.childOperations[name]) {
-						this.childOperations[name].destructor();
-						this.childOperations[name] = null;
-					}
-				}
-
-				this.childOperations = null;
-			}
-
-			if (this.eventDispatcher) {
-				this.eventDispatcher.unsubscribeAll(this);
-			}
-
-			this.parentOperation = this.operationFactory = this.eventDispatcher = null;
-		},
-
-		call: function(parentOperation, runArgs) {
-			this.parentOperation = parentOperation;
-			this.run.apply(this, runArgs);
-			parentOperation = null;
-		},
-
-		addChildOperation: function(name, childOperation) {
-			if (this.childOperations[name]) {
-				throw new Error("Cannot add more than one child operation with name " + name);
-			}
-
-			this.childOperations[name] = childOperation;
-			childOperation = null;
-		},
-
-		getChildOperation: function(name) {
-			if (!this.childOperations[name]) {
-				this.childOperations[name] = this.operationFactory.getOperation(name);
-			}
-
-			return this.childOperations[name];
-		},
-
-		map: function(events) {
-			var name;
-
-			for (name in events) {
-				if (events.hasOwnProperty(name)) {
-					this.eventDispatcher.subscribe("operation:" + name, this, events[name]);
-				}
-			}
-
-			events = null;
-		},
-
-		removeChildOperation: function(childOperation) {
-			var name;
-
-			for (name in this.childOperations) {
-				if (this.childOperations.hasOwnProperty(name) && childOperation === this.childOperations[name]) {
-					this.childOperations[name] = null;
-				}
-			}
-
-			childOperation = null;
-		},
-
-		run: function() {
-			throw new Error("Child classes must override BaseOperation#run");
+		getEventDispatcher: function() {
+			return BaseModule.eventDispatcher;
 		}
+	},
 
-	}
-
-});
-
-/* File: src/framework/operations/BootOperation.js */
-BootOperation = BaseOperation.extend({
 	prototype: {
 
-		application: null,
-
-		config: null,
+		actions: null,
 
 		delegator: null,
 
+		delegatorEventActionMapping: null,
+
 		element: null,
 
+		options: null,
+
+		view: null,
+
+		initialize: function(element, options) {
+			if (this.__proto__ === BaseModule.prototype) {
+				throw new Error("BaseModule is an abstract class and cannot be instantiated directly.");
+			}
+
+			this.element = element;
+			this.options = {
+				delegatorActionPrefix: null
+			};
+
+			if (options) {
+				this.options.merge(options);
+			}
+
+			this.initCallbacks();
+			this.setUpCallbacks();
+			this.notify("afterInitialize", this);
+
+			element = options = null;
+		},
+
+		init: function() {
+			this.element = (typeof this.element === "string") ? document.getElementById(this.element) : this.element;
+
+			if (!this.__proto__.hasOwnProperty("delegatorEventActionMapping")) {
+				this.compileDelegatorEventActionMapping();
+			}
+
+			this.delegator = new dom.events.Delegator(this, this.element, this.options.delegatorActionPrefix || null);
+			this.delegator.setEventActionMapping(this.delegatorEventActionMapping);
+			this.notify("afterInit", this);
+			this.run();
+
+			return this;
+		},
+
 		destructor: function() {
+			this.notify("beforeDestroy", this);
+
+			if (BaseModule.factory) {
+				BaseModule.factory.unregisterModule(this);
+			}
+
 			if (this.delegator) {
 				this.delegator.destructor();
 				this.delegator = null;
 			}
 
-			this.application = this.config = this.element = null;
+			this.destroyApplicationEvents();
+			this.destroyCallbacks();
 
-			BaseOperation.prototype.destructor.call(this);
+			if (this.element) {
+				this.element.parentNode.removeChild(this.element);
+				this.element = null;
+			}
+
+			this.actions = this.delegatorEventActionMapping = this.options = null;
 		},
 
-		handleAction: function(action) {
-			if ("domload" === action.event.type) {
-				// TODO: Get all *[data-action-domload] elements and run "init" operations on them
-				this.runDomloadOperations(action);
+		compileDelegatorEventActionMapping: function() {
+			var mapping = {}, callbackName, i, length, actions, proto = this.__proto__;
+
+			while (proto) {
+				if (proto.hasOwnProperty("actions") && proto.actions) {
+					actions = proto.actions;
+
+					for (callbackName in actions) {
+						if (actions.hasOwnProperty(callbackName)) {
+							// force actions[callbackName] to be an Array
+							actions[callbackName] = actions[callbackName] instanceof Array ? actions[callbackName] : [ actions[callbackName] ];
+
+							for (i = 0, length = actions[callbackName].length; i < length; i++) {
+								mapping[ actions[callbackName][i] ] = callbackName;
+							}
+						}
+					}
+				}
+
+				proto = proto.__proto__;
 			}
-			else if ("init" === action.name) {
-				this.runChildOperation(action);
+
+			this.__proto__.delegatorEventActionMapping = mapping;
+
+			mapping = actions = null;
+		},
+
+		render: function(templateName, context) {
+			if (!this.view) {
+				this.view = BaseView.getInstance(this.element, templateName);
 			}
-			else {
-				this.eventDispatcher.publish("operation:" + action.name, this, action);
-			}
+
+			this.view.templateName = templateName;
+			this.view.render(context);
 		},
 
 		run: function() {
-			this.config = this.application.config;
-			this.element = this.application.document.documentElement;
-			this.delegator.node = this.element;
-			this.delegator.delegate = this;
-			this.delegator.addEventTypes( this.config["delegator.eventTypes"] );
-		},
-
-		runChildOperation: function(action) {
-			var name = action.element.getAttribute("data-operation")
-			var childOperation = this.getChildOperation(name);
-
-			if (!childOperation) {
-				throw new Error("No child operation found for name '" + name + "'");
-			}
-			else {
-				childOperation.call(this, action);
-				childOperation = null;
-			}
-		},
-
-		domload: function(action) {
-			var actionElement = action.element;
-			var i = 0, elements = action.element.querySelectorAll("[data-action-domload=init]"), length = elements.length;
-
-			for (i; i < length; i++) {
-				action.element = elements[i];
-				this.runChildOperation(action);
-			}
-
-			action.element = actionElement;
-		},
-
-		setApplication: function(application) {
-			this.application = application;
-		},
-
-		setDelegator: function(delegator) {
-			this.delegator = delegator;
-		},
-
-		setEventDispatcher: function(eventDispatcher) {
-			this.eventDispatcher = eventDispatcher;
-		}
-
-	}
-});
-
-/* File: src/framework/operations/InitOperation.js */
-InitOperation = BaseOperation.extend({
-
-	prototype: {
-
-		containerElement: null,
-
-		containerOptions: {
-			className: "init",
-			location: "bottom"
-		},
-
-		delegatorEventTypes: "click submit",
-
-		element: null,
-
-		operationMap: null,
-
-		destructor: function() {
-			if (this.element) {
-				this.element.parentNode.removeChild(this.element);
-			}
-
-			this.element = null;
-		},
-
-		destroyOperationChain: function() {
-			this.parentOperation.removeChildOperation(this);
-			this.destructor();
-		},
-
-		call: function(parentOperation, action) {
-			this.containerElement = this.getContainerElement(action.element);
-			this.createElement();
-
-			if (this.operationMap) {
-				this.map(this.operationMap);
-			}
-
-			BaseOperation.prototype.call.call(this, parentOperation, [action]);
-			parentOperation = action = null;
-		},
-
-		cancel: function(action) {
-			action.cancel();
-			this.destroyOperationChain();
-		},
-
-		createElement: function() {
-			this.element = this.getDocument().createElement("div");
-			this.element.setAttribute("class", this.containerOptions.className);
-
-			if (this.containerOptions.location === "top") {
-				if (this.containerElement.childNodes[0]) {
-					this.containerElement.insertBefore(this.containerElement.childNodes[0], this.element);
-				}
-				else {
-					this.containerElement.appendChild(this.element);
-				}
-			}
-			else {
-				this.containerElement.appendChild(this.element);
-			}
-		},
-
-		getContainerElement: function(element) {
-			var containerElement = element;
-
-			if (containerElement.getAttribute("data-operation-container")) {
-				containerElement = document.getElementById( containerElement.getAttribute("data-operation-container") );
-			}
-			else {
-				while (containerElement && containerElement.getAttribute("data-layout-role") != "container") {
-					containerElement = containerElement.parentNode;
-				}
-			}
-
-			event = null;
-
-			return containerElement;
-		},
-
-		getDocument: function() {
-			return this.containerElement ? this.containerElement.ownerDocument : null;
-		},
-
-		render: function(templateName, data) {
-			if (!this.view) {
-				this.view = BaseView.getInstance(this.element, this, templateName);
-				this.view.delegatorEventTypes = this.delegatorEventTypes;
-				this.view.init();
-			}
-			else {
-				this.view.templateName = templateName;
-			}
-
-			this.view.render(data);
-			data = null;
+			throw new Error("Child classes must define a method called run to begin the life cycle of a module");
 		}
 
 	}
 
 });
 
-/* File: src/framework/operations/SubOperation.js */
-SubOperation = BaseOperation.extend({
-	prototype: {
-
-		destroyOperationChain: function() {
-			if (this.parentOperation) {
-				this.parentOperation.destroyOperationChain();
-			}
-		}
-
-	}
-});
-
+// TODO: Make sub module properties a dynamic getter property.
 /* File: src/framework/application/Application.js */
 /*
 
-Operation tree:
-
-	init
-	- load widgets
-		- respond to user events
-	- teardown
-
 Sample Use:
 
-	var app = new Application(new OperationFactory(), new events.Dispatcher());
+	var app = new Application();
 
 	jQuery(function() {
 		app.init();
@@ -2937,44 +1734,45 @@ Application = Object.extend({
 
 	prototype: {
 
-		bootOperation: null,
-
 		config: null,
 
 		delegator: null,
 
 		document: null,
 
+		element: null,
+
 		eventDispatcher: null,
 
-		operationFactory: null,
+		moduleFactory: null,
 
 		window: null,
 
 		initialize: function() {
 			this.config = {
-				"bootOperation.name": "boot",
-				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domload"]
+				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domready"]
 			};
+
+			this.eventDispatcher = new events.Dispatcher();
+			this.moduleFactory = new ModuleFactory(this.eventDispatcher);
 		},
 
-		init: function() {
+		init: function(element) {
+			this.element = element;
+			this.document = element.ownerDocument;
+			this.window = this.document.defaultView;
 			this.window.onerror = this.handleError.bind(this);
-			this.operationFactory.setEventDispatcher(this.eventDispatcher);
-			this.bootOperation = this.operationFactory.getOperation(this.config["bootOperation.name"]);
-			this.bootOperation.setApplication(this);
-			this.bootOperation.setEventDispatcher(this.eventDispatcher);
-			this.bootOperation.setDelegator(this.delegator);
-			this.bootOperation.call(null);
-			this.delegator.triggerEvent("domload");
+			this.delegator = new dom.events.Delegator(this, element);
+			this.delegator.addEventTypes( this.config["delegator.eventTypes"] );
+			this.delegator.triggerEvent("domready");
+			element = null;
 		},
 
 		destructor: function() {
 			this.delegator.destructor();
-			this.bootOperation.destructor();
 			this.eventDispatcher.destructor();
-			this.operationFactory.destructor();
-			this.window.onerror = this.window = this.document = this.delegator = this.bootOperation = this.operationFactory = this.eventDispatcher = null;
+			this.moduleFactory.destructor();
+			this.window.onerror = this.window = this.document = this.element = this.delegator = this.moduleFactory = this.eventDispatcher = null;
 		},
 
 		configure: function(config) {
@@ -2987,6 +1785,45 @@ Application = Object.extend({
 			}
 
 			config = null;
+		},
+
+		createModules: function(event, element, params) {
+			console.info("Application#createModules - called");
+			// console.dir({event: event, element: element, params: params});
+			// var elements = element.querySelectorAll("[data-action-domready=createModule]");
+			// console.info("Application#createModules - elements");
+			// console.dir(elements);
+		},
+
+		createModule: function(event, element, params) {
+			event.stop();
+
+			// console.info("Application#createModule - called");
+			// console.dir({event: event, element: element, params: params});
+
+			var moduleClassName = element.getAttribute("data-module");
+			var containerElement = element;
+			var moduleOptions = JSON.parse( element.getAttribute("data-module-options") || "{}" );
+
+			if (params.containerSelector) {
+				containerElement = this.element.querySelectorAll(params.containerSelector)[0];
+			}
+
+			var module = this.moduleFactory.getInstance(moduleClassName, moduleOptions);
+
+			if (params.insert === "bottom") {
+				containerElement.appendChild(module.element);
+			}
+			else if (containerElement.firstChild) {
+				containerElement.insertBefore(module.element, containerElement.firstChild);
+			}
+			else {
+				containerElement.appendChild(module.element);
+			}
+
+			module.init();
+
+			containerElement = module = event = element = params = options = null;
 		},
 
 		getErrorInfo: function(message, fileName, lineNumber) {
@@ -3007,18 +1844,18 @@ Application = Object.extend({
 				this.handleAccessDeniedError(info);
 				return true;
 			}
-		},
-
-		handleAccessDeniedError: function(info) {
-			if (info.message) {
-				console.warn(info.message);
-			}
-			else {
-				console.warn("Access denied!");
-			}
 		}
 
 	}
 
 });
 
+/* File: test/app/store/js/app/models/products/Base.js */
+products = window.Products || {};
+
+products.Base = BaseModel.extend({
+	prototype: {
+		validAttributes: ["id", "name", "description", "created_at", "updated_at"]
+	}
+});
+/* File: test/app/store/js/app/modules/CreateModule.js */
