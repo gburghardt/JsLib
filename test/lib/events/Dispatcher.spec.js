@@ -1,139 +1,302 @@
 describe("events.Dispatcher", function() {
-	describe("subscribe", function() {
-		beforeEach(function() {
-			this.dispatcher = new events.Dispatcher();
-			this.subscriber = {};
-		});
 
-		it("subscribes to an event", function() {
-			this.dispatcher.subscribe("foo", this.subscriber, "handleFoo");
-			expect(this.dispatcher.subscribers.foo).toBeArray();
-			expect(this.dispatcher.subscribers.foo.length).toEqual(1);
-		});
-
-		it("defaults to handleEvent when no method is provided", function() {
-			this.dispatcher.subscribe("foo", this.subscriber);
-			expect(this.dispatcher.subscribers.foo).toBeArray();
-			expect(this.dispatcher.subscribers.foo.length).toEqual(1);
-			expect(this.dispatcher.subscribers.foo[0].method).toEqual("handleEvent");
-		});
-
-		it("subscribes multiple objects to the same event", function() {
-			this.dispatcher.subscribe("foo", {}, "handleFoo");
-			this.dispatcher.subscribe("foo", {}, "handleFoo");
-			expect(this.dispatcher.subscribers.foo).toBeArray();
-			expect(this.dispatcher.subscribers.foo.length).toEqual(2);
-		});
-
-		it("subscribes the same object to the same event multiple times", function() {
-			this.dispatcher.subscribe("foo", this.subscriber, "handleFoo");
-			this.dispatcher.subscribe("foo", this.subscriber, "handleFoo");
-			expect(this.dispatcher.subscribers.foo).toBeArray();
-			expect(this.dispatcher.subscribers.foo.length).toEqual(2);
-			expect(this.dispatcher.subscribers.foo[0]).toEqual(this.dispatcher.subscribers.foo[1]);
-		});
+	beforeEach(function() {
+		console.info("Start: " + this.getFullName());
 	});
 
-	describe("unsubscribe", function() {
+	afterEach(function() {
+		console.info("Done: " + this.getFullName());
+	});
+
+	describe("subscribe", function() {
+
 		beforeEach(function() {
 			this.dispatcher = new events.Dispatcher();
-			this.subscriber = {};
 		});
 
-		it("unsubscribes an object from a single event", function() {
-			this.dispatcher.subscribe("foo", this.subscriber, "handleFoo");
-			expect(this.dispatcher.subscribers.foo.length).toEqual(1);
-			this.dispatcher.unsubscribe("foo", this.subscriber);
-			expect(this.dispatcher.subscribers.foo.length).toEqual(0);
+		afterEach(function() {
+			this.dispatcher.destructor();
 		});
 
-		it("unsubscribes an object subscribed more than once to the same event", function() {
-			this.dispatcher.subscribe("foo", this.subscriber, "handleFoo");
-			this.dispatcher.subscribe("foo", this.subscriber, "handleFoo");
-			this.dispatcher.unsubscribe("foo", this.subscriber);
-			expect(this.dispatcher.subscribers.foo.length).toEqual(0);
+		it("adds a callback function", function() {
+			var fn = function() {};
+
+			this.dispatcher.subscribe("foo", fn);
+			var subscribers = this.dispatcher.subscribers;
+
+			expect(subscribers.foo[0].context).toBeNull();
+			expect(subscribers.foo[0].callback).toStrictlyEqual(fn);
+			expect(subscribers.foo[0].type).toEqual("function");
 		});
+
+		it("adds a callback function with a context", function() {
+			var fn = function() {};
+			var context = {};
+
+			this.dispatcher.subscribe("foo", context, fn);
+			var subscribers = this.dispatcher.subscribers;
+
+			expect(subscribers.foo[0].context).toStrictlyEqual(context);
+			expect(subscribers.foo[0].callback).toStrictlyEqual(fn);
+			expect(subscribers.foo[0].type).toEqual("function");
+		});
+
+		it("adds a callback by object and method name", function() {
+			var context = {
+				bar: function() {}
+			};
+
+			this.dispatcher.subscribe("foo", context, "bar");
+			var subscribers = this.dispatcher.subscribers;
+
+			expect(subscribers.foo[0].context).toStrictlyEqual(context);
+			expect(subscribers.foo[0].callback).toStrictlyEqual("bar");
+			expect(subscribers.foo[0].type).toEqual("string");
+		});
+
+		it("throws an error if a named method does not exist on the context", function() {
+			var callbackContext;
+			var subscriber = {};
+			var callbackError;
+
+			try {
+				this.dispatcher.subscribe("foo", subscriber, "handleFoo");
+			}
+			catch (error) {
+				callbackError = error;
+			}
+
+			expect(callbackError).toBeInstanceof(Error);
+			expect( /handleFoo is not a function/.test(callbackError.message) ).toBeTrue();
+		});
+
 	});
 
 	describe("publish", function() {
+
 		beforeEach(function() {
 			this.dispatcher = new events.Dispatcher();
+		});
 
-			this.badSubscriber = {
-				boo: function(event) {
-					throw new Error("Intentional error, please ignore");
+		afterEach(function() {
+			this.dispatcher.destructor();
+		});
+
+		it("executes a callback function, setting the context to the window object", function() {
+			var callbackContext;
+			var callbackData;
+			var fn = function(event, publisher, data) {
+				callbackContext = this;
+				callbackData = data;
+			};
+
+			this.dispatcher.subscribe("test", fn);
+			this.dispatcher.publish("test", {}, 10);
+
+			expect(callbackData).toEqual(10);
+			expect(callbackContext).toStrictlyEqual(window);
+		});
+
+		it("executes a callback function with a context", function() {
+			var context = {};
+			var callbackContext;
+			var callbackData;
+			var fn = function(event, publisher, data) {
+				callbackContext = this;
+				callbackData = data;
+			};
+
+			this.dispatcher.subscribe("foo", context, fn);
+			this.dispatcher.publish("foo", {}, 10);
+
+			expect(callbackData).toEqual(10);
+			expect(callbackContext).toStrictlyEqual(context);
+		});
+
+		it("executes a named method on an object", function() {
+			var callbackContext;
+			var subscriber = {
+				handleFoo: function(event, publisher, data) {
+					callbackContext = this;
 				}
 			};
 
-			this.goodSubscriber = {
-				called: false,
+			spyOn(subscriber, "handleFoo").andCallThrough();
+			this.dispatcher.subscribe("foo", subscriber, "handleFoo");
+			this.dispatcher.publish("foo", {}, 10);
 
-				yay: function(event) {
-					this.called = true;
+			expect(subscriber.handleFoo).wasCalled();
+			expect(callbackContext).toStrictlyEqual(subscriber);
+		});
+
+		it("returns false if there are no subscribers to an event", function() {
+			expect( this.dispatcher.publish("message_with_no_subscribers", {}, 10) ).toBeFalse();
+		});
+
+		it("returns true no subscribers cancel the event", function() {
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+
+			expect( this.dispatcher.publish("test", {}, 10) ).toBeTrue();
+		});
+
+		it("returns false if one of the subscribers cancels the event", function() {
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				event.cancel();
+			});
+			this.dispatcher.subscribe("test", function(event, publisher, data) {
+				
+			});
+
+			expect( this.dispatcher.publish("test", {}, 10) ).toBeFalse();
+		});
+
+		it("notifies all subscribers up to and including the callback that cancels the event", function() {
+			var context = {
+				method1: function(event, publisher, data) {
+					
+				},
+				method2: function(event, publisher, data) {
+					event.cancel();
+				},
+				method3: function(event, publisher, data) {
+					
 				}
 			};
+
+			spyOn(context, "method1").andCallThrough();
+			spyOn(context, "method2").andCallThrough();
+			spyOn(context, "method3").andCallThrough();
+
+			this.dispatcher.subscribe("test", context, "method1");
+			this.dispatcher.subscribe("test", context, "method2");
+			this.dispatcher.subscribe("test", context, "method3");
+
+			var result = this.dispatcher.publish("test", {}, 10);
+
+			expect(result).toBeFalse();
+			expect(context.method1).wasCalled();
+			expect(context.method2).wasCalled();
+			expect(context.method3).wasNotCalled();
 		});
 
-		it("returns false when there are no subscribers", function() {
-			expect(this.dispatcher.publish("noSubscribers", {})).toBeFalse();
-		});
-
-		describe("when subscribers throw errors", function() {
-			describe("and a logger exists", function() {
-				events.Dispatcher.logger = console;
-
-				it("catches errors thrown by subscribers", function() {
-					this.dispatcher.subscribe("throwsAnError", this.badSubscriber, "boo");
-					this.dispatcher.publish("throwsAnError");
-				});
-
-				it("does not stop propagating to other subscribers", function() {
-					this.dispatcher.subscribe("throwsAnError", this.badSubscriber, "boo");
-					this.dispatcher.subscribe("throwsAnError", this.goodSubscriber, "yay");
-					expect(this.dispatcher.publish("throwsAnError")).toBeTrue();
-					expect(this.goodSubscriber.called).toBeTrue();
-				});
-			});
-		});
-
-		describe("and a logger does not exist", function() {
-			it("throws an error", function() {
-				this.dispatcher.subscribe("throwsAnError", this.badSubscriber, "boo");
-				expect(function() {this.dispatcher.publish("throwsAnError");}).toThrowError();
-			});
-
-			it("stops propagating to other subscribers", function() {
-				this.dispatcher.subscribe("throwsAnError", this.badSubscriber, "boo");
-				expect(function() {this.dispatcher.publish("throwsAnError");}).toThrowError();
-				this.dispatcher.subscribe("throwsAnError", this.goodSubscriber, "yay");
-				expect(this.goodSubscriber.called).toBeFalse();
-			});
-		});
-
-		it("does not propagate a cancelled event", function() {
-			var MockSubscriber = function(cancelEvent) {
-				this.cancelEvent = !!cancelEvent;
-			};
-			MockSubscriber.prototype = {
-				called: false,
-
-				respond: function(event) {
-					this.called = true;
-
-					if (this.cancelEvent) {
-						event.cancel();
-					}
-				}
-			};
-
-			var subscriber1 = new MockSubscriber(true);
-			var subscriber2 = new MockSubscriber();
-			this.dispatcher.subscribe("foo", subscriber1, "respond");
-			this.dispatcher.subscribe("foo", subscriber2, "respond");
-
-			this.dispatcher.publish("foo");
-			expect(subscriber1.called).toBeTrue();
-			expect(subscriber2.called).toBeFalse();
-		});
 	});
+
+	describe("unsubscribe", function() {
+
+		beforeEach(function() {
+			this.dispatcher = new events.Dispatcher();
+		});
+
+		afterEach(function() {
+			this.dispatcher.destructor();
+		});
+
+		it("does nothing if you unsubscribe from an event not currently subscribed to", function() {
+			this.dispatcher.unsubscribe("message_with_no_listners", this);
+		});
+
+		it("removes a callback by event type for a function with no context", function() {
+			var fnCalled = false;
+			var fn = function() {
+				fnCalled = true;
+			};
+
+			this.dispatcher.subscribe("test", fn);
+			expect(this.dispatcher.subscribers.test.length).toEqual(1);
+
+			this.dispatcher.unsubscribe("test", fn);
+			expect(this.dispatcher.subscribers.test.length).toEqual(0);
+
+			this.dispatcher.publish("test", {}, 10);
+			expect(fnCalled).toBeFalse();
+		});
+
+		it("removes a callback by event type for a context and function", function() {
+			var context = {
+				foo: function() {}
+			};
+
+			spyOn(context, "foo");
+
+			this.dispatcher.subscribe("test", context, context.foo);
+			expect(this.dispatcher.subscribers.test.length).toEqual(1);
+
+			this.dispatcher.unsubscribe("test", context, context.foo);
+			expect(this.dispatcher.subscribers.test.length).toEqual(0);
+
+			this.dispatcher.publish("test", {}, 10);
+			expect(context.foo).wasNotCalled();
+		});
+
+		it("removes a callback by event type for an object", function() {
+			var context = {
+				handleTest: function() {},
+				handleSomethingElse: function() {}
+			};
+
+			spyOn(context, "handleTest");
+			spyOn(context, "handleSomethingElse");
+
+			this.dispatcher.subscribe("test", context, "handleTest");
+			this.dispatcher.subscribe("test", context, "handleSomethingElse");
+			expect(this.dispatcher.subscribers.test.length).toEqual(2);
+
+			this.dispatcher.unsubscribe("test", context, "handleTest");
+			expect(this.dispatcher.subscribers.test.length).toEqual(1);
+
+			this.dispatcher.publish("test", {}, 10);
+			expect(context.handleTest).wasNotCalled();
+			expect(context.handleSomethingElse).wasCalled();
+		});
+
+		it("removes multiple callbacks from the same event for an object instance", function() {
+			var context = {
+				method1: function() {},
+				method2: function() {}
+			};
+
+			spyOn(context, "method1");
+			spyOn(context, "method2");
+
+			this.dispatcher.subscribe("test", context, "method1");
+			this.dispatcher.subscribe("test", context, "method2");
+			expect(this.dispatcher.subscribers.test.length).toEqual(2);
+
+			this.dispatcher.unsubscribe("test", context);
+			expect(this.dispatcher.subscribers.test.length).toEqual(0);
+
+			this.dispatcher.publish("test", {}, 10);
+
+			expect(context.method1).wasNotCalled();
+			expect(context.method2).wasNotCalled();
+		});
+
+	});
+
 });
