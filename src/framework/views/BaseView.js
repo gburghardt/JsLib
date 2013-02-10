@@ -18,12 +18,6 @@ BaseView = Object.extend({
 
 	self: {
 
-		nodeIdIndex: 0,
-
-		generateNodeId: function() {
-			return "anonymous-element-" + (BaseView.nodeIdIndex++);
-		},
-
 		getInstance: function(element, templateName) {
 			var className = (templateName.replace(/\//g, "-") + "_view").toClassName();
 			var ViewClass = className.constantize();
@@ -55,11 +49,7 @@ BaseView = Object.extend({
 			else {
 				this.element = element;
 				this.ownerDocument = this.element.ownerDocument;
-
-				if (!this.element.getAttribute("id")) {
-					this.element.setAttribute("id", BaseView.generateNodeId());
-					this.id = this.element.getAttribute("id");
-				}
+				this.id = this.element.identify();
 			}
 
 			if (templateName) {
