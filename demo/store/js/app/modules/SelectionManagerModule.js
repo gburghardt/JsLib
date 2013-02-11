@@ -6,6 +6,12 @@ SelectionManagerModule = BaseModule.extend({
 			click: ["deselectAll", "selectAll", "toggleSelection"]
 		},
 
+		callbacks: {
+			selectionSizeChanged: "updateCount"
+		},
+
+		selectionSize: 0,
+
 		initialize: function(element, options) {
 			options = {
 				selectedClass: "selected"
@@ -22,10 +28,13 @@ SelectionManagerModule = BaseModule.extend({
 			for (i; i < length; i++) {
 				items[i].removeClass(this.options.selectedClass);
 			}
+
+			this.selectionSize = 0;
+			this.notify("selectionSizeChanged");
 		},
 
 		getSelectedItems: function() {
-			return this.element.querySelectorAll("li." + this.options.selectedClass);
+			return this.element.querySelectorAll("li." + this.options.selectedClass) || [];
 		},
 
 		selectAll: function(event, element, params) {
@@ -36,6 +45,9 @@ SelectionManagerModule = BaseModule.extend({
 			for (i; i < length; i++) {
 				items[i].addClass(this.options.selectedClass);
 			}
+
+			this.selectionSize = items.length;
+			this.notify("selectionSizeChanged");
 		},
 
 		toggleSelection: function(event, element, params) {
@@ -43,9 +55,26 @@ SelectionManagerModule = BaseModule.extend({
 
 			if (element.hasClass(this.options.selectedClass)) {
 				element.removeClass(this.options.selectedClass);
+				this.selectionSize--;
 			}
 			else {
 				element.addClass(this.options.selectedClass);
+				this.selectionSize++;
+			}
+
+			this.notify("selectionSizeChanged");
+		},
+
+		updateCount: function(forceRecount) {
+			var counter = this.element.querySelectorAll(".selection-manager-counter")[0];
+
+			if (forceRecount) {
+				this.selectionSize = this.getSelectedItems().length;
+			}
+
+			if (counter) {
+				counter.innerHTML = this.selectionSize;
+				counter = null;
 			}
 		}
 

@@ -22,6 +22,8 @@ TaskListModule = BaseModule.extend({
 				items[i].parentNode.removeChild(items[i]);
 			};
 
+			this.selectionManager.updateCount(true);
+
 			event = element = params = items = null;
 		},
 
@@ -32,6 +34,8 @@ TaskListModule = BaseModule.extend({
 			if (confirm("Are you sure you want to remove this task?")) {
 				listItem.parentNode.removeChild(listItem);
 			}
+
+			this.selectionManager.updateCount(true);
 
 			event = element = params = listItem = null;
 		},
