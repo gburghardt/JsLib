@@ -9,9 +9,11 @@ for source_file in  src/lib/patches/Function.js \
                     src/lib/patches/String.js \
                     src/lib/HTMLElement/Adaptors.js \
                     src/lib/dom/events/Delegator.js \
-                    src/lib/ModuleFactory.js \
                     src/lib/events/Dispatcher.js \
                     src/lib/events/Event.js \
+                    src/lib/Object/ApplicationEvents.js \
+                    src/lib/Object/Callbacks.js \
+                    src/lib/ModuleFactory.js \
                     src/lib/Template.js \
                     src/framework/views/BaseView.js \
                     src/lib/BaseView/Forms.js \
@@ -19,8 +21,11 @@ for source_file in  src/lib/patches/Function.js \
                     src/lib/BaseModel/TemplateDataKeys.js \
                     src/framework/modules/BaseModule.js \
                     src/framework/application/Application.js \
-                    test/app/store/js/app/models/products/Base.js \
-                    test/app/store/js/app/modules/CreateModule.js
+                    demo/store/js/app/models/products/Base.js \
+                    demo/store/js/app/modules/products/CreateModule.js \
+                    demo/store/js/app/modules/LoginModule.js \
+                    demo/store/js/app/modules/TaskListModule.js \
+                    demo/store/js/app/modules/SelectionManagerModule.js
                     
 do
   echo "Packing $source_file"

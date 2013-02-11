@@ -228,6 +228,14 @@ String.prototype.toClassName = function() {
 			}
 		},
 		prototype: {
+			addClass: function(className) {
+				if (!this.hasClass(className)) {
+					this.className += " " + className;
+				}
+			},
+			hasClass: function(className) {
+				return new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)").test(this.className);
+			},
 			identify: function() {
 				if (!this.id) {
 					this.id = this.getAttribute("id") || 'anonoymous-' + this.nodeName.toLowerCase() + '-' + (idIndex++);
@@ -236,8 +244,14 @@ String.prototype.toClassName = function() {
 
 				return this.id;
 			},
-			querySelector: document.querySelector = function(selector) {
+			querySelector: function(selector) {
 				return this.querySelectorAll(selector)[0] || null;
+			},
+			removeClass: function(className) {
+				// TODO: Fix this
+				if (this.hasClass(className)) {
+					this.className = this.className.replace(new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)"), "");
+				}
 			}
 		}
 	};
@@ -245,7 +259,7 @@ String.prototype.toClassName = function() {
 
 // HTMLElement is a special object which is not instantiable, but has a prototype.
 Function.prototype.include.call(HTMLElement, HTMLElement.Adaptors);
-
+document.querySelector = document.querySelector || HTMLElement.Adaptors.querySelector;
 /* File: src/lib/dom/events/Delegator.js */
 dom = window.dom || {};
 dom.events = dom.events || {};
@@ -366,9 +380,9 @@ dom.events.Delegator = function() {
 	this.delegate = null;
 
 	function getActionParams(element, eventType) {
-		var paramsAttr = element.getAttribute("data-actionParams-" + eventType) ||
-										 element.getAttribute("data-actionParams") ||
-										 "{}";
+		var paramsAttr = element.getAttribute("data-actionparams-" + eventType) ||
+		                 element.getAttribute("data-actionparams") ||
+		                 "{}";
 
 		element = null;
 
@@ -491,77 +505,6 @@ dom.events.Delegator = function() {
 dom.events.Delegator.logger = window.console || null;
 
 
-/* File: src/lib/ModuleFactory.js */
-ModuleFactory = Object.extend({
-
-	prototype: {
-
-		eventDispatcher: null,
-
-		modules: null,
-
-		initialize: function(eventDispatcher) {
-			this.eventDispatcher = eventDispatcher;
-			BaseModule.eventDispatcher = eventDispatcher;
-			BaseModule.factory = this;
-			this.modules = {};
-			eventDispatcher = null;
-		},
-
-		destructor: function() {
-			this.eventDispatcher = null;
-		},
-
-		getClassReference: function(className) {
-			if ( /^[a-zA-Z][a-zA-z0-9.]+[a-zA-z0-9]$/.test(className) ) {
-				return eval(className);
-			}
-			else {
-				throw new Error(className + " is an invalid class name");
-			}
-		},
-
-		getInstance: function(className, options) {
-			var Klass = this.getClassReference(className);
-			var element = document.createElement("div");
-			element.className = "module module-" + className.namify();
-			var module = new Klass(element, options);
-
-			this.registerModule(className, module);
-
-			return module;
-		},
-
-		registerModule: function(className, module) {
-			this.modules[className] = this.modules[className] || [];
-			this.modules[className].push(module);
-			module = null;
-		},
-
-		unregisterModule: function(module) {
-			var className, i, length, modules;
-
-			for (className in this.modules) {
-				if (this.modules.hasOwnProperty(className)) {
-					modules = this.modules[className];
-
-					for (i = 0, length = modules.length; i < length; i++) {
-						if (modules[i] === module) {
-							modules.splice(i, 1);
-							break;
-						}
-					}
-				}
-			}
-
-			modules = module = null;
-		}
-
-	}
-
-});
-
-// TODO: Create method to find a module, instantiate it and inject it into another module as a property.
 /* File: src/lib/events/Dispatcher.js */
 window.events = window.events || {};
 
@@ -734,6 +677,283 @@ events.Event.prototype = {
 
 };
 
+/* File: src/lib/Object/ApplicationEvents.js */
+Object.ApplicationEvents = {
+
+	self: {
+
+		eventDispatcher: null,
+
+		getEventDispatcher: function() {
+			return this.eventDispatcher;
+		},
+
+		checkEventDispatcher: function() {
+			if (!this.getEventDispatcher()) {
+				throw new Error("No application event dispatcher was found.");
+			}
+
+			return true;
+		},
+
+		publish: function(eventName, publisher, data) {
+			this.checkEventDispatcher();
+			this.getEventDispatcher().publish(eventName, publisher, data);
+		},
+
+		subscribe: function(eventName, context, callback) {
+			this.checkEventDispatcher();
+			this.getEventDispatcher().subscribe(eventName, context, callback);
+		},
+
+		unsubscribe: function(eventName, context, callback) {
+			this.checkEventDispatcher();
+			this.getEventDispatcher().unsubscribe(eventName, context, callback);
+		}
+
+	},
+
+	prototype: {
+
+		destroyApplicationEvents: function() {
+			if (this.constructor.getEventDispatcher()) {
+				this.constructor.unsubscribe(this);
+			}
+		},
+
+		publish: function(eventName, data) {
+			this.constructor.publish(eventName, this, data);
+		},
+
+		subscribe: function(eventName, context, callback) {
+			this.constructor.subscribe(eventName, context, callback);
+		},
+
+		unsubscribe: function(eventName, context, callback) {
+			this.constructor.unsubscribe(eventName, context, callback);
+		}
+
+	}
+
+};
+
+/* File: src/lib/Object/Callbacks.js */
+Object.Callbacks = {
+
+	prototype: {
+
+		callbackDispatcher: null,
+
+		callbacks: null,
+
+		initCallbacks: function() {
+			if (!this.__proto__.hasOwnProperty("compiledCallbacks")) {
+				this.compileCallbacks();
+			}
+
+			this.callbackDispatcher = new events.Dispatcher();
+
+			var name, i, length, callbacks;
+
+			for (name in this.compiledCallbacks) {
+				if (this.compiledCallbacks.hasOwnProperty(name)) {
+					callbacks = this.compiledCallbacks[name];
+
+					for (i = 0, length = callbacks.length; i < length; i++) {
+						this.listen( name, this, callbacks[i] );
+					}
+				}
+			}
+
+			this.setUpCallbacks();
+		},
+
+		compileCallbacks: function() {
+			var compiledCallbacks = {}, name, i, length, callbacks, proto = this.__proto__;
+
+			while (proto) {
+				if (proto.hasOwnProperty("callbacks") && proto.callbacks) {
+					callbacks = proto.callbacks;
+
+					for (name in callbacks) {
+						if (callbacks.hasOwnProperty(name)) {
+							compiledCallbacks[name] = compiledCallbacks[name] || [];
+							callbacks[name] = callbacks[name] instanceof Array ? callbacks[name] : [ callbacks[name] ];
+
+							// To keep callbacks executing in the order they were defined in the classes,
+							// we loop backwards and place the new callbacks at the top of the array.
+							i = callbacks[name].length;
+							while (i--) {
+								compiledCallbacks[name].unshift( callbacks[name][i] );
+							}
+						}
+					}
+				}
+
+				proto = proto.__proto__;
+			}
+
+			this.__proto__.compiledCallbacks = compiledCallbacks;
+
+			proto = callbacks = compiledCallbacks = null;
+		},
+
+		destroyCallbacks: function() {
+			if (this.callbackDispatcher) {
+				this.callbackDispatcher.destructor();
+				this.callbackDispatcher = null;
+			}
+		},
+
+		setUpCallbacks: function() {
+			// Child classes may override this to do something special with adding callbacks.
+		},
+
+		notify: function(message, data) {
+			this.callbackDispatcher.publish(message, this, data);
+			data = null;
+		},
+
+		listen: function(message, context, callback) {
+			this.callbackDispatcher.subscribe(message, context, callback);
+			context = callback = null;
+		},
+		
+		ignore: function(message, context, callback) {
+			this.callbackDispatcher.unsubscribe(message, context, callback);
+			context = callback = null;
+		}
+
+	}
+
+};
+
+/* File: src/lib/ModuleFactory.js */
+ModuleFactory = Object.extend({
+
+	prototype: {
+
+		eventDispatcher: null,
+
+		modules: null,
+
+		initialize: function(eventDispatcher) {
+			this.eventDispatcher = eventDispatcher;
+			BaseModule.eventDispatcher = eventDispatcher;
+			BaseModule.factory = this;
+			this.modules = {};
+			eventDispatcher = null;
+		},
+
+		destructor: function() {
+			this.eventDispatcher = null;
+		},
+
+		createModules: function(element) {
+			var classNames = element.getAttribute("data-module").replace(/^\s+|\s+$/g, "").split(/\s+/g);
+			var modules = [], moduleInfo, i, length, className;
+
+			moduleInfo = JSON.parse(element.getAttribute("data-module-info") || "{}");
+
+			if (classNames.length === 1) {
+				modules.push( this.createModule(classNames[0], element, moduleInfo) );
+			}
+			else {
+				for (i = 0, length = classNames.length; i < length; i++) {
+					className = classNames[i];
+					modules.push( this.createModule( classNames[i], element, moduleInfo[className] || {} ) );
+				}
+			}
+
+			element = params = null;
+
+			return modules;
+		},
+
+		createModule: function(className, element, moduleInfo) {
+			var containerElement = document.getElementsByTagName("body")[0];
+			var module, moduleElement;
+
+			if (moduleInfo.container) {
+				containerElement = containerElement.querySelectorAll(moduleInfo.container)[0];
+				moduleInfo.element = moduleInfo.element || "div";
+
+				if (!containerElement) {
+					throw new Error("Could not find module container element with selector " + moduleInfo.container);
+				}
+			}
+
+			moduleElement = (moduleInfo.element) ? document.createElement(moduleInfo.element) : element;
+			module = this.getInstance(className, moduleElement, moduleInfo.options);
+
+			if (!moduleElement.parentNode) {
+				if (moduleInfo.insert === "bottom") {
+					containerElement.appendChild(module.element);
+				}
+				else if (containerElement.firstChild) {
+					containerElement.insertBefore(module.element, containerElement.firstChild);
+				}
+				else {
+					containerElement.appendChild(module.element);
+				}
+			}
+
+			module.init();
+
+			element = moduleInfo = containerElement = moduleElement = element = null;
+
+			return module;
+		},
+
+		getClassReference: function(className) {
+			if ( /^[a-zA-Z][a-zA-z0-9.]+[a-zA-z0-9]$/.test(className) ) {
+				return eval(className);
+			}
+			else {
+				throw new Error(className + " is an invalid class name");
+			}
+		},
+
+		getInstance: function(className, element, options) {
+			var Klass = this.getClassReference(className);
+			element.className += " module module-" + className.namify();
+			var module = new Klass(element, options);
+
+			this.registerModule(className, module);
+
+			return module;
+		},
+
+		registerModule: function(className, module) {
+			this.modules[className] = this.modules[className] || [];
+			this.modules[className].push(module);
+			module = null;
+		},
+
+		unregisterModule: function(module) {
+			var className, i, length, modules;
+
+			for (className in this.modules) {
+				if (this.modules.hasOwnProperty(className)) {
+					modules = this.modules[className];
+
+					for (i = 0, length = modules.length; i < length; i++) {
+						if (modules[i] === module) {
+							modules.splice(i, 1);
+							break;
+						}
+					}
+				}
+			}
+
+			modules = module = null;
+		}
+
+	}
+
+});
+
+// TODO: Create method to find a module, instantiate it and inject it into another module as a property.
 /* File: src/lib/Template.js */
 // <script type="text/html" data-template-name="blog/post_body">
 // 	#{include blog/header}
@@ -1660,12 +1880,11 @@ BaseModule = Object.extend({
 			this.destroyApplicationEvents();
 			this.destroyCallbacks();
 
-			if (this.element) {
+			if (this.element && this.element.parentNode) {
 				this.element.parentNode.removeChild(this.element);
-				this.element = null;
 			}
 
-			this.actions = this.delegatorEventActionMapping = this.options = null;
+			this.element = this.actions = this.delegatorEventActionMapping = this.options = null;
 		},
 
 		compileDelegatorEventActionMapping: function() {
@@ -1695,6 +1914,57 @@ BaseModule = Object.extend({
 			mapping = actions = null;
 		},
 
+		createModuleProperty: function(propertyName) {
+			if (!BaseModule.factory) {
+				throw new Error("Cannot create property " + propertyName + ", because no module factory exists in BaseModule.factory");
+			}
+
+			var propertyElement, elements = this.element.getElementsByTagName("*");
+
+			if (this[propertyName] === null) {
+				this.createModuleSingleProperty(propertyName, elements);
+			}
+			else if (this[propertyName] instanceof Array && this[propertyName].length === 0) {
+				this.createModuleArrayProperty(propertyName, elements);
+			}
+
+			elements = null;
+		},
+
+		createModuleArrayProperty: function(propertyName, elements) {
+			var i = 0, length = elements.length,
+			    propertyElement, className, moduleInfo;
+
+			for (i; i < length; i++) {
+				if (elements[i].getAttribute("data-module-property") === propertyName) {
+					propertyElement = elements[i];
+					className = propertyElement.getAttribute("data-module");
+					moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info"));
+					this[propertyName].push( BaseModule.factory.createModule(className, propertyElement, moduleInfo) );
+				}
+			}
+
+			elements = moduleInfo = null;
+		},
+
+		createModuleSingleProperty: function(propertyName, elements) {
+			var i = 0, length = elements.length,
+			    propertyElement, className, moduleInfo;
+
+			for (i; i < length; i++) {
+				if (elements[i].getAttribute("data-module-property") === propertyName) {
+					propertyElement = elements[i];
+					break;
+				}
+			}
+
+			className = propertyElement.getAttribute("data-module");
+			moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info") || "{}");
+
+			this[propertyName] = BaseModule.factory.createModule(className, propertyElement, moduleInfo);
+			elements = moduleInfo = null;
+		},
+
 		render: function(templateName, context) {
 			if (!this.view) {
 				this.view = BaseView.getInstance(this.element, templateName);
@@ -1705,7 +1975,7 @@ BaseModule = Object.extend({
 		},
 
 		run: function() {
-			throw new Error("Child classes must define a method called run to begin the life cycle of a module");
+			// Child classes can define a method called run to begin the life cycle of a module. This is just a stub.
 		}
 
 	}
@@ -1788,42 +2058,20 @@ Application = Object.extend({
 		},
 
 		createModules: function(event, element, params) {
-			console.info("Application#createModules - called");
-			// console.dir({event: event, element: element, params: params});
-			// var elements = element.querySelectorAll("[data-action-domready=createModule]");
-			// console.info("Application#createModules - elements");
-			// console.dir(elements);
+			var elements = element.getElementsByTagName("*");
+			var i = 0, length = elements.length;
+
+			for (i; i < length; i++) {
+				if (elements[i].getAttribute("data-action-domready") === "createModule") {
+					this.moduleFactory.createModules(elements[i]);
+				}
+			}
 		},
 
 		createModule: function(event, element, params) {
 			event.stop();
-
-			// console.info("Application#createModule - called");
-			// console.dir({event: event, element: element, params: params});
-
-			var moduleClassName = element.getAttribute("data-module");
-			var containerElement = element;
-			var moduleOptions = JSON.parse( element.getAttribute("data-module-options") || "{}" );
-
-			if (params.containerSelector) {
-				containerElement = this.element.querySelectorAll(params.containerSelector)[0];
-			}
-
-			var module = this.moduleFactory.getInstance(moduleClassName, moduleOptions);
-
-			if (params.insert === "bottom") {
-				containerElement.appendChild(module.element);
-			}
-			else if (containerElement.firstChild) {
-				containerElement.insertBefore(module.element, containerElement.firstChild);
-			}
-			else {
-				containerElement.appendChild(module.element);
-			}
-
-			module.init();
-
-			containerElement = module = event = element = params = options = null;
+			this.moduleFactory.createModules(element);
+			event = element = params = null;
 		},
 
 		getErrorInfo: function(message, fileName, lineNumber) {
@@ -1850,7 +2098,7 @@ Application = Object.extend({
 
 });
 
-/* File: test/app/store/js/app/models/products/Base.js */
+/* File: demo/store/js/app/models/products/Base.js */
 products = window.Products || {};
 
 products.Base = BaseModel.extend({
@@ -1858,4 +2106,206 @@ products.Base = BaseModel.extend({
 		validAttributes: ["id", "name", "description", "created_at", "updated_at"]
 	}
 });
-/* File: test/app/store/js/app/modules/CreateModule.js */
+/* File: demo/store/js/app/modules/products/CreateModule.js */
+products = window.products || {};
+
+products.CreateModule = BaseModule.extend({
+
+	prototype: {
+
+		actions: {
+			submit: "save",
+			click: "cancel",
+			change: "markDirty"
+		},
+
+		run: function() {
+			this.product = new products.Base();
+			this.render("products/create_view", this.product);
+		},
+
+		cancel: function(event, element, params) {
+			event.stop();
+
+			if (!this.dirty || confirm("Are you sure you want to cancel?")) {
+				this.destructor();
+			}
+		},
+
+		markDirty: function(event, element, params) {
+			this.dirty = true;
+		},
+
+		save: function(event, element, params) {
+			event.stop();
+
+			console.info("products.CreateModule#save - Save the new product!");
+			this.product.attributes = this.view.getFormData();
+			this.view.toggleLoading(true);
+
+			// TODO: The model should make this Ajax call
+			var xhr = new XMLHttpRequest(), that = this;
+			xhr.onreadystatechange = function() {
+				if (this.readyState === 4 && this.status === 200) {
+					var data = eval("(" + this.responseText + ")");
+					that.product.attributes = data.product;
+					console.info("Finished saving product", that.product);
+					that.destructor();
+					that = data = xhr = null;
+				}
+				else if (this.status >= 400) {
+					console.error("Network error " + this.status);
+					xhr = that = null;
+				}
+			};
+			xhr.open("GET", "/demo/store/js/mocks/products/create.json?_=" + new Date().getTime());
+			xhr.send(null);
+		}
+
+	}
+
+});
+
+/* File: demo/store/js/app/modules/LoginModule.js */
+LoginModule = BaseModule.extend({
+	prototype: {
+		actions: {
+			submit: "submit"
+		},
+
+		run: function() {
+			document.getElementById("login-username").focus();
+			this.view = new BaseView(this.element);
+		},
+
+		submit: function(event, element, params) {
+			event.stop();
+
+			var data = this.view.getFormData();
+
+			if (!data.username) {
+				alert("The username is required");
+				document.getElementById("login-username").focus();
+			}
+			else if (!data.password) {
+				alert("Please enter a password");
+				document.getElementById("login-password").focus();
+			}
+			else {
+				alert("Welcome!");
+				this.destructor();
+			}
+		}
+	}
+});
+
+/* File: demo/store/js/app/modules/TaskListModule.js */
+TaskListModule = BaseModule.extend({
+
+	prototype: {
+
+		actions: {
+			submit: "save",
+			click: ["removeTask", "removeSelected"]
+		},
+
+		selectionManager: null,
+
+		run: function() {
+			this.view = new BaseView(this.element);
+			this.createModuleProperty("selectionManager");
+		},
+
+		removeSelected: function(event, element, params) {
+			event.stop();
+			var items= this.selectionManager.getSelectedItems(), i = 0, length = items.length;
+
+			for (i; i < length; i++) {
+				items[i].parentNode.removeChild(items[i]);
+			};
+
+			event = element = params = items = null;
+		},
+
+		removeTask: function(event, element, params) {
+			event.stop();
+			var listItem = element.parentNode;
+
+			if (confirm("Are you sure you want to remove this task?")) {
+				listItem.parentNode.removeChild(listItem);
+			}
+
+			event = element = params = listItem = null;
+		},
+
+		save: function(event, element, params) {
+			event.stop();
+			var data = this.view.getFormData();
+			var newItem = document.createElement("li");
+			newItem.setAttribute("data-action", "toggleSelection");
+			newItem.innerHTML = Template.find("tasks/item").render(data);
+			this.element.getElementsByTagName("ol")[0].appendChild(newItem);
+			document.getElementById("task-text").value = "";
+			document.getElementById("task-text").focus();
+		}
+
+	}
+
+});
+
+/* File: demo/store/js/app/modules/SelectionManagerModule.js */
+SelectionManagerModule = BaseModule.extend({
+
+	prototype: {
+
+		actions: {
+			click: ["deselectAll", "selectAll", "toggleSelection"]
+		},
+
+		initialize: function(element, options) {
+			options = {
+				selectedClass: "selected"
+			}.merge(options || {});
+
+			BaseModule.prototype.initialize.call(this, element, options);
+		},
+
+		deselectAll: function(event, element, params) {
+			event.stop();
+
+			var items = this.element.getElementsByTagName("li"), i = 0, length = items.length;
+
+			for (i; i < length; i++) {
+				items[i].removeClass(this.options.selectedClass);
+			}
+		},
+
+		getSelectedItems: function() {
+			return this.element.querySelectorAll("li." + this.options.selectedClass);
+		},
+
+		selectAll: function(event, element, params) {
+			event.stop();
+
+			var items = this.element.getElementsByTagName("li"), i = 0, length = items.length;
+
+			for (i; i < length; i++) {
+				items[i].addClass(this.options.selectedClass);
+			}
+		},
+
+		toggleSelection: function(event, element, params) {
+			event.preventDefault();
+
+			if (element.hasClass(this.options.selectedClass)) {
+				element.removeClass(this.options.selectedClass);
+			}
+			else {
+				element.addClass(this.options.selectedClass);
+			}
+		}
+
+	}
+
+});
+
