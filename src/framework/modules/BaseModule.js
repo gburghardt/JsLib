@@ -109,6 +109,57 @@ BaseModule = Object.extend({
 			mapping = actions = null;
 		},
 
+		createModuleProperty: function(propertyName) {
+			if (!BaseModule.factory) {
+				throw new Error("Cannot create property " + propertyName + ", because no module factory exists in BaseModule.factory");
+			}
+
+			var propertyElement, elements = this.element.getElementsByTagName("*");
+
+			if (this[propertyName] === null) {
+				this.createModuleSingleProperty(propertyName, elements);
+			}
+			else if (this[propertyName] instanceof Array && this[propertyName].length === 0) {
+				this.createModuleArrayProperty(propertyName, elements);
+			}
+
+			elements = null;
+		},
+
+		createModuleArrayProperty: function(propertyName, elements) {
+			var i = 0, length = elements.length,
+			    propertyElement, className, moduleInfo;
+
+			for (i; i < length; i++) {
+				if (elements[i].getAttribute("data-module-property") === propertyName) {
+					propertyElement = elements[i];
+					className = propertyElement.getAttribute("data-module");
+					moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info"));
+					this[propertyName].push( BaseModule.factory.createModule(className, propertyElement, moduleInfo) );
+				}
+			}
+
+			elements = moduleInfo = null;
+		},
+
+		createModuleSingleProperty: function(propertyName, elements) {
+			var i = 0, length = elements.length,
+			    propertyElement, className, moduleInfo;
+
+			for (i; i < length; i++) {
+				if (elements[i].getAttribute("data-module-property") === propertyName) {
+					propertyElement = elements[i];
+					break;
+				}
+			}
+
+			className = propertyElement.getAttribute("data-module");
+			moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info") || "{}");
+
+			this[propertyName] = BaseModule.factory.createModule(className, propertyElement, moduleInfo);
+			elements = moduleInfo = null;
+		},
+
 		render: function(templateName, context) {
 			if (!this.view) {
 				this.view = BaseView.getInstance(this.element, templateName);

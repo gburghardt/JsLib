@@ -85,7 +85,7 @@ ModuleFactory = Object.extend({
 
 		getInstance: function(className, element, options) {
 			var Klass = this.getClassReference(className);
-			element.className = "module module-" + className.namify();
+			element.className += " module module-" + className.namify();
 			var module = new Klass(element, options);
 
 			this.registerModule(className, module);

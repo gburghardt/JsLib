@@ -40,6 +40,18 @@ section#main {
 	right: 0;
 	top: 60px;
 }
+.selected {
+	background-color: #FDFFCF;
+}
+.selectionManager ol {
+	cursor: default;
+	list-style-type: none;
+	margin: 1em 0;
+	padding: 0;
+}
+.selectionManager ol > li {
+	margin: .33em 0;
+}
 .module {
 	border-bottom: 1px solid #000;
 }
