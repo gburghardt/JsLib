@@ -78,6 +78,8 @@ Application = Object.extend({
 			for (i; i < length; i++) {
 				if (elements[i].getAttribute("data-action-domready") === "createModule") {
 					this.moduleFactory.createModules(elements[i]);
+					elements[i].removeAttribute("data-action-domready");
+					elements[i].setAttribute("data-module-created", "domready");
 				}
 			}
 		},

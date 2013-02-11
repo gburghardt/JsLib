@@ -122,4 +122,3 @@ ModuleFactory = Object.extend({
 
 });
 
-// TODO: Create method to find a module, instantiate it and inject it into another module as a property.

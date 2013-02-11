@@ -128,7 +128,7 @@ BaseModule = Object.extend({
 
 		createModuleArrayProperty: function(propertyName, elements) {
 			var i = 0, length = elements.length,
-			    propertyElement, className, moduleInfo;
+					propertyElement, className, moduleInfo;
 
 			for (i; i < length; i++) {
 				if (elements[i].getAttribute("data-module-property") === propertyName) {
@@ -136,6 +136,8 @@ BaseModule = Object.extend({
 					className = propertyElement.getAttribute("data-module");
 					moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info"));
 					this[propertyName].push( BaseModule.factory.createModule(className, propertyElement, moduleInfo) );
+					elements[i].removeAttribute("data-module-property");
+					elements[i].setAttribute("data-module-property-created", propertyName);
 				}
 			}
 
@@ -144,7 +146,7 @@ BaseModule = Object.extend({
 
 		createModuleSingleProperty: function(propertyName, elements) {
 			var i = 0, length = elements.length,
-			    propertyElement, className, moduleInfo;
+					propertyElement, className, moduleInfo;
 
 			for (i; i < length; i++) {
 				if (elements[i].getAttribute("data-module-property") === propertyName) {
@@ -157,6 +159,9 @@ BaseModule = Object.extend({
 			moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info") || "{}");
 
 			this[propertyName] = BaseModule.factory.createModule(className, propertyElement, moduleInfo);
+			elements[i].removeAttribute("data-module-property");
+			elements[i].setAttribute("data-module-property-created", propertyName);
+
 			elements = moduleInfo = null;
 		},
 
