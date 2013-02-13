@@ -61,7 +61,7 @@ BaseModule = Object.extend({
 		},
 
 		destructor: function() {
-			this.notify("beforeDestroy", this);
+			this.notify("beforeDestructor", this);
 
 			if (BaseModule.factory) {
 				BaseModule.factory.unregisterModule(this);

@@ -1,5 +1,29 @@
 Object.Callbacks = {
 
+	self: {
+
+		addCallbacks: function(newCallbacks) {
+			var callbacks = this.prototype.callbacks || {};
+
+			for (name in newCallbacks) {
+				if (newCallbacks.hasOwnProperty(name)) {
+					if (callbacks[name]) {
+						callbacks[name] = [ callbacks[name] ];
+					}
+					else {
+						callbacks[name] = [];
+					}
+
+					callbacks[name].push( newCallbacks[name] );
+				}
+			}
+
+			this.prototype.callbacks = callbacks;
+			callbacks = newCallbacks = null;
+		}
+
+	},
+
 	prototype: {
 
 		callbackDispatcher: null,

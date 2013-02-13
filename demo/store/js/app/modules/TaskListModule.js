@@ -7,6 +7,10 @@ TaskListModule = BaseModule.extend({
 			click: ["removeTask", "removeSelected"]
 		},
 
+		elements: {
+			taskField: "#task-text"
+		},
+
 		selectionManager: null,
 
 		run: function() {

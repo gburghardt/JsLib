@@ -1,11 +1,18 @@
 LoginModule = BaseModule.extend({
+
 	prototype: {
+
 		actions: {
 			submit: "submit"
 		},
 
+		elements: {
+			usernameField: "#login-username",
+			passwordField: "#login-password"
+		},
+
 		run: function() {
-			document.getElementById("login-username").focus();
+			this.usernameField.focus();
 			this.view = new BaseView(this.element);
 		},
 
@@ -16,16 +23,18 @@ LoginModule = BaseModule.extend({
 
 			if (!data.username) {
 				alert("The username is required");
-				document.getElementById("login-username").focus();
+				this.usernameField.focus();
 			}
 			else if (!data.password) {
 				alert("Please enter a password");
-				document.getElementById("login-password").focus();
+				this.passwordField.focus();
 			}
 			else {
 				alert("Welcome!");
 				this.destructor();
 			}
 		}
+
 	}
+
 });
