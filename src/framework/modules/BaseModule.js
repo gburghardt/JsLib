@@ -18,6 +18,8 @@ BaseModule = Object.extend({
 
 		delegatorEventActionMapping: null,
 
+		document: null,
+
 		element: null,
 
 		options: {
@@ -49,6 +51,7 @@ BaseModule = Object.extend({
 
 		init: function() {
 			this.element = (typeof this.element === "string") ? document.getElementById(this.element) : this.element;
+			this.document = this.element.ownerDocument;
 
 			if (!this.__proto__.hasOwnProperty("delegatorEventActionMapping")) {
 				this.compileDelegatorEventActionMapping();
@@ -86,7 +89,7 @@ BaseModule = Object.extend({
 				this.element.parentNode.removeChild(this.element);
 			}
 
-			this.element = this.actions = this.delegatorEventActionMapping = this.options = null;
+			this.document = this.element = this.actions = this.delegatorEventActionMapping = this.options = null;
 		},
 
 		compileDelegatorEventActionMapping: function() {
