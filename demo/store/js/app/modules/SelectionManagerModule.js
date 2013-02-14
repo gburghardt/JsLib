@@ -10,15 +10,11 @@ SelectionManagerModule = BaseModule.extend({
 			selectionSizeChanged: "updateCount"
 		},
 
-		selectionSize: 0,
-
-		initialize: function(element, options) {
-			options = {
-				selectedClass: "selected"
-			}.merge(options || {});
-
-			BaseModule.prototype.initialize.call(this, element, options);
+		options: {
+			selectedClass: "selected"
 		},
+
+		selectionSize: 0,
 
 		deselectAll: function(event, element, params) {
 			event.stop();

@@ -20,7 +20,9 @@ BaseModule = Object.extend({
 
 		element: null,
 
-		options: null,
+		options: {
+			delegatorActionPrefix: null
+		},
 
 		template: null,
 
@@ -32,9 +34,7 @@ BaseModule = Object.extend({
 			}
 
 			this.element = element;
-			this.options = {
-				delegatorActionPrefix: null
-			};
+			this.options = this.mergePropertyFromPrototypeChain("options");
 
 			if (options) {
 				this.options.merge(options);
