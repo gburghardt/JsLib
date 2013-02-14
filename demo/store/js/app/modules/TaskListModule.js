@@ -52,10 +52,12 @@ TaskListModule = BaseModule.extend({
 			var data = this.view.getFormData();
 			var newItem = document.createElement("li");
 			newItem.setAttribute("data-action", "toggleSelection");
-			newItem.innerHTML = Template.find("tasks/item").render(data);
-			this.element.getElementsByTagName("ol")[0].appendChild(newItem);
-			document.getElementById("task-text").value = "";
-			document.getElementById("task-text").focus();
+			Template.render("tasks/item", data, this, function(source) {
+				newItem.innerHTML = source;
+				this.element.getElementsByTagName("ol")[0].appendChild(newItem);
+				this.taskField.value = "";
+				this.taskField.focus();
+			});
 		}
 
 	}

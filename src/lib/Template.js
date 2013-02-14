@@ -122,6 +122,14 @@ Template = Object.extend({
 			}
 
 			return source;
+		},
+
+		render: function(name, data, context, callback) {
+			Template.fetch(name, this, function(template) {
+				var source = template.render(data);
+				callback.call(context, source, template);
+				data = context = callback = template = null;
+			});
 		}
 
 	},
