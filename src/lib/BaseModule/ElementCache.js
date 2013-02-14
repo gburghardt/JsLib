@@ -62,53 +62,15 @@ BaseModule.ElementCache = {
 		},
 
 		compileElementCollections: function() {
-			if (this.__proto__.compiledElementCollections) {
-				return;
+			if (!this.__proto__.compiledElementCollections) {
+				this.__proto__.compiledElementCollections = this.mergePropertyFromPrototypeChain("elementCollections");
 			}
-
-			var property, proto = this.__proto__, elementCollections;
-			this.__proto__.compiledElementCollections = {};
-
-			while (proto) {
-				if (proto.hasOwnProperty("elementCollections") && proto.elementCollections) {
-					elementCollections = proto.elementCollections;
-
-					for (property in elementCollections) {
-						if (elementCollections.hasOwnProperty(property) && !this.__proto__.compiledElementCollections[property]) {
-							this.__proto__.compiledElementCollections[property] = elementCollections[property];
-						}
-					}
-				}
-
-				proto = proto.__proto__;
-			}
-
-			elementCollections = proto = null;
 		},
 
 		compileElements: function() {
-			if (this.__proto__.compiledElements) {
-				return;
+			if (!this.__proto__.compiledElements) {
+				this.__proto__.compiledElements = this.mergePropertyFromPrototypeChain("elements");
 			}
-
-			var property, proto = this.__proto__, elements;
-			this.__proto__.compiledElements = {};
-
-			while (proto) {
-				if (proto.hasOwnProperty("elements") && proto.elements) {
-					elements = proto.elements;
-
-					for (property in elements) {
-						if (elements.hasOwnProperty(property) && !this.__proto__.compiledElements[property]) {
-							this.__proto__.compiledElements[property] = elements[property];
-						}
-					}
-				}
-
-				proto = proto.__proto__;
-			}
-
-			elements = proto = null;
 		},
 
 		createElementCollectionGetter: function(property) {
