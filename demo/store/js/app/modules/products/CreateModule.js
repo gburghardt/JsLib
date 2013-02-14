@@ -10,9 +10,11 @@ products.CreateModule = BaseModule.extend({
 			change: "markDirty"
 		},
 
+		template: "products/create_view",
+
 		run: function() {
 			this.product = new products.Base();
-			this.render("products/create_view", this.product);
+			this.render(this.template, this.product);
 		},
 
 		cancel: function(event, element, params) {

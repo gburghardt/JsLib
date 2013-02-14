@@ -14,21 +14,24 @@ TaskListModule = BaseModule.extend({
 		selectionManager: null,
 
 		run: function() {
-			this.view = new BaseView(this.element);
 			this.createModuleProperty("selectionManager");
 		},
 
 		removeSelected: function(event, element, params) {
 			event.stop();
-			var items= this.selectionManager.getSelectedItems(), i = 0, length = items.length;
 
-			for (i; i < length; i++) {
-				items[i].parentNode.removeChild(items[i]);
-			};
+			if (confirm("Are you sure you want to remove these items?")) {
+				var items= this.selectionManager.getSelectedItems(), i = 0, length = items.length;
 
-			this.selectionManager.updateCount(true);
+				for (i; i < length; i++) {
+					items[i].parentNode.removeChild(items[i]);
+				};
 
-			event = element = params = items = null;
+				this.selectionManager.updateCount(true);
+				items = null;
+			}
+
+			event = element = params = null;
 		},
 
 		removeTask: function(event, element, params) {

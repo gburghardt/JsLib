@@ -22,6 +22,8 @@ BaseModule = Object.extend({
 
 		options: null,
 
+		template: null,
+
 		view: null,
 
 		initialize: function(element, options) {
@@ -54,6 +56,11 @@ BaseModule = Object.extend({
 
 			this.delegator = new dom.events.Delegator(this, this.element, this.options.delegatorActionPrefix || null);
 			this.delegator.setEventActionMapping(this.delegatorEventActionMapping);
+
+			if (!this.template) {
+				this.view = new BaseView(this.element);
+			}
+
 			this.notify("afterInit", this);
 			this.run();
 

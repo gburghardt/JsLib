@@ -13,7 +13,6 @@ LoginModule = BaseModule.extend({
 
 		run: function() {
 			this.usernameField.focus();
-			this.view = new BaseView(this.element);
 		},
 
 		submit: function(event, element, params) {
