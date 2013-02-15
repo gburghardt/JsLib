@@ -125,19 +125,22 @@ BaseModule = Object.extend({
 			}
 
 			var propertyElement, elements = this.element.getElementsByTagName("*");
+			var module;
 
 			if (this[propertyName] === null) {
-				this.createModuleSingleProperty(propertyName, elements);
+				module = this.createModuleSingleProperty(propertyName, elements);
 			}
 			else if (this[propertyName] instanceof Array && this[propertyName].length === 0) {
-				this.createModuleArrayProperty(propertyName, elements);
+				module = this.createModuleArrayProperty(propertyName, elements);
 			}
 
-			elements = null;
+			this[propertyName] = module;
+
+			module = elements = null;
 		},
 
 		createModuleArrayProperty: function(propertyName, elements) {
-			var i = 0, length = elements.length,
+			var i = 0, length = elements.length, modules = [],
 					propertyElement, className, moduleInfo;
 
 			for (i; i < length; i++) {
@@ -145,17 +148,19 @@ BaseModule = Object.extend({
 					propertyElement = elements[i];
 					className = propertyElement.getAttribute("data-module");
 					moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info"));
-					this[propertyName].push( BaseModule.factory.createModule(className, propertyElement, moduleInfo) );
+					modules.push( BaseModule.factory.createModule(className, propertyElement, moduleInfo) );
 					elements[i].removeAttribute("data-module-property");
 					elements[i].setAttribute("data-module-property-created", propertyName);
 				}
 			}
 
 			elements = moduleInfo = null;
+
+			return modules;
 		},
 
 		createModuleSingleProperty: function(propertyName, elements) {
-			var i = 0, length = elements.length,
+			var i = 0, length = elements.length, module,
 					propertyElement, className, moduleInfo;
 
 			for (i; i < length; i++) {
@@ -165,14 +170,20 @@ BaseModule = Object.extend({
 				}
 			}
 
+			if (!propertyElement) {
+				throw new Error("Cannot instantiate " + propertyName + " module. No element with data-module-property=" + propertyName + " was found.");
+			}
+
 			className = propertyElement.getAttribute("data-module");
 			moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info") || "{}");
 
-			this[propertyName] = BaseModule.factory.createModule(className, propertyElement, moduleInfo);
-			elements[i].removeAttribute("data-module-property");
-			elements[i].setAttribute("data-module-property-created", propertyName);
+			module = BaseModule.factory.createModule(className, propertyElement, moduleInfo);
+			propertyElement.removeAttribute("data-module-property");
+			propertyElement.setAttribute("data-module-property-created", propertyName);
 
-			elements = moduleInfo = null;
+			elements = moduleInfo = propertyElement = null;
+
+			return module;
 		},
 
 		render: function(templateName, context) {
