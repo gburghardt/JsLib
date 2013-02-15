@@ -16,6 +16,8 @@ SelectionManagerModule = BaseModule.extend({
 
 		selectionSize: 0,
 
+// Access: Public
+
 		deselectAll: function(event, element, params) {
 			event.stop();
 
@@ -27,10 +29,6 @@ SelectionManagerModule = BaseModule.extend({
 
 			this.selectionSize = 0;
 			this.notify("selectionSizeChanged");
-		},
-
-		getSelectedItems: function() {
-			return this.element.querySelectorAll("li." + this.options.selectedClass) || [];
 		},
 
 		selectAll: function(event, element, params) {
@@ -59,6 +57,12 @@ SelectionManagerModule = BaseModule.extend({
 			}
 
 			this.notify("selectionSizeChanged");
+		},
+
+// Access: Private
+
+		getSelectedItems: function() {
+			return this.element.querySelectorAll("li." + this.options.selectedClass) || [];
 		},
 
 		updateCount: function(forceRecount) {
