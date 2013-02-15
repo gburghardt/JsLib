@@ -3,12 +3,12 @@ Object.Callbacks = {
 	self: {
 
 		addCallbacks: function(newCallbacks) {
-			var callbacks = this.prototype.callbacks || {};
+			var name, callbacks = this.prototype.callbacks || {};
 
 			for (name in newCallbacks) {
 				if (newCallbacks.hasOwnProperty(name)) {
 					if (callbacks[name]) {
-						callbacks[name] = [ callbacks[name] ];
+						callbacks[name] = (callbacks[name] instanceof Array) ? callbacks[name] : [ callbacks[name] ];
 					}
 					else {
 						callbacks[name] = [];

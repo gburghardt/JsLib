@@ -2,6 +2,19 @@ Object.Utils = {
 
   prototype: {
 
+		attempt: function(methodName) {
+			if (this[methodName] && methodName !== "attempt") {
+				var args = Array.prototype.slice.call(arguments, 1);
+
+				try {
+					return this[methodName].apply(this, args);
+				}
+				catch (error) {
+					return undefined;
+				}
+			}
+		},
+
 		merge: function() {
 			var key, args = arguments, i = 0, length = args.length, arg;
 

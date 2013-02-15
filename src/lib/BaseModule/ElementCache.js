@@ -3,12 +3,10 @@ BaseModule = window.BaseModule || {};
 BaseModule.ElementCache = {
 
 	included: function(Klass) {
-		if (Klass.addCallbacks) {
-			Klass.addCallbacks({
-				afterInit: "initElementCache",
-				beforeDestructor: "destroyElementCache"
-			});
-		}
+		Klass.attempt("addCallbacks", {
+			afterInit: "initElementCache",
+			beforeDestructor: "destroyElementCache"
+		});
 	},
 
 	prototype: {
