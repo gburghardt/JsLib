@@ -5,7 +5,7 @@ Object.ApplicationEvents = {
 		eventDispatcher: null,
 
 		getEventDispatcher: function() {
-			return this.eventDispatcher;
+			throw new Error("Classes including Object.ApplicationEvents must define Klass.getEventDispatcher()");
 		},
 
 		checkEventDispatcher: function() {
