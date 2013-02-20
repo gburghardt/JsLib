@@ -19,8 +19,6 @@ describe("Model", function() {
 			describe("toQueryString", function() {
 
 				beforeEach(function() {
-					Model.Base.eventDispatcher = new events.Dispatcher();
-
 					this.model = new Product({
 						id: 1234,
 						name: "Paint",
@@ -29,11 +27,6 @@ describe("Model", function() {
 						notes: "Per gallon",
 						phone: null
 					});
-				});
-
-				afterEach(function() {
-					Model.Base.eventDispatcher.destructor();
-					Model.Base.eventDispatcher = null;
 				});
 
 				it("serializes attributes", function() {

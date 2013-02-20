@@ -26,10 +26,6 @@ Model.Base = Object.extend({
 			return Function.prototype.extend.call(this, descriptor);
 		},
 
-		getEventDispatcher: function() {
-			return Model.Base.eventDispatcher;
-		}
-
 	},
 
 	prototype: {

@@ -16,9 +16,13 @@ Sample Use:
 */
 Application = Object.extend({
 
+	includes: Object.Utils,
+
 	prototype: {
 
-		config: null,
+		config: {
+			"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domready"]
+		},
 
 		delegator: null,
 
@@ -33,11 +37,9 @@ Application = Object.extend({
 		window: null,
 
 		initialize: function() {
-			this.config = {
-				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domready"]
-			};
-
+			this.config = this.mergePropertyFromPrototypeChain("config");
 			this.eventDispatcher = new events.Dispatcher();
+			Object.ApplicationEvents.eventDispatcher = this.eventDispatcher;
 			this.moduleFactory = new ModuleFactory(this.eventDispatcher);
 		},
 

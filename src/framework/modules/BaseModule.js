@@ -1,13 +1,12 @@
 BaseModule = Object.extend({
 
-	includes: [ Object.ApplicationEvents, Object.Callbacks ],
+	includes: [
+		Object.ApplicationEvents,
+		Object.Callbacks
+	],
 
 	self: {
-		factory: null,
-
-		getEventDispatcher: function() {
-			return BaseModule.eventDispatcher;
-		}
+		factory: null
 	},
 
 	prototype: {
@@ -43,7 +42,6 @@ BaseModule = Object.extend({
 			}
 
 			this.initCallbacks();
-			this.setUpCallbacks();
 			this.notify("afterInitialize", this);
 
 			element = options = null;

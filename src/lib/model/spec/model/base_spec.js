@@ -86,13 +86,6 @@ describe("Model", function() {
 
 			beforeEach(function() {
 				this.model = new TestModelAttributes();
-				this.dispatcher = new events.Dispatcher();
-				Model.Base.eventDispatcher = this.dispatcher;
-			});
-
-			afterEach(function() {
-				Model.Base.eventDispatcher = null;
-				this.dispatcher.destructor();
 			});
 
 			it("sets a null value", function() {
@@ -230,13 +223,6 @@ describe("Model", function() {
 
 			beforeEach(function() {
 				this.model = new TestModelAttributes();
-				this.dispatcher = new events.Dispatcher();
-				Model.Base.eventDispatcher = this.dispatcher;
-			});
-
-			afterEach(function() {
-				this.dispatcher.destructor();
-				Model.Base.eventDispatcher = null;
 			});
 
 			it("publishes attributes.changed", function() {
@@ -356,15 +342,6 @@ describe("Model", function() {
 		});
 
 		describe("attributes", function() {
-
-			beforeEach(function() {
-				Model.Base.eventDispatcher = new events.Dispatcher();
-			});
-
-			afterEach(function() {
-				Model.Base.eventDispatcher.destructor();
-				Model.Base.eventDispatcher = null;
-			});
 
 			describe("getters", function() {
 				it("return null when no attribute was given", function() {

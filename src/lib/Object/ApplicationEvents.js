@@ -1,16 +1,16 @@
 Object.ApplicationEvents = {
 
+	eventDispatcher: null,
+
 	self: {
 
-		eventDispatcher: null,
-
 		getEventDispatcher: function() {
-			throw new Error("Classes including Object.ApplicationEvents must define Klass.getEventDispatcher()");
+			return Object.ApplicationEvents.eventDispatcher;
 		},
 
 		checkEventDispatcher: function() {
 			if (!this.getEventDispatcher()) {
-				throw new Error("No application event dispatcher was found.");
+				throw new Error("No application event dispatcher was found. Please set Object.ApplicationEvents.eventDispatcher.");
 			}
 
 			return true;

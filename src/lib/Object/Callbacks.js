@@ -1,4 +1,8 @@
+'@import Object.ApplicationEvents';
+
 Object.Callbacks = {
+
+	guid: 0,
 
 	self: {
 
@@ -28,6 +32,10 @@ Object.Callbacks = {
 
 		callbackDispatcher: null,
 
+		callbackId: null,
+
+		callbackIdPrefix: "callbacks",
+
 		callbacks: null,
 
 		initCallbacks: function() {
@@ -35,7 +43,7 @@ Object.Callbacks = {
 				this.compileCallbacks();
 			}
 
-			this.callbackDispatcher = new events.Dispatcher();
+			this.callbackId = Object.Callbacks.guid++;
 
 			var name, i, length, callbacks;
 
@@ -94,17 +102,17 @@ Object.Callbacks = {
 		},
 
 		notify: function(message, data) {
-			this.callbackDispatcher.publish(message, this, data);
+			this.publish(this.callbackIdPrefix + "." + this.callbackId + "." + message, this, data);
 			data = null;
 		},
 
 		listen: function(message, context, callback) {
-			this.callbackDispatcher.subscribe(message, context, callback);
+			this.subscribe(this.callbackIdPrefix + "." + this.callbackId + "." + message, context, callback);
 			context = callback = null;
 		},
 		
 		ignore: function(message, context, callback) {
-			this.callbackDispatcher.unsubscribe(message, context, callback);
+			this.unsubscribe(this.callbackIdPrefix + "." + this.callbackId + "." + message, context, callback);
 			context = callback = null;
 		}
 
