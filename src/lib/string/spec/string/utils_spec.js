@@ -19,27 +19,26 @@ describe("String", function() {
 	});
 
 	describe("constantize", function() {
-		it("throws an error if not defined", function() {
-			expect(function() {
-				"non.existent.ClassName".constantize();
-			}).toThrowError();
+		it("returns null if class name is not defined", function() {
+			expect( "non.existent.ClassName".constantize() ).toBeNull();
 		});
 
 		it("returns a reference to a class", function() {
-			expect("Array".constantize()).toEqual(Array);
+			expect( "Array".constantize() ).toEqual(Array);
+			expect( "Object".constantize() ).toEqual(Object);
+			expect( "window.XMLHttpRequest".constantize() ).toEqual(window.XMLHttpRequest);
 		});
 
-		it("requires the string start with an alphbetic character", function() {
-			expect("document".constantize()).toEqual(document);
-
-			expect("Object".constantize()).toEqual(Object);
-
-			expect(function() {
-				"9Test".constantize()
-			}).toThrowError();
+		it("returns a reference to an object", function() {
+			expect( "document".constantize() ).toEqual(document);
 		});
 
-		it("throws an error when the string is an expression", function() {
+		it("returns null if the string does not start with an alphbetic character", function() {
+			expect( "9Test".constantize() ).toBeNull();
+			expect( "$Foo".constantize() ).toBeNull();
+		});
+
+		it("returns null when the string is an expression", function() {
 			var expressions = [
 				"hacked();",
 				"var a = 1;",
@@ -47,9 +46,7 @@ describe("String", function() {
 			], length = expressions.length, i = 0;
 
 			for (i; i < length; i++) {
-				expect(function() {
-					expressions[i].constantize()
-				}).toThrowError();
+				expect( expressions[i].constantize() ).toBeNull();
 			}
 		});
 	});
