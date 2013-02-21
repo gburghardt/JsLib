@@ -1,4 +1,4 @@
-BaseModel.Serialization.Json = {
+Model.Serialization.Json = {
 
 	prototype: {
 
@@ -75,4 +75,4 @@ BaseModel.Serialization.Json = {
 
 };
 
-BaseModel.include(BaseModel.Serialization.Json);
+Model.Base.include(Model.Serialization.Json);
