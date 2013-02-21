@@ -17,7 +17,15 @@ Model.Serialization = {
 		serialize: function(options) {
 			options = this.mergePropertyFromPrototypeChain("serializeOptions").merge(options || {});
 			var methodName = "to" + options.format.capitalize();
-			var x = this[methodName](options);
+			var x;
+
+			if (this[methodName]) {
+				x = this[methodName](options);
+			}
+			else {
+				throw new Error(methodName + " is not a function");
+			}
+
 			return x;
 		}
 

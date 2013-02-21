@@ -21,10 +21,10 @@ Model.Serialization.Json = {
 
 		toJson: function(options) {
 			options = options || {};
-			var json = "", moduleCallbacksResult, attrs = {}, i, length, key, hasAttrs = false;
+			var json = [], attrs = {}, key, hasAttrs = false;
 
 			if (options.rootElement) {
-				json += '{"' + options.rootElement + '":';
+				json.push( '{"' + options.rootElement + '":' );
 			}
 
 			if (options.changedAttributesOnly) {
@@ -38,37 +38,24 @@ Model.Serialization.Json = {
 				attrs[this.primaryKey] = this.attributes[this.primaryKey];
 			}
 			else {
-				length = this.validAttributes.length;
-
-				for (i = 0; i < length; i++) {
-					key = this.validAttributes[i];
-
-					if (this._attributes.hasOwnProperty(key)) {
-						hasAttrs = true;
+				for (key in this.compiledSchema) {
+					if (this.compiledSchema.hasOwnProperty(key)) {
 						attrs[key] = this._attributes[key];
+						hasAttrs = true;
 					}
 				}
 			}
 
-			json += JSON.stringify(attrs);
-			moduleCallbacksResult = this.applyModuleCallbacks("toJson", [options]);
-
-			if (moduleCallbacksResult.length) {
-				json = json.replace(/\}$/, "");
-
-				if (hasAttrs) {
-					json += "," + moduleCallbacksResult.join("") + "}";
-				}
-				else {
-					json += moduleCallbacksResult.join("") + "}";
-				}
-			}
+			json.push( JSON.stringify(attrs) );
+			this.notify( "toJson", { options: options, json: json } );
 
 			if (options.rootElement) {
-				json += '}';
+				json.push( '}' );
 			}
 
-			return json;
+			attrs = options = null;
+
+			return json.join("");
 		}
 
 	}
