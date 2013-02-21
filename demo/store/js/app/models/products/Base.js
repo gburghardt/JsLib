@@ -1,7 +1,12 @@
 products = window.Products || {};
 
-products.Base = BaseModel.extend({
+products.Base = Model.Base.extend({
 	prototype: {
-		validAttributes: ["id", "name", "description", "created_at", "updated_at"]
+		schema: {
+			name: "String",
+			description: "String",
+			created_at: "String",
+			updated_at: "String"
+		}
 	}
 });

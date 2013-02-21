@@ -1,16 +1,18 @@
-BaseModel.TemplateDataKeys = {
+Model.TemplateDataKeys = {
 	prototype: {
 		getTemplateKeys: function() {
 			if (!this._templateKeys) {
-				var keys = [], i = 0, length = this.validAttributes.length;
+				var key, keys = [];
 
-				for (i; i < length; i++) {
-					keys.push(this.validAttributes[i]);
+				for (key in this.compiledSchema) {
+					if (this.compiledSchema.hasOwnProperty(key)) {
+						keys.push(key);
+					}
 				}
 
 				// No need to capture a return value because module callbacks push items
 				// onto the keys array.
-				this.applyModuleCallbacks("getTemplateKeys", [keys]);
+				this.notify( "initTemplateDataKeys", { keys : keys } );
 				this._templateKeys = keys;
 			}
 
@@ -19,4 +21,4 @@ BaseModel.TemplateDataKeys = {
 	}
 };
 
-BaseModel.include(BaseModel.TemplateDataKeys);
+Model.Base.include(Model.TemplateDataKeys);
