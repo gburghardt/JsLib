@@ -6,7 +6,7 @@ describe("Object", function() {
 
 			it("creates an empty compiled callbacks object if a class does not define a callbacks object", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks
+					includes: Application.Callbacks
 				});
 
 				expect(TestClass.prototype).toNotHaveProperty("compiledCallbacks");
@@ -22,7 +22,7 @@ describe("Object", function() {
 
 			it("compiles callbacks defined in a class", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks,
+					includes: Application.Callbacks,
 			
 					prototype: {
 						callbacks: {
@@ -46,7 +46,7 @@ describe("Object", function() {
 
 			it("merges the callbacks from the class hierarchy", function() {
 				var ParentClass = Object.extend({
-					includes: Object.Callbacks,
+					includes: Application.Callbacks,
 					prototype: {
 						callbacks: {
 							beforeSave: ["checkRequired", "checkSpelling"],
@@ -106,7 +106,7 @@ describe("Object", function() {
 
 			it("sets up an empty listeners property", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks
+					includes: Application.Callbacks
 				});
 
 				var o = new TestClass();
@@ -117,7 +117,7 @@ describe("Object", function() {
 
 			it("compiles callbacks the first time a concrete class is instantiated", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks
+					includes: Application.Callbacks
 				});
 
 				expect(TestClass.prototype).toNotHaveProperty("compiledCallbacks");
@@ -132,7 +132,7 @@ describe("Object", function() {
 
 			it("does not recompile callbacks after the first instance is instantiated", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks
+					includes: Application.Callbacks
 				});
 
 				var obj1 = new TestClass();
@@ -150,7 +150,7 @@ describe("Object", function() {
 
 			it("adds callback listeners from the compiled callbacks", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks,
+					includes: Application.Callbacks,
 					prototype: {
 						callbacks: {
 							beforeSave: "foo",
@@ -173,7 +173,7 @@ describe("Object", function() {
 
 			it("calls setUpCallbacks", function() {
 				var TestClass = Object.extend({
-					includes: Object.Callbacks
+					includes: Application.Callbacks
 				});
 
 				var o = new TestClass();

@@ -1,16 +1,16 @@
-Object.ApplicationEvents = {
+Application.ApplicationEvents = {
 
 	eventDispatcher: null,
 
 	self: {
 
 		getEventDispatcher: function() {
-			return Object.ApplicationEvents.eventDispatcher;
+			return Application.ApplicationEvents.eventDispatcher;
 		},
 
 		checkEventDispatcher: function() {
 			if (!this.getEventDispatcher()) {
-				throw new Error("No application event dispatcher was found. Please set Object.ApplicationEvents.eventDispatcher.");
+				throw new Error("No application event dispatcher was found. Please set Application.ApplicationEvents.eventDispatcher.");
 			}
 
 			return true;

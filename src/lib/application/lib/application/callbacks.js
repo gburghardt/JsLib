@@ -1,6 +1,6 @@
-'@import Object.ApplicationEvents';
+'@import Appliction.ApplicationEvents';
 
-Object.Callbacks = {
+Application.Callbacks = {
 
 	guid: 0,
 
@@ -43,7 +43,7 @@ Object.Callbacks = {
 				this.compileCallbacks();
 			}
 
-			this.callbackId = Object.Callbacks.guid++;
+			this.callbackId = Application.Callbacks.guid++;
 
 			var name, i, length, callbacks;
 

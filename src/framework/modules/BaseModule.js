@@ -1,8 +1,8 @@
 BaseModule = Object.extend({
 
 	includes: [
-		Object.ApplicationEvents,
-		Object.Callbacks
+		Application.ApplicationEvents,
+		Application.Callbacks
 	],
 
 	self: {

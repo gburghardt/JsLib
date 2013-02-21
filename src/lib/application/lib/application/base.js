@@ -2,7 +2,7 @@
 
 Sample Use:
 
-	var app = new Application();
+	var app = new Application.Base();
 
 	jQuery(function() {
 		app.init();
@@ -14,9 +14,7 @@ Sample Use:
 	});
 
 */
-Application = Object.extend({
-
-	includes: Object.Utils,
+Application.Base = Object.extend({
 
 	prototype: {
 
@@ -39,7 +37,7 @@ Application = Object.extend({
 		initialize: function() {
 			this.config = this.mergePropertyFromPrototypeChain("config");
 			this.eventDispatcher = new events.Dispatcher();
-			Object.ApplicationEvents.eventDispatcher = this.eventDispatcher;
+			Application.ApplicationEvents.eventDispatcher = this.eventDispatcher;
 			this.moduleFactory = new ModuleFactory(this.eventDispatcher);
 		},
 
