@@ -1,79 +1,81 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-  "http://www.w3.org/TR/html4/loose.dtd">
+	"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-  <title>Jasmine Spec Runner</title>
+	<title>Jasmine Spec Runner</title>
 
-  <link rel="shortcut icon" type="image/png" href="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine_favicon.png">
+	<link rel="shortcut icon" type="image/png" href="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine_favicon.png">
 
-  <link rel="stylesheet" type="text/css" href="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine.css">
-  <script type="text/javascript" src="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine.js"></script>
-  <script type="text/javascript" src="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine-html.js"></script>
-  <script type="text/javascript" src="../src/lib/testing/jasmine/matchers.js"></script>
+	<link rel="stylesheet" type="text/css" href="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine.css">
+	<script type="text/javascript" src="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine.js"></script>
+	<script type="text/javascript" src="../external/src/jasmine-standalone-1.1.0/lib/jasmine-1.1.0/jasmine-html.js"></script>
+	<script type="text/javascript" src="../src/lib/testing/jasmine/matchers.js"></script>
 
-  <!-- include source files here... -->
-  <script type="text/javascript" src="../src/lib/patches/lib/patches.js"></script>
-  <script type="text/javascript" src="../src/lib/patches/lib/patches/function.js"></script>
-  <script type="text/javascript" src="../src/lib/object/lib/object/utils.js"></script>
-  <script type="text/javascript" src="../src/lib/string/lib/string/utils.js"></script>
+	<!-- include source files here... -->
+	<script type="text/javascript" src="../src/lib/patches/lib/patches.js"></script>
+	<script type="text/javascript" src="../src/lib/patches/lib/patches/function.js"></script>
+	<script type="text/javascript" src="../src/lib/object/lib/object/utils.js"></script>
+	<script type="text/javascript" src="../src/lib/string/lib/string/utils.js"></script>
 	<script type="text/javascript" src="../src/lib/HTMLElement/Adaptors.js"></script>
 	<script type="text/javascript" src="../src/lib/dom/events/Delegator.js"></script>
-	<script type="text/javascript" src="../src/framework/views/BaseView.js"></script>
-  <script type="text/javascript" src="../src/lib/events/lib/events.js"></script>
-  <script type="text/javascript" src="../src/lib/events/lib/events/event.js"></script>
-  <script type="text/javascript" src="../src/lib/events/lib/events/dispatcher.js"></script>
-  <script type="text/javascript" src="../src/lib/events/lib/events/application_events.js"></script>
-  <script type="text/javascript" src="../src/lib/events/lib/events/callbacks.js"></script>
-  <script type="text/javascript" src="../src/lib/model/lib/model.js"></script>
-  <script type="text/javascript" src="../src/lib/model/lib/model/base.js"></script>
-  <script type="text/javascript" src="../src/lib/model/lib/model/serialization.js"></script>
-  <script type="text/javascript" src="../src/lib/model/lib/model/serialization/query_string.js"></script>
-  <script type="text/javascript" src="../src/lib/model/lib/model/serialization/xml.js"></script>
-  <script type="text/javascript" src="../src/lib/model/lib/model/serialization/json.js"></script>
-  <script type="text/javascript" src="../src/lib/modules/lib/modules.js"></script>
-  <script type="text/javascript" src="../src/lib/modules/lib/modules/base.js"></script>
-  <script type="text/javascript" src="../src/lib/modules/lib/modules/factory.js"></script>
+	<script type="text/javascript" src="../src/lib/views/lib/views.js"></script>
+	<script type="text/javascript" src="../src/lib/views/lib/views/base.js"></script>
+	<script type="text/javascript" src="../src/lib/events/lib/events.js"></script>
+	<script type="text/javascript" src="../src/lib/events/lib/events/event.js"></script>
+	<script type="text/javascript" src="../src/lib/events/lib/events/dispatcher.js"></script>
+	<script type="text/javascript" src="../src/lib/events/lib/events/application_events.js"></script>
+	<script type="text/javascript" src="../src/lib/events/lib/events/callbacks.js"></script>
+	<script type="text/javascript" src="../src/lib/model/lib/model.js"></script>
+	<script type="text/javascript" src="../src/lib/model/lib/model/base.js"></script>
+	<script type="text/javascript" src="../src/lib/model/lib/model/serialization.js"></script>
+	<script type="text/javascript" src="../src/lib/model/lib/model/serialization/query_string.js"></script>
+	<script type="text/javascript" src="../src/lib/model/lib/model/serialization/xml.js"></script>
+	<script type="text/javascript" src="../src/lib/model/lib/model/serialization/json.js"></script>
+	<script type="text/javascript" src="../src/lib/modules/lib/modules.js"></script>
+	<script type="text/javascript" src="../src/lib/modules/lib/modules/base.js"></script>
+	<script type="text/javascript" src="../src/lib/modules/lib/modules/factory.js"></script>
 
-  <!-- include spec files here... -->
-  <script type="text/javascript" src="./spec_helper.js"></script>
-  <script type="text/javascript" src="../src/lib/patches/spec/patches/function_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/string/spec/string/utils_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/events/spec/events/callbacks_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/model/spec/model/base_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/model/spec/model/serialization_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/model/spec/model/serialization/query_string_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/model/spec/model/serialization/xml_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/model/spec/model/serialization/json_spec.js"></script>
-  <script type="text/javascript" src="../src/lib/modules/spec/modules/factory_spec.js"></script>
+	<!-- include spec files here... -->
+	<script type="text/javascript" src="./spec_helper.js"></script>
+	<script type="text/javascript" src="../src/lib/patches/spec/patches/function_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/string/spec/string/utils_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/events/spec/events/callbacks_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/model/spec/model/base_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/model/spec/model/serialization_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/model/spec/model/serialization/query_string_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/model/spec/model/serialization/xml_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/model/spec/model/serialization/json_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/modules/spec/modules/factory_spec.js"></script>
+	<script type="text/javascript" src="../src/lib/views/spec/views/base_spec.js"></script>
 
-  <script type="text/javascript">
-    (function() {
-      var jasmineEnv = jasmine.getEnv();
-      jasmineEnv.updateInterval = 1000;
+	<script type="text/javascript">
+		(function() {
+			var jasmineEnv = jasmine.getEnv();
+			jasmineEnv.updateInterval = 1000;
 
-      var trivialReporter = new jasmine.TrivialReporter();
+			var trivialReporter = new jasmine.TrivialReporter();
 
-      jasmineEnv.addReporter(trivialReporter);
+			jasmineEnv.addReporter(trivialReporter);
 
-      jasmineEnv.specFilter = function(spec) {
-        return trivialReporter.specFilter(spec);
-      };
+			jasmineEnv.specFilter = function(spec) {
+				return trivialReporter.specFilter(spec);
+			};
 
-      var currentWindowOnload = window.onload;
+			var currentWindowOnload = window.onload;
 
-      window.onload = function() {
-        if (currentWindowOnload) {
-          currentWindowOnload();
-        }
-        execJasmine();
-      };
+			window.onload = function() {
+				if (currentWindowOnload) {
+					currentWindowOnload();
+				}
+				execJasmine();
+			};
 
-      function execJasmine() {
-        jasmineEnv.execute();
-      }
+			function execJasmine() {
+				jasmineEnv.execute();
+			}
 
-    })();
-  </script>
+		})();
+	</script>
 
 </head>
 
