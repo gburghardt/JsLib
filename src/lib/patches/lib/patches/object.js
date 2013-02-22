@@ -1,4 +1,4 @@
-Object.include({
+Patches.Object = {
 
 	self: {
 
@@ -18,4 +18,6 @@ Object.include({
 
 	}
 
-});
+};
+
+Object.include(Patches.Object);

@@ -1,4 +1,4 @@
-Array.include({
+Patches.Array = {
 	prototype: {
 
 		every: function(callback, context) {
@@ -191,4 +191,6 @@ Array.include({
 		}
 
 	}
-});
+};
+
+Array.include(Patches.Array);
