@@ -35,6 +35,15 @@ if (!Function.prototype.include) {
 			}
 		}
 
+		// include other mixins
+		if (mixin.includes) {
+			mixin.includes = (mixin.includes instanceof Array) ? mixin.includes : [mixin.includes];
+
+			for (var i = 0, length = mixin.includes.length; i < length; i++) {
+				this.include(mixin.includes[i]);
+			}
+		}
+
 		if (mixin.included) {
 			mixin.included(this);
 		}
