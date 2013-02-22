@@ -1,4 +1,4 @@
-ModuleFactory = Object.extend({
+Modules.Factory = Object.extend({
 
 	prototype: {
 

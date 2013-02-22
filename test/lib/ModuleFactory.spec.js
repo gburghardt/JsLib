@@ -1,4 +1,4 @@
-describe("ModuleFactory", function() {
+describe("Modules.Factory", function() {
 
 	window.ModuleFactoryTest = window.ModuleFactoryTest || {};
 	var namespace = window.ModuleFactoryTest;
@@ -8,7 +8,7 @@ describe("ModuleFactory", function() {
 		ModuleFactoryTest.TestModule = Modules.Base.extend();
 
 		beforeEach(function() {
-			this.factory = new ModuleFactory();
+			this.factory = new Modules.Factory();
 		});
 
 		it("instantiates a module based on the class and registers it with the factory", function() {
@@ -31,7 +31,7 @@ describe("ModuleFactory", function() {
 		ModuleFactoryTest.Foo = Modules.Base.extend();
 
 		beforeEach(function() {
-			this.factory = new ModuleFactory();
+			this.factory = new Modules.Factory();
 		});
 
 		it("calls init() on the new module", function() {
@@ -159,7 +159,7 @@ describe("ModuleFactory", function() {
 
 		beforeEach(function() {
 			this.element = document.createElement("div");
-			this.factory = new ModuleFactory();
+			this.factory = new Modules.Factory();
 		});
 
 		ModuleFactoryTest.Foo = Modules.Base.extend();

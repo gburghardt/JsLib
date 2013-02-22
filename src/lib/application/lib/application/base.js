@@ -37,7 +37,7 @@ Application.Base = Object.extend({
 		initialize: function() {
 			this.config = this.mergePropertyFromPrototypeChain("config");
 			this.eventDispatcher = Events.ApplicationEvents.eventDispatcher;
-			this.moduleFactory = new ModuleFactory(this.eventDispatcher);
+			this.moduleFactory = new Modules.Factory(this.eventDispatcher);
 		},
 
 		init: function(element) {
