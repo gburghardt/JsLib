@@ -1,6 +1,6 @@
 '@import Function';
 '@import Object.Utils';
-'@import Application.Callbacks';
+'@import Events.Callbacks';
 '@import String';
 '@import Model';
 
@@ -8,8 +8,8 @@ Model.Base = Object.extend({
 
 	includes: [
 		Object.Utils,
-		Application.ApplicationEvents,
-		Application.Callbacks
+		Events.ApplicationEvents,
+		Events.Callbacks
 	],
 
 	self: {

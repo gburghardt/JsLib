@@ -1,1 +1,1 @@
-Application.ApplicationEvents.eventDispatcher = new Events.Dispatcher();
+Events.ApplicationEvents.eventDispatcher = new Events.Dispatcher();

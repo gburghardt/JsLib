@@ -5,12 +5,12 @@ Events.ApplicationEvents = {
 	self: {
 
 		getEventDispatcher: function() {
-			return Application.ApplicationEvents.eventDispatcher;
+			return Events.ApplicationEvents.eventDispatcher;
 		},
 
 		checkEventDispatcher: function() {
 			if (!this.getEventDispatcher()) {
-				throw new Error("No application event dispatcher was found. Please set Application.ApplicationEvents.eventDispatcher.");
+				throw new Error("No application event dispatcher was found. Please set Events.ApplicationEvents.eventDispatcher.");
 			}
 
 			return true;

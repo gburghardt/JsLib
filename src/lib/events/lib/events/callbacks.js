@@ -2,6 +2,8 @@
 
 Events.Callbacks = {
 
+	includes: Events.ApplicationEvents,
+
 	guid: 0,
 
 	self: {
@@ -43,7 +45,7 @@ Events.Callbacks = {
 				this.compileCallbacks();
 			}
 
-			this.callbackId = Application.Callbacks.guid++;
+			this.callbackId = Events.Callbacks.guid++;
 
 			var name, i, length, callbacks;
 

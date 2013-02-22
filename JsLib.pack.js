@@ -678,7 +678,7 @@ Events.Event.prototype = {
 };
 
 /* File: src/lib/Object/ApplicationEvents.js */
-Application.ApplicationEvents = {
+Events.ApplicationEvents = {
 
 	self: {
 
@@ -738,7 +738,7 @@ Application.ApplicationEvents = {
 };
 
 /* File: src/lib/Object/Callbacks.js */
-Application.Callbacks = {
+Events.Callbacks = {
 
 	prototype: {
 
@@ -1805,7 +1805,7 @@ BaseModel.include(BaseModel.TemplateDataKeys);
 /* File: src/framework/modules/BaseModule.js */
 BaseModule = Object.extend({
 
-	includes: [ Application.ApplicationEvents, Application.Callbacks ],
+	includes: [ Events.ApplicationEvents, Events.Callbacks ],
 
 	self: {
 		factory: null,
