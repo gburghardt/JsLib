@@ -1,6 +1,4 @@
-Modules.Base = window.Modules.Base || {};
-
-Modules.Base.ElementCache = {
+Modules.ElementCache = {
 
 	included: function(Klass) {
 		Klass.attempt("addCallbacks", {
@@ -110,4 +108,4 @@ Modules.Base.ElementCache = {
 
 };
 
-Modules.Base.include(Modules.Base.ElementCache);
+Modules.Base.include(Modules.ElementCache);

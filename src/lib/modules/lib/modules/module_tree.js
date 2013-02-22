@@ -1,5 +1,5 @@
 // TODO: Is this even useful? Keeping this file in the mean time, but not sure if I will long term.
-Modules.Base.ModuleTree = {
+Modules.ModuleTree = {
 
 	included: function(Klass) {
 		Klass.attempt("addCallbacks", {
@@ -62,4 +62,4 @@ Modules.Base.ModuleTree = {
 
 };
 
-Modules.Base.include(Modules.Base.ModuleTree);
+Modules.Base.include(Modules.ModuleTree);
