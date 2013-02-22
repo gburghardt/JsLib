@@ -8,8 +8,8 @@ ModuleFactory = Object.extend({
 
 		initialize: function(eventDispatcher) {
 			this.eventDispatcher = eventDispatcher;
-			BaseModule.eventDispatcher = eventDispatcher;
-			BaseModule.factory = this;
+			Modules.Base.eventDispatcher = eventDispatcher;
+			Modules.Base.factory = this;
 			this.modules = {};
 			eventDispatcher = null;
 		},

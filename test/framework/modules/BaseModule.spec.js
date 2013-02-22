@@ -1,4 +1,4 @@
-describe("BaseModule", function() {
+describe("Modules.Base", function() {
 
 	beforeEach(function() {
 		this.element = document.createElement("div");
@@ -6,9 +6,9 @@ describe("BaseModule", function() {
 
 	describe("initialize", function() {
 
-		it("throws an error if you instantiate BaseModule directly", function() {
+		it("throws an error if you instantiate Modules.Base directly", function() {
 			expect(function() {
-				new BaseModule(this.element);
+				new Modules.Base(this.element);
 			}).toThrowError();
 		});
 
@@ -17,14 +17,14 @@ describe("BaseModule", function() {
 	describe("compileDelegatorEventActionMapping", function() {
 
 		it("creates an empty mapping if a sub class does not define one", function() {
-			var TestModule = BaseModule.extend();
+			var TestModule = Modules.Base.extend();
 			var module = new TestModule(this.element);
 			module.compileDelegatorEventActionMapping();
 			expect(module.delegatorEventActionMapping).toBeEmptyObject();
 		});
 
 		it("creates a mapping from a concrete class", function() {
-			var TestModule = BaseModule.extend({
+			var TestModule = Modules.Base.extend({
 				prototype: {
 					actions: {
 						click: ["cancel", "destroy"],
@@ -42,7 +42,7 @@ describe("BaseModule", function() {
 		});
 
 		it("merges the mappings of all the sub classes", function() {
-			var ParentModule = BaseModule.extend({
+			var ParentModule = Modules.Base.extend({
 				prototype: {
 					actions: {
 						click: ["cancel", "destroy"],
@@ -103,7 +103,7 @@ describe("BaseModule", function() {
 	describe("init", function() {
 
 		it("does not compile the event action mapping after the first instance is generated", function() {
-			var TestModule = BaseModule.extend({
+			var TestModule = Modules.Base.extend({
 				prototype: {
 					actions: {
 						click: ["cancel", "destroy"],
@@ -133,7 +133,7 @@ describe("BaseModule", function() {
 		});
 
 		it("creates a DOM event delegator", function() {
-			var TestModule = BaseModule.extend();
+			var TestModule = Modules.Base.extend();
 			var module = new TestModule(this.element);
 			module.init();
 
@@ -143,7 +143,7 @@ describe("BaseModule", function() {
 		it("triggers the afterInit callback", function() {
 			var callOrder = [];
 
-			var TestModule = BaseModule.extend({
+			var TestModule = Modules.Base.extend({
 				prototype: {
 					callbacks: {
 						afterInit: ["foo", "bar"]

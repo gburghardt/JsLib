@@ -1,4 +1,4 @@
-TaskListModule = BaseModule.extend({
+TaskListModule = Modules.Base.extend({
 
 	prototype: {
 

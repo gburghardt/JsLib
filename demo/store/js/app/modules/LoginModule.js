@@ -1,4 +1,4 @@
-LoginModule = BaseModule.extend({
+LoginModule = Modules.Base.extend({
 
 	prototype: {
 

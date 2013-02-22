@@ -1,4 +1,4 @@
-BaseModule = Object.extend({
+Modules.Base = Object.extend({
 
 	includes: [
 		Events.ApplicationEvents,
@@ -30,8 +30,8 @@ BaseModule = Object.extend({
 		view: null,
 
 		initialize: function(element, options) {
-			if (this.__proto__ === BaseModule.prototype) {
-				throw new Error("BaseModule is an abstract class and cannot be instantiated directly.");
+			if (this.__proto__ === Modules.Base.prototype) {
+				throw new Error("Modules.Base is an abstract class and cannot be instantiated directly.");
 			}
 
 			this.element = element;
@@ -71,8 +71,8 @@ BaseModule = Object.extend({
 		destructor: function() {
 			this.notify("beforeDestructor", this);
 
-			if (BaseModule.factory) {
-				BaseModule.factory.unregisterModule(this);
+			if (Modules.Base.factory) {
+				Modules.Base.factory.unregisterModule(this);
 			}
 
 			if (this.delegator) {
@@ -118,8 +118,8 @@ BaseModule = Object.extend({
 		},
 
 		createModuleProperty: function(propertyName) {
-			if (!BaseModule.factory) {
-				throw new Error("Cannot create property " + propertyName + ", because no module factory exists in BaseModule.factory");
+			if (!Modules.Base.factory) {
+				throw new Error("Cannot create property " + propertyName + ", because no module factory exists in Modules.Base.factory");
 			}
 
 			var propertyElement, elements = this.element.getElementsByTagName("*");
@@ -146,7 +146,7 @@ BaseModule = Object.extend({
 					propertyElement = elements[i];
 					className = propertyElement.getAttribute("data-module");
 					moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info"));
-					modules.push( BaseModule.factory.createModule(className, propertyElement, moduleInfo) );
+					modules.push( Modules.Base.factory.createModule(className, propertyElement, moduleInfo) );
 					elements[i].removeAttribute("data-module-property");
 					elements[i].setAttribute("data-module-property-created", propertyName);
 				}
@@ -175,7 +175,7 @@ BaseModule = Object.extend({
 			className = propertyElement.getAttribute("data-module");
 			moduleInfo = JSON.parse(propertyElement.getAttribute("data-module-info") || "{}");
 
-			module = BaseModule.factory.createModule(className, propertyElement, moduleInfo);
+			module = Modules.Base.factory.createModule(className, propertyElement, moduleInfo);
 			propertyElement.removeAttribute("data-module-property");
 			propertyElement.setAttribute("data-module-property-created", propertyName);
 

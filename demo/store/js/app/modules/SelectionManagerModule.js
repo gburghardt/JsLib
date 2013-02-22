@@ -1,4 +1,4 @@
-SelectionManagerModule = BaseModule.extend({
+SelectionManagerModule = Modules.Base.extend({
 
 	prototype: {
 

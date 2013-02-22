@@ -1,6 +1,6 @@
 products = window.products || {};
 
-products.CreateModule = BaseModule.extend({
+products.CreateModule = Modules.Base.extend({
 
 	prototype: {
 

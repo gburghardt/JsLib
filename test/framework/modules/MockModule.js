@@ -1,4 +1,4 @@
-MockModule = BaseModule.extend({
+MockModule = Modules.Base.extend({
 
 	prototype: {
 

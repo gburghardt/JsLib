@@ -5,7 +5,7 @@ describe("ModuleFactory", function() {
 
 	describe("getInstance", function() {
 
-		ModuleFactoryTest.TestModule = BaseModule.extend();
+		ModuleFactoryTest.TestModule = Modules.Base.extend();
 
 		beforeEach(function() {
 			this.factory = new ModuleFactory();
@@ -28,7 +28,7 @@ describe("ModuleFactory", function() {
 
 	describe("createModule", function() {
 
-		ModuleFactoryTest.Foo = BaseModule.extend();
+		ModuleFactoryTest.Foo = Modules.Base.extend();
 
 		beforeEach(function() {
 			this.factory = new ModuleFactory();
@@ -162,8 +162,8 @@ describe("ModuleFactory", function() {
 			this.factory = new ModuleFactory();
 		});
 
-		ModuleFactoryTest.Foo = BaseModule.extend();
-		ModuleFactoryTest.Bar = BaseModule.extend();
+		ModuleFactoryTest.Foo = Modules.Base.extend();
+		ModuleFactoryTest.Bar = Modules.Base.extend();
 
 		it("creates a single module", function() {
 			var moduleInfo = {
