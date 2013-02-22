@@ -275,7 +275,7 @@ describe("BaseModel", function() {
 				BaseModel.dispatcher.destructor();
 			}
 
-			BaseModel.dispatcher = new events.Dispatcher();
+			BaseModel.dispatcher = new Events.Dispatcher();
 		});
 
 		it("accepts an event name, an object, and the name of a method to call", function() {
@@ -283,7 +283,7 @@ describe("BaseModel", function() {
 			var test = this;
 			var subscriber = {
 				callback: function(event, model) {
-					expect(event).toBeInstanceof(events.Event);
+					expect(event).toBeInstanceof(Events.Event);
 					expect(model).toEqual(test.model);
 				}
 			};
@@ -327,7 +327,7 @@ describe("BaseModel", function() {
 				BaseModel.dispatcher.destructor();
 			}
 
-			BaseModel.dispatcher = new events.Dispatcher();
+			BaseModel.dispatcher = new Events.Dispatcher();
 		});
 
 		it("removes a subscriber matching event name and callback function", function() {

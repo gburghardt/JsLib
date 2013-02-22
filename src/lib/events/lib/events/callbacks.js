@@ -1,6 +1,6 @@
-'@import Appliction.ApplicationEvents';
+'@import Events.ApplicationEvents';
 
-Application.Callbacks = {
+Events.Callbacks = {
 
 	guid: 0,
 

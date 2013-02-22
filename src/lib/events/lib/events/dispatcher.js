@@ -1,6 +1,4 @@
-window.events = window.events || {};
-
-events.Dispatcher = Object.extend({
+Events.Dispatcher = Object.extend({
 
 	self: {
 		logger: null
@@ -61,7 +59,7 @@ events.Dispatcher = Object.extend({
 				return false;
 			}
 
-			var event = new events.Event(eventType, publisher, data);
+			var event = new Events.Event(eventType, publisher, data);
 			var subscribers = this.subscribers[eventType];
 			var cancelled = false;
 

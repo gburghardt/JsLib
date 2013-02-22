@@ -508,7 +508,7 @@ dom.events.Delegator.logger = window.console || null;
 /* File: src/lib/events/Dispatcher.js */
 window.events = window.events || {};
 
-events.Dispatcher = Object.extend({
+Events.Dispatcher = Object.extend({
 
 	self: {
 		logger: null
@@ -569,7 +569,7 @@ events.Dispatcher = Object.extend({
 				return false;
 			}
 
-			var event = new events.Event(eventType, publisher, data);
+			var event = new Events.Event(eventType, publisher, data);
 			var subscribers = this.subscribers[eventType];
 			var cancelled = false;
 
@@ -649,7 +649,7 @@ events.Dispatcher = Object.extend({
 /* File: src/lib/events/Event.js */
 window.events = window.events || {};
 
-events.Event = function(type, publisher, data) {
+Events.Event = function(type, publisher, data) {
 	this.type = type;
 	this.publisher = publisher;
 	this.data = data || {};
@@ -657,7 +657,7 @@ events.Event = function(type, publisher, data) {
 	publish = data = null;
 };
 
-events.Event.prototype = {
+Events.Event.prototype = {
 
 	INCLUDE_DATE: true,
 
@@ -751,7 +751,7 @@ Application.Callbacks = {
 				this.compileCallbacks();
 			}
 
-			this.callbackDispatcher = new events.Dispatcher();
+			this.callbackDispatcher = new Events.Dispatcher();
 
 			var name, i, length, callbacks;
 
@@ -2023,7 +2023,7 @@ Application = Object.extend({
 				"delegator.eventTypes": ["click", "submit", "keydown", "keypress", "keyup", "domready"]
 			};
 
-			this.eventDispatcher = new events.Dispatcher();
+			this.eventDispatcher = new Events.Dispatcher();
 			this.moduleFactory = new ModuleFactory(this.eventDispatcher);
 		},
 

@@ -1,4 +1,4 @@
-describe("events.Dispatcher", function() {
+describe("Events.Dispatcher", function() {
 
 	beforeEach(function() {
 		console.info("Start: " + this.getFullName());
@@ -11,7 +11,7 @@ describe("events.Dispatcher", function() {
 	describe("subscribe", function() {
 
 		beforeEach(function() {
-			this.dispatcher = new events.Dispatcher();
+			this.dispatcher = new Events.Dispatcher();
 		});
 
 		afterEach(function() {
@@ -75,7 +75,7 @@ describe("events.Dispatcher", function() {
 	describe("publish", function() {
 
 		beforeEach(function() {
-			this.dispatcher = new events.Dispatcher();
+			this.dispatcher = new Events.Dispatcher();
 		});
 
 		afterEach(function() {
@@ -210,7 +210,7 @@ describe("events.Dispatcher", function() {
 	describe("unsubscribe", function() {
 
 		beforeEach(function() {
-			this.dispatcher = new events.Dispatcher();
+			this.dispatcher = new Events.Dispatcher();
 		});
 
 		afterEach(function() {

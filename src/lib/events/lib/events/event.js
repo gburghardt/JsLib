@@ -1,6 +1,4 @@
-window.events = window.events || {};
-
-events.Event = function(type, publisher, data) {
+Events.Event = function(type, publisher, data) {
 	this.type = type;
 	this.publisher = publisher;
 	this.data = data || {};
@@ -8,7 +6,7 @@ events.Event = function(type, publisher, data) {
 	publish = data = null;
 };
 
-events.Event.prototype = {
+Events.Event.prototype = {
 
 	INCLUDE_DATE: true,
 

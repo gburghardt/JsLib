@@ -1,6 +1,4 @@
-window.events = window.events || {};
-
-events.Publisher = {
+Events.Publisher = {
 
 	prototype: {
 
@@ -11,7 +9,7 @@ events.Publisher = {
 				return;
 			}
 
-			this.dispatcher = new events.Dispatcher();
+			this.dispatcher = new Events.Dispatcher();
 		},
 		
 		destroyEventPublishing: function() {

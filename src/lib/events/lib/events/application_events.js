@@ -1,4 +1,4 @@
-Application.ApplicationEvents = {
+Events.ApplicationEvents = {
 
 	eventDispatcher: null,
 
