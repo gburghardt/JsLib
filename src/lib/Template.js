@@ -67,7 +67,7 @@ Template = Object.extend({
 				}
 				else {
 					Template.templates[name] = new Template(name, source);
-					Template.fetchSubTemplates(Template.templates.source, function() {
+					Template.fetchSubTemplates(source.innerHTML, function() {
 						callback.call(context, Template.templates[name]);
 						cleanup();
 					});
