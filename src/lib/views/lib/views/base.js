@@ -1,6 +1,6 @@
 /*
 
-class BaseView extends Object
+class Views.Base extends Object
 	Public:
 		constructor(String | HTMLElement id)
 		init()
@@ -14,7 +14,7 @@ class BaseView extends Object
 		querySelectorAll(String selector) returns HTMLCollection
 
 */
-BaseView = Object.extend({
+Views.Base = Object.extend({
 
 	self: {
 

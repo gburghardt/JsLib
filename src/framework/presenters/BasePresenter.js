@@ -4,14 +4,14 @@
 		Public:
 			modelToViewMap <Object>
 			viewToModelMap <Object>
-			constructor(BaseView view, Object modelToViewMap, EventPublisher eventDispatcher)
+			constructor(Views.Base view, Object modelToViewMap, EventPublisher eventDispatcher)
 			destructor()
 			init()
 		Private:
 		Protected:
 			eventDispatcher <EventPublisher>
 			eventHandlers <Array[String]>
-			view <BaseView>
+			view <Views.Base>
 			destroyEventHandlers()
 			getControlValue(String name) returns String
 			setControlValue(String name, String value)

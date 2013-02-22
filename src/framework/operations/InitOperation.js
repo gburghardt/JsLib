@@ -85,7 +85,7 @@ InitOperation = BaseOperation.extend({
 
 		render: function(templateName, data) {
 			if (!this.view) {
-				this.view = BaseView.getInstance(this.element, this, templateName);
+				this.view = Views.Base.getInstance(this.element, this, templateName);
 				this.view.delegatorEventTypes = this.delegatorEventTypes;
 				this.view.init();
 			}

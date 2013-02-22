@@ -59,7 +59,7 @@ Modules.Base = Object.extend({
 			this.delegator.setEventActionMapping(this.delegatorEventActionMapping);
 
 			if (!this.template) {
-				this.view = new BaseView(this.element);
+				this.view = new Views.Base(this.element);
 			}
 
 			this.notify("afterInit", this);
@@ -186,7 +186,7 @@ Modules.Base = Object.extend({
 
 		render: function(templateName, context) {
 			if (!this.view) {
-				this.view = BaseView.getInstance(this.element, templateName);
+				this.view = Views.Base.getInstance(this.element, templateName);
 			}
 
 			this.view.templateName = templateName;
