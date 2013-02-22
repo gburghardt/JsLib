@@ -1,6 +1,6 @@
 Events.ApplicationEvents = {
 
-	eventDispatcher: null,
+	eventDispatcher: new Events.Dispatcher(),
 
 	self: {
 
