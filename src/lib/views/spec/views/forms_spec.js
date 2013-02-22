@@ -1,5 +1,6 @@
 describe("FormView", function() {
 
+	/*
 	beforeEach(function() {
 		this.form = document.createElement("form");
 		this.formView = new FormView(this.form).init();
@@ -525,5 +526,7 @@ describe("FormView", function() {
 
 		xit("returns an object of form field names and values as strings");
 	});
+
+	*/
 
 });

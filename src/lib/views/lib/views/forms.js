@@ -1,4 +1,4 @@
-BaseView.Forms = {
+Views.Forms = {
 	prototype: {
 		currentData: null,
 
@@ -181,4 +181,4 @@ BaseView.Forms = {
 	}
 };
 
-BaseView.include(BaseView.Forms);
+Views.Base.include(Views.Forms);
