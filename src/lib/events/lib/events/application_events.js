@@ -18,7 +18,7 @@ Events.ApplicationEvents = {
 
 		publish: function(eventName, publisher, data) {
 			this.checkEventDispatcher();
-			this.getEventDispatcher().publish(eventName, publisher, data);
+			return this.getEventDispatcher().publish(eventName, publisher, data);
 		},
 
 		subscribe: function(eventName, context, callback) {

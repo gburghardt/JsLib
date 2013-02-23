@@ -104,8 +104,9 @@ Events.Callbacks = {
 		},
 
 		notify: function(message, data) {
-			this.publish(this.callbackIdPrefix + "." + this.callbackId + "." + message, this, data);
+			var success = this.publish(this.callbackIdPrefix + "." + this.callbackId + "." + message, this, data);
 			data = null;
+			return success;
 		},
 
 		listen: function(message, context, callback) {
