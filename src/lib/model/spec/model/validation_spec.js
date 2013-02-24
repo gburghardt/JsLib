@@ -33,15 +33,15 @@ describe("Model", function() {
 			});
 
 			it("returns an array of a single human readable message for a key", function() {
-				this.model.errors.add("id", "is required");
+				this.model.errors.add("id", "Id is required");
 				var message = this.model.getErrorMessage("id");
 				expect(message.length).toEqual(1);
 				expect(message[0]).toEqual("Id is required");
 			});
 
 			it("returns an array of human readable messages for a key", function() {
-				this.model.errors.add("name", "can only contain letters");
-				this.model.errors.add("name", "is too long");
+				this.model.errors.add("name", "Name can only contain letters");
+				this.model.errors.add("name", "Name is too long");
 				var message = this.model.getErrorMessage("name");
 
 				expect(message.length).toEqual(2);
@@ -57,19 +57,19 @@ describe("Model", function() {
 
 				expect(o.hasErrors()).toBeTrue();
 				expect(o.errors.get("price")).toBeArray();
-				expect(o.errors.get("price")[0]).toEqual("is required");
+				expect(o.errors.get("price")[0]).toEqual("Price is required");
 
 				expect(o.errors.get("name")).toBeArray();
-				expect(o.errors.get("name")[0]).toEqual("is required");
+				expect(o.errors.get("name")[0]).toEqual("Name is required");
 
 				expect(o.errors.get("notes")).toBeArray();
-				expect(o.errors.get("notes")[0]).toEqual("is required");
+				expect(o.errors.get("notes")[0]).toEqual("Notes is required");
 
 				expect(o.errors.get("description")).toBeArray();
-				expect(o.errors.get("description")[0]).toEqual("is required");
+				expect(o.errors.get("description")[0]).toEqual("Description is required");
 
 				expect(o.errors.get("phone")).toBeArray();
-				expect(o.errors.get("phone")[0]).toEqual("is required");
+				expect(o.errors.get("phone")[0]).toEqual("Phone is required");
 			});
 
 			it("validates when no attributes are passed in the constructor", function() {
@@ -78,19 +78,19 @@ describe("Model", function() {
 
 				expect(o.hasErrors()).toBeTrue();
 				expect(o.errors.get("price")).toBeArray();
-				expect(o.errors.get("price")[0]).toEqual("is required");
+				expect(o.errors.get("price")[0]).toEqual("Price is required");
 
 				expect(o.errors.get("name")).toBeArray();
-				expect(o.errors.get("name")[0]).toEqual("is required");
+				expect(o.errors.get("name")[0]).toEqual("Name is required");
 
 				expect(o.errors.get("notes")).toBeArray();
-				expect(o.errors.get("notes")[0]).toEqual("is required");
+				expect(o.errors.get("notes")[0]).toEqual("Notes is required");
 
 				expect(o.errors.get("description")).toBeArray();
-				expect(o.errors.get("description")[0]).toEqual("is required");
+				expect(o.errors.get("description")[0]).toEqual("Description is required");
 
 				expect(o.errors.get("phone")).toBeArray();
-				expect(o.errors.get("phone")[0]).toEqual("is required");
+				expect(o.errors.get("phone")[0]).toEqual("Phone is required");
 			});
 		});
 

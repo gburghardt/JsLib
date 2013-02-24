@@ -41,6 +41,19 @@ Model.Validation = {
 			requires = proto = compiledRequires = null;
 		},
 
+		convertKeyToWords: function(key) {
+			key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
+				if (match.length > 1) {
+					return (index === 0) ? match : " " + match;
+				}
+				else {
+					return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
+				}
+			}).capitalize();
+
+			return key;
+		},
+
 		getErrorMessage: function(key) {
 			return this.errors.getMessage(key);
 		},
@@ -84,7 +97,7 @@ Model.Validation = {
 				key = this.compiledRequires[i];
 
 				if (this.valueIsEmpty(this.attributes[key])) {
-					this.errors.add(key, "is required");
+					this.errors.add(key, this.convertKeyToWords(key) + " is required");
 					this.valid = false;
 				}
 			}
@@ -101,7 +114,7 @@ Model.Validation = {
 				key = this.validatesNumeric[i];
 
 				if (!this.valueIsEmpty(this._attributes[key]) && !this.valueIsNumeric(this._attributes[key])) {
-					this.addError(key, "must be a number");
+					this.errors.add(key, this.convertKeyToWords(key) + " must be a number");
 					this.valid = false;
 				}
 			}
@@ -117,7 +130,7 @@ Model.Validation = {
 			for (key in this.validatesMaxLength) {
 				if (this.validatesMaxLength.hasOwnProperty(key)) {
 					if (!this.valueIsEmpty(this._attributes[key]) && String(this._attributes[key]).length > this.validatesMaxLength[key]) {
-						this.addError(key, "cannot exceed " + this.validatesMaxLength[key] + " characters");
+						this.errors.add(key, this.convertKeyToWords(key) + " cannot exceed " + this.validatesMaxLength[key] + " characters");
 						this.valid = false;
 					}
 				}
@@ -145,12 +158,12 @@ Model.Validation = {
 						}
 
 						if (!valid) {
-							this.addError(key, "is not in a valid format");
+							this.errors.add(key, this.convertKeyToWords(key) + " is not in a valid format");
 							this.valid = false;
 						}
 					}
 					else if (!this.validatesFormatOf[key].test(this._attributes[key])) {
-						this.addError(key, "is not in a valid format");
+						this.errors.add(key, this.convertKeyToWords(key) + " is not in a valid format");
 						this.valid = false;
 					}
 				}

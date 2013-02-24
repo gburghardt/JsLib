@@ -21,19 +21,6 @@ Model.Validation.Errors = Object.extend({
 			this.length = 0;
 		},
 
-		convertKeyToWords: function(key) {
-			key = key.replace(/_/g, " ").replace(/[A-Z]+/g, function(match, index, wholeString) {
-				if (match.length > 1) {
-					return (index === 0) ? match : " " + match;
-				}
-				else {
-					return (index === 0) ? match.toLowerCase() : " " + match.toLowerCase();
-				}
-			});
-
-			return key;
-		},
-
 		get: function(key) {
 			return this.messages[key] || null;
 		},
@@ -42,7 +29,7 @@ Model.Validation.Errors = Object.extend({
 			var message = [], words, i, length, messages = this.messages[key];
 
 			if (messages) {
-				words = (key === "base") ? "" : this.convertKeyToWords(key).capitalize() + " ";
+				words = "";
 
 				for (i = 0, length = messages.length; i < length; i++) {
 					message.push(words + messages[i]);
