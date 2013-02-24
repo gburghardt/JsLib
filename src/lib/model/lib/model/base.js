@@ -52,6 +52,7 @@ Model.Base = Object.extend({
 			this.initAttributes();
 			this.attributes = attributes;
 			this.newRecord = !this.getPrimaryKey();
+			this.notify("afterInitialize");
 
 			attributes = null;
 		},
