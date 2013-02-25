@@ -21,6 +21,8 @@
 			            data-module-info='{"container": "#main"}'
 			>Create Product</button></li>
 		</ul>
+		<p style="font-size: smaller;">Works in Firefox, Chrome, Safari and IE 10</p>
+		<p style="font-size: smaller;">GitHub: https://github.com/gburghardt/JsLib/tree/modules</p>
 	</nav>
 	<section id="main">
 		<!--
@@ -69,7 +71,47 @@
 	</section>
 
 	<!-- client side templates -->
-	<script type="text/html" data-template-name="products/create_view" data-src="./js/app/views/products/create.html.tpl"></script>
+	
+	<!--
+	     When viewing this Demo from a web server, uncomment the following tag to pull the "Create Product"
+	     template in using an Ajax request
+	-->
+	<!-- script type="text/html" data-template-name="products/create_view" data-src="./js/app/views/products/create.html.tpl"></script -->
+
+	<!--
+	    When running this demo locally without a web server, use the tag below as an inline template for
+		the "Create Product" form.
+	-->
+	<script type="text/html" data-template-name="products/create_view">
+		<form action="#" data-action-submit="save" data-action-change="markDirty" method="get">
+			<h2>Create a Product</h2>
+
+			<p>Note: If running this demo locally, submitting this form will fail because it attempts to make an AJAX request. Run this demo from a web server for best results.</p>
+
+			<p>
+				<label for="product-name-#{guid}">Name:</label>
+				<input type="text" name="name" id="product-name-#{guid}" value="#{name}" size="40">
+			</p>
+
+			<p>
+				<label for="product-description-#{guid}">Description:</label><br>
+				<textarea cols="60" rows="12" name="description" id="product-description-#{guid}">#{description}</textarea>
+			</p>
+
+			<p>
+				<label for="product-price-#{guid}">Price:</label>
+				<input type="text" name="price" id="product-price-#{guid}" value="#{price}">
+			</p>
+
+			<p>
+				<input type="hidden" name="id" value="#{id}">
+				<input type="hidden" name="created_at" value="#{created_at}">
+				<input type="hidden" name="updated_at" value="#{updated_at}">
+				<button type="button" data-action="cancel">Cancel</button>
+				<button type="submit">Save</button>
+			</p>
+		</form>
+	</script>
 	<script type="text/html" data-template-name="tasks/item">
 		<button type="button" data-action="removeTask">X</button> #{text}
 	</script>

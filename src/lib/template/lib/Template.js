@@ -41,8 +41,10 @@ Template = Object.extend({
 					xhr = new XMLHttpRequest();
 					xhr.open("GET", url);
 					xhr.onreadystatechange = function() {
-						if (this.readyState === 4 && this.status === 200) {
-							if (this.status === 200) {
+						var success = (this.status === 201 || this.status === 200) ? true : false;
+
+						if (this.readyState === 4 && success) {
+							if (success) {
 								Template.fetchSubTemplates(xhr.responseText, function() {
 									Template.templates[name] = new Template(name, xhr.responseText);
 									callback.call(context, Template.templates[name]);
