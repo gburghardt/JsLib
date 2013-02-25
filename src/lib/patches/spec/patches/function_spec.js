@@ -112,8 +112,8 @@ describe("Function", function() {
 		it("sets the constructor to reference the class", function() {
 			var Klass = Object.extend();
 			var instance = new Klass();
-			expect(Klass.prototype.constructor).toEqual(Klass);
-			expect(instance.constructor).toEqual(Klass);
+			expect(Klass.prototype.constructor).toStrictlyEqual(Klass);
+			expect(instance.constructor).toStrictlyEqual(Klass);
 		});
 
 		it("defines class level methods", function() {
@@ -218,17 +218,23 @@ describe("Function", function() {
 		it("inherits from Object", function() {
 			var Klass = Object.extend();
 			var instance = new Klass();
-			expect(Klass.prototype.__proto__).toEqual(Object.prototype);
+
+			// Internet Explorer does not set the __proto__ property for the "prototype"
+			// object of object constructors.
+			if (Klass.prototype.hasOwnProperty("__proto__")) {
+				expect(Klass.prototype.__proto__).toStrictlyEqual(Object.prototype);
+			}
+
 			expect(instance).toBeInstanceof(Klass);
 			expect(instance).toBeInstanceof(Object);
-			expect(instance.__proto__).toEqual(Klass.prototype);
+			expect(instance.__proto__).toStrictlyEqual(Klass.prototype);
 		});
 
 		it("inherits from the parent class", function() {
 			var ParentKlass = Object.extend();
 			var ChildKlass = ParentKlass.extend();
 			var instance = new ChildKlass();
-			expect(ChildKlass.prototype.__proto__).toEqual(ParentKlass.prototype);
+			expect(ChildKlass.prototype.__proto__).toStrictlyEqual(ParentKlass.prototype);
 			expect(instance).toBeInstanceof(ChildKlass);
 			expect(instance).toBeInstanceof(ParentKlass);
 			expect(instance).toBeInstanceof(Object);

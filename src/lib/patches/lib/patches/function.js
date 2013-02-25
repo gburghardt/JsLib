@@ -56,15 +56,34 @@ if (!Function.prototype.extend) {
 	Function.prototype.extend = function(descriptor) {
 		descriptor = descriptor || {};
 		var key, i, length;
+		var isMSIE = this.extend.isMSIE;
 
 		// Constructor function for our new class
-		var Klass = function() {
-			this.initialize.apply(this, arguments);
-		};
+		var Klass;
 
-		// Temp class referencing this prototype to avoid calling initialize() when inheriting
-		var ProxyClass = function() {};
-		ProxyClass.prototype = this.prototype;
+		if (isMSIE) {
+			Klass = function() {
+				// MSIE does not set the __proto__ property automatically, so we must do it at runtime
+				//if (!this.hasOwnProperty("__proto__")) {
+					this.__proto__ = Klass.prototype;
+				//}
+
+				if (!Klass.__inheriting) {
+					this.initialize.apply(this, arguments);
+				}
+			};
+		}
+		else {
+			// All other browsers play nice.
+			Klass = function() {
+				if (!Klass.__inheriting) {
+					this.initialize.apply(this, arguments);
+				}
+			};
+		}
+
+		// Flag to prevent calling Klass#initialize when setting up the inheritance chain.
+		Klass.__inheriting = false;
 
 		// "inherit" class level methods
 		for (key in this) {
@@ -82,8 +101,22 @@ if (!Function.prototype.extend) {
 			}
 		}
 
-		// set up true prototypal inheritance
-		Klass.prototype = new ProxyClass();
+		// Set up true prototypal inheritance for ECMAScript compatible browsers
+		try {
+			this.__inheriting = true;     // Set the flag indicating we are inheriting from the parent class
+			Klass.prototype = new this(); // The "new" operator generates a new prototype object, setting the __proto__ property all browsers except MSIE
+			this.__inheriting = false;    // Unset the inheriting flag
+		}
+		catch (error) {
+			this.__inheriting = false;    // Oops! Something catestrophic went wrong during inheriting. Unset the inheritance flag
+			throw error;                  // Throw the error. Let the developer fix this.
+		}
+
+		// new instance level methods
+		if (isMSIE) {
+			// MSIE does not set the __proto__ property so we forefully set it here.
+			Klass.prototype.__proto__ = this.prototype;
+		}
 
 		// new instance level methods
 		if (descriptor.prototype) {
@@ -110,8 +143,10 @@ if (!Function.prototype.extend) {
 		// set reference to constructor function in new prototype
 		Klass.prototype.constructor = Klass;
 
-		ProxyClass = descriptor = null;
+		descriptor = null;
 
 		return Klass;
 	};
+	
+	Function.prototype.extend.isMSIE = (/msie/i).test(navigator.userAgent);
 }
