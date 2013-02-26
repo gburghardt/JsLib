@@ -24,7 +24,7 @@ Model.Base = Object.extend({
 			descriptor.self.attributesInitialized = false;
 
 			return Function.prototype.extend.call(this, descriptor);
-		},
+		}
 
 	},
 
@@ -163,7 +163,7 @@ Model.Base = Object.extend({
 
 			switch (attributeClass) {
 			case "Number":
-				return Number(value);
+				return this.valueIsEmpty(value) ? null : Number(value);
 				break;
 
 			case "Boolean":

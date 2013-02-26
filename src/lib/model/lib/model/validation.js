@@ -17,28 +17,34 @@ Model.Validation = {
 		initValidation: function() {
 			this.errors = new Model.Validation.Errors();
 			this.initRequiredValidations();
+			this.initValidatesFormatOf();
+			this.initValidatesMaxLength();
+			this.initValidatesNumeric();
+			this.notify("afterInitValidation");
 		},
 
 		initRequiredValidations: function() {
-			if (this.__proto__.hasOwnProperty("compiledRequires")) {
-				return;
+			if (!this.__proto__.hasOwnProperty("compiledRequires")) {
+				this.__proto__.compiledRequires = this.mergeArrayPropertyFromPrototypeChain("requires");
 			}
+		},
 
-			var compiledRequires = [];
-			var proto = this.__proto__, requires;
-
-			while (proto) {
-				if (proto.hasOwnProperty("requires")) {
-					requires = proto.requires;
-					compiledRequires.push.apply(compiledRequires, requires);
-				}
-
-				proto = proto.__proto__;
+		initValidatesFormatOf: function() {
+			if (!this.__proto__.hasOwnProperty("compiledValidatesNumeric")) {
+				this.__proto__.compiledValidatesNumeric = this.mergeArrayPropertyFromPrototypeChain("validatesNumeric");
 			}
+		},
 
-			this.__proto__.compiledRequires = compiledRequires;
+		initValidatesMaxLength: function() {
+			if (!this.__proto__.hasOwnProperty("compiledValidatesMaxLength")) {
+				this.__proto__.compiledValidatesMaxLength = this.mergeArrayPropertyFromPrototypeChain("validatesMaxLength");
+			}
+		},
 
-			requires = proto = compiledRequires = null;
+		initValidatesNumeric: function() {
+			if (!this.__proto__.hasOwnProperty("compiledValidatesNumeric")) {
+				this.__proto__.compiledValidatesNumeric = this.mergeArrayPropertyFromPrototypeChain("validatesNumeric");
+			}
 		},
 
 		convertKeyToWords: function(key) {
@@ -104,14 +110,14 @@ Model.Validation = {
 		},
 
 		validateAttributeDataTypes: function() {
-			if (!this.validatesNumeric) {
+			if (!this.compiledValidatesNumeric) {
 				return;
 			}
 
-			var key, type, i = 0, length = this.validatesNumeric.length;
+			var key, type, i = 0, length = this.compiledValidatesNumeric.length;
 
 			for (i; i < length; i++) {
-				key = this.validatesNumeric[i];
+				key = this.compiledValidatesNumeric[i];
 
 				if (!this.valueIsEmpty(this._attributes[key]) && !this.valueIsNumeric(this._attributes[key])) {
 					this.errors.add(key, this.convertKeyToWords(key) + " must be a number");
@@ -121,16 +127,16 @@ Model.Validation = {
 		},
 
 		validateAttributeLengths: function() {
-			if (!this.validatesMaxLength) {
+			if (!this.compiledValidatesMaxLength) {
 				return;
 			}
 
 			var key;
 
-			for (key in this.validatesMaxLength) {
-				if (this.validatesMaxLength.hasOwnProperty(key)) {
-					if (!this.valueIsEmpty(this._attributes[key]) && String(this._attributes[key]).length > this.validatesMaxLength[key]) {
-						this.errors.add(key, this.convertKeyToWords(key) + " cannot exceed " + this.validatesMaxLength[key] + " characters");
+			for (key in this.compiledValidatesMaxLength) {
+				if (this.compiledValidatesMaxLength.hasOwnProperty(key)) {
+					if (!this.valueIsEmpty(this._attributes[key]) && String(this._attributes[key]).length > this.compiledValidatesMaxLength[key]) {
+						this.errors.add(key, this.convertKeyToWords(key) + " cannot exceed " + this.compiledValidatesMaxLength[key] + " characters");
 						this.valid = false;
 					}
 				}
@@ -138,17 +144,17 @@ Model.Validation = {
 		},
 
 		validateAttributeFormats: function() {
-			if (!this.validatesFormatOf) {
+			if (!this.compiledValidatesFormatOf) {
 				return;
 			}
 
 			var key, i, length, valid = true;
 
-			for (key in this.validatesFormatOf) {
-				if (this.validatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this._attributes[key])) {
-					if (this.validatesFormatOf[key] instanceof Array) {
-						for (i = 0, length = this.validatesFormatOf[key].length; i < length; i++) {
-							if (!this.validatesFormatOf[key][i].test(this._attributes[key])) {
+			for (key in this.compiledValidatesFormatOf) {
+				if (this.compiledValidatesFormatOf.hasOwnProperty(key) && !this.valueIsEmpty(this._attributes[key])) {
+					if (this.compiledValidatesFormatOf[key] instanceof Array) {
+						for (i = 0, length = this.compiledValidatesFormatOf[key].length; i < length; i++) {
+							if (!this.compiledValidatesFormatOf[key][i].test(this._attributes[key])) {
 								valid = false;
 							}
 							else {
@@ -162,7 +168,7 @@ Model.Validation = {
 							this.valid = false;
 						}
 					}
-					else if (!this.validatesFormatOf[key].test(this._attributes[key])) {
+					else if (!this.compiledValidatesFormatOf[key].test(this._attributes[key])) {
 						this.errors.add(key, this.convertKeyToWords(key) + " is not in a valid format");
 						this.valid = false;
 					}

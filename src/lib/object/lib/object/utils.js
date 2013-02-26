@@ -33,6 +33,24 @@ Object.Utils = {
 			return this;
 		},
 
+		mergeArrayPropertyFromPrototypeChain: function(key) {
+			var compiledProperty = [];
+			var proto = this.__proto__, property;
+
+			while (proto) {
+				if (proto.hasOwnProperty(key)) {
+					property = (proto[key] instanceof Array) ? proto[key] : [ proto[key] ];
+					compiledProperty.push.apply(compiledProperty, property);
+				}
+
+				proto = proto.__proto__;
+			}
+
+			proto = property = null;
+
+			return compiledProperty;
+		},
+
 		mergePropertyFromPrototypeChain: function(name) {
 			var mergedProperty = {};
 			var proto = this.__proto__;
