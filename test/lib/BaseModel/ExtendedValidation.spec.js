@@ -110,39 +110,39 @@ describe("BaseModel", function() {
 			// 	});
 			// });
 
-			describe("validateAttributeFormats", function() {
-				beforeEach(function() {
-					this.model = new TestFormatValidation();
-					this.model.valid = true;
-					this.model.errors = {};
-				});
-
-				it("is valid if one of many regular expressions are valid", function() {
-					this.model.phone = "123-555-1234";
-					this.model.validateAttributeFormats();
-					expect(this.model.valid).toBeTrue();
-				});
-
-				it("is valid only if a single regular expression is valid", function() {
-					this.model.address = "123 James St, Chicago, IL 12345";
-					this.model.validateAttributeFormats();
-					expect(this.model.valid).toBeTrue();
-				});
-
-				it("is invalid if all regular expressions fail", function() {
-					this.model.phone = "5555-5-5555";
-					this.model.validateAttributeFormats();
-					expect(this.model.valid).toBeFalse();
-					expect(this.model.errors.phone).toBeArray();
-				});
-
-				it("is invalid if the regular expression fails", function() {
-					this.model.address = "123 James St, Chicago, IL";
-					this.model.validateAttributeFormats();
-					expect(this.model.valid).toBeFalse();
-					expect(this.model.errors.address).toBeArray();
-				});
-			});
+			// describe("validateAttributeFormats", function() {
+			// 	beforeEach(function() {
+			// 		this.model = new TestFormatValidation();
+			// 		this.model.valid = true;
+			// 		this.model.errors = {};
+			// 	});
+			// 
+			// 	it("is valid if one of many regular expressions are valid", function() {
+			// 		this.model.phone = "123-555-1234";
+			// 		this.model.validateAttributeFormats();
+			// 		expect(this.model.valid).toBeTrue();
+			// 	});
+			// 
+			// 	it("is valid only if a single regular expression is valid", function() {
+			// 		this.model.address = "123 James St, Chicago, IL 12345";
+			// 		this.model.validateAttributeFormats();
+			// 		expect(this.model.valid).toBeTrue();
+			// 	});
+			// 
+			// 	it("is invalid if all regular expressions fail", function() {
+			// 		this.model.phone = "5555-5-5555";
+			// 		this.model.validateAttributeFormats();
+			// 		expect(this.model.valid).toBeFalse();
+			// 		expect(this.model.errors.phone).toBeArray();
+			// 	});
+			// 
+			// 	it("is invalid if the regular expression fails", function() {
+			// 		this.model.address = "123 James St, Chicago, IL";
+			// 		this.model.validateAttributeFormats();
+			// 		expect(this.model.valid).toBeFalse();
+			// 		expect(this.model.errors.address).toBeArray();
+			// 	});
+			// });
 
 		});
 

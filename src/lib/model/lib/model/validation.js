@@ -30,8 +30,8 @@ Model.Validation = {
 		},
 
 		initValidatesFormatOf: function() {
-			if (!this.__proto__.hasOwnProperty("compiledValidatesNumeric")) {
-				this.__proto__.compiledValidatesNumeric = this.mergeArrayPropertyFromPrototypeChain("validatesNumeric");
+			if (!this.__proto__.hasOwnProperty("compiledValidatesFormatOf")) {
+				this.__proto__.compiledValidatesFormatOf = this.mergePropertyFromPrototypeChain("validatesFormatOf");
 			}
 		},
 

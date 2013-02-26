@@ -9,7 +9,8 @@ describe("Model", function() {
 					price: "Number",
 					description: "String",
 					notes: "String",
-					phone: "String"
+					phone: "String",
+					address: "String"
 				},
 				requires: [
 					"price",
@@ -26,6 +27,7 @@ describe("Model", function() {
 					description: 400
 				},
 				validatesFormatOf: {
+					address: /^\d+ \w+( [.\w]+)?, \w+, [A-Z]{2} \d{5}$/,
 					name: /^testing.*$/,
 					phone: /^\s*\d{3}\s*[-.]*\s*\d{3}\s*[-.]*\s*\d{4}\s*$/
 				}
@@ -201,49 +203,84 @@ describe("Model", function() {
 
 			});
 
-			describe("max length", function() {
-				beforeEach(function() {
-					this.model = new TestMaxLengthValidation();
-					this.model.valid = true;
-				});
+		});
 
-				it("returns true for string lengths equal to or lesser than the max length", function() {
-					this.model.name = "123456789";
-					this.model.description = "12345678";
-					this.model.notes = "1234";
+		describe("max length", function() {
+			beforeEach(function() {
+				this.model = new TestMaxLengthValidation();
+				this.model.valid = true;
+			});
 
-					this.model.validateAttributeLengths();
+			it("returns true for string lengths equal to or lesser than the max length", function() {
+				this.model.name = "123456789";
+				this.model.description = "12345678";
+				this.model.notes = "1234";
 
-					expect(this.model.valid).toBeTrue();
-				});
+				this.model.validateAttributeLengths();
 
-				it("returns false for values greater than the max length", function() {
-					this.model.name = "1234567890abc";
-					this.model.description = "123456789";
-					this.model.notes = "12345";
+				expect(this.model.valid).toBeTrue();
+			});
 
-					this.model.validateAttributeLengths();
+			it("returns false for values greater than the max length", function() {
+				this.model.name = "1234567890abc";
+				this.model.description = "123456789";
+				this.model.notes = "12345";
 
-					expect(this.model.valid).toBeFalse();
-					expect(this.model.errors.get("name")).toBeArray();
-					expect(this.model.errors.get("description")).toBeArray();
-					expect(this.model.errors.get("notes")).toBeArray();
-				});
+				this.model.validateAttributeLengths();
 
-				it("returns true for empty values", function() {
-					this.model.name = undefined;
-					this.model.description = null;
-					this.model.notes = "									 ";
+				expect(this.model.valid).toBeFalse();
+				expect(this.model.errors.get("name")).toBeArray();
+				expect(this.model.errors.get("description")).toBeArray();
+				expect(this.model.errors.get("notes")).toBeArray();
+			});
 
-					expect(this.model.name).toBeNull();
-					expect(this.model.description).toBeNull();
-					expect(this.model.notes).toEqual("									 ");
+			it("returns true for empty values", function() {
+				this.model.name = undefined;
+				this.model.description = null;
+				this.model.notes = "									 ";
 
-					this.model.validateAttributeLengths();
+				expect(this.model.name).toBeNull();
+				expect(this.model.description).toBeNull();
+				expect(this.model.notes).toEqual("									 ");
 
-					expect(this.model.valid).toBeTrue();
-				});
+				this.model.validateAttributeLengths();
 
+				expect(this.model.valid).toBeTrue();
+			});
+
+		});
+
+		describe("attrribute formats", function() {
+
+			beforeEach(function() {
+				this.model = new TestValidation();
+				this.model.valid = true;
+			});
+
+			it("is valid if one of many regular expressions are valid", function() {
+				this.model.phone = "123-555-1234";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeTrue();
+			});
+
+			it("is valid only if a single regular expression is valid", function() {
+				this.model.address = "123 James St, Chicago, IL 12345";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeTrue();
+			});
+
+			it("is invalid if all regular expressions fail", function() {
+				this.model.phone = "5555-5-5555";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeFalse();
+				expect(this.model.errors.get("phone")).toBeArray();
+			});
+
+			it("is invalid if the regular expression fails", function() {
+				this.model.address = "123 James St, Chicago, IL";
+				this.model.validateAttributeFormats();
+				expect(this.model.valid).toBeFalse();
+				expect(this.model.errors.get("address")).toBeArray();
 			});
 
 		});
