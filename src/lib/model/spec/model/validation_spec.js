@@ -32,6 +32,21 @@ describe("Model", function() {
 			}
 		});
 
+		var TestMaxLengthValidation = Model.Base.extend({
+			prototype: {
+				schema: {
+					name: "String",
+					description: "String",
+					notes: "String"
+				},
+				validatesMaxLength: {
+					name: 10,
+					description: 8,
+					notes: 4
+				}
+			}
+		});
+
 		describe("getErrorMessage", function() {
 			beforeEach(function() {
 				this.model = new Model.Base();
@@ -182,6 +197,51 @@ describe("Model", function() {
 					this.model.price = "$10.99";
 					this.model.validateAttributeDataTypes();
 					expect(this.model.valid).toBeFalse();
+				});
+
+			});
+
+			describe("max length", function() {
+				beforeEach(function() {
+					this.model = new TestMaxLengthValidation();
+					this.model.valid = true;
+				});
+
+				it("returns true for string lengths equal to or lesser than the max length", function() {
+					this.model.name = "123456789";
+					this.model.description = "12345678";
+					this.model.notes = "1234";
+
+					this.model.validateAttributeLengths();
+
+					expect(this.model.valid).toBeTrue();
+				});
+
+				it("returns false for values greater than the max length", function() {
+					this.model.name = "1234567890abc";
+					this.model.description = "123456789";
+					this.model.notes = "12345";
+
+					this.model.validateAttributeLengths();
+
+					expect(this.model.valid).toBeFalse();
+					expect(this.model.errors.get("name")).toBeArray();
+					expect(this.model.errors.get("description")).toBeArray();
+					expect(this.model.errors.get("notes")).toBeArray();
+				});
+
+				it("returns true for empty values", function() {
+					this.model.name = undefined;
+					this.model.description = null;
+					this.model.notes = "									 ";
+
+					expect(this.model.name).toBeNull();
+					expect(this.model.description).toBeNull();
+					expect(this.model.notes).toEqual("									 ");
+
+					this.model.validateAttributeLengths();
+
+					expect(this.model.valid).toBeTrue();
 				});
 
 			});

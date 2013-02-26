@@ -37,7 +37,7 @@ Model.Validation = {
 
 		initValidatesMaxLength: function() {
 			if (!this.__proto__.hasOwnProperty("compiledValidatesMaxLength")) {
-				this.__proto__.compiledValidatesMaxLength = this.mergeArrayPropertyFromPrototypeChain("validatesMaxLength");
+				this.__proto__.compiledValidatesMaxLength = this.mergePropertyFromPrototypeChain("validatesMaxLength");
 			}
 		},
 
@@ -135,7 +135,7 @@ Model.Validation = {
 
 			for (key in this.compiledValidatesMaxLength) {
 				if (this.compiledValidatesMaxLength.hasOwnProperty(key)) {
-					if (!this.valueIsEmpty(this._attributes[key]) && String(this._attributes[key]).length > this.compiledValidatesMaxLength[key]) {
+					if (!this.valueIsEmpty(this._attributes[key]) && this._attributes[key].length > this.compiledValidatesMaxLength[key]) {
 						this.errors.add(key, this.convertKeyToWords(key) + " cannot exceed " + this.compiledValidatesMaxLength[key] + " characters");
 						this.valid = false;
 					}
