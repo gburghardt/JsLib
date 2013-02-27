@@ -1,11 +1,11 @@
-describe("BaseModel", function() {
+describe("Model", function() {
 
 	describe("Persistence", function() {
 
 		describe("RestClient", function() {
 
 			it("creates RESTfull URIs", function() {
-				var Klass = BaseModel.extend({
+				var Klass = Model.Base.extend({
 					prototype: {
 						restClientOptions: { baseUrl: "/test" }
 					}
@@ -30,7 +30,7 @@ describe("BaseModel", function() {
 			});
 
 			it("allows for custom RESTfull URIs", function() {
-				var Post = BaseModel.extend({
+				var Post = Model.Base.extend({
 					prototype: {
 						restClientOptions: {
 							baseUrl: "/blog",

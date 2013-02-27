@@ -1,11 +1,11 @@
-describe("BaseModel", function() {
+describe("Model", function() {
 
 	describe("Persistence", function() {
 
 		describe("included", function() {
 			it("Adds options for persistence", function() {
 				var Klass = function() {};
-				Klass.include(BaseModel.Persistence);
+				Klass.include(Model.Persistence);
 				expect(Klass.persistence).toBeObject();
 				expect(Klass.persistence.types).toBeArray();
 				expect(Klass.persistence.types.length).toEqual(0);
@@ -14,7 +14,7 @@ describe("BaseModel", function() {
 
 		describe("destroy", function() {
 			it("calls the 'notFound' callback when already destroyed", function() {
-				var model = new BaseModel();
+				var model = new Model.Base();
 				var callbacks = {
 					notFound: function() {},
 					destroyed: function() {}
@@ -32,7 +32,7 @@ describe("BaseModel", function() {
 			});
 
 			it("calls destroyed", function() {
-				var model = new BaseModel();
+				var model = new Model.Base();
 				var callbacks = {
 					notFound: function() {},
 					destroyed: function() {}
@@ -52,7 +52,7 @@ describe("BaseModel", function() {
 
 		describe("save", function() {
 			beforeEach(function() {
-				this.model = new BaseModel();
+				this.model = new Model.Base();
 			});
 
 			it("invokes the invalid callback after being destroyed", function() {

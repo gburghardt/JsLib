@@ -1,4 +1,4 @@
-BaseModel.Persistence.RestClient = {
+Model.Persistence.RestClient = {
 
 	included: function(Klass) {
 		Klass.persistence.types.push("restClient");
@@ -152,4 +152,4 @@ BaseModel.Persistence.RestClient = {
 
 };
 
-BaseModel.include(BaseModel.Persistence.RestClient);
+Model.Base.include(Model.Persistence.RestClient);

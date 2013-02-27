@@ -1,4 +1,4 @@
-BaseModel.Persistence = {
+Model.Persistence = {
 
 	included: function(Klass) {
 		Klass.persistence = {types: []};
@@ -120,4 +120,4 @@ BaseModel.Persistence = {
 
 };
 
-BaseModel.include(BaseModel.Persistence);
+Model.Base.include(Model.Persistence);
