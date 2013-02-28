@@ -1,24 +1,9 @@
 Model.Persistence.RestClient = {
 
 	included: function(Klass) {
-		Klass.persistence.types.push("restClient");
-		Klass = null;
-	},
-
-	callbacks: {
-		initialize: function(attributes) {
-			var defaultOptions = BaseModel.Persistence.RestClient.prototype.restClientOptions;
-			var options = {};
-
-			if (this.restClientOptions !== defaultOptions) {
-				this.restClientOptions = options.merge(defaultOptions, this.restClientOptions);
-			}
-			else {
-				this.restClientOptions = options.merge(defaultOptions);
-			}
-
-			options = defaultOptions = attributes = null;
-		}
+		Klass.attempt("addCallbacks", {
+		  afterInitialize: "initRestClient"
+		});
 	},
 
 	prototype: {
@@ -34,11 +19,25 @@ Model.Persistence.RestClient = {
 			rootElement: null
 		},
 
+		initRestClient: function() {
+			if (!this.__proto__.hasOwnProperty("compiledRestClientOptions")) {
+				this.compiledRestClientOptions = this.mergePropertyFromPrototypeChain("restClientOptions");
+
+				Object.defineProperty(this, "restClientOptions", {
+					get: function() { return this.compiledRestClientOptions; }
+				});
+			}
+		},
+
 		createRequest: function() {
 			return new XMLHttpRequest();
 		},
 
 		createRestClientUri: function(type, data) {
+			if (!this.restClientOptions[type]) {
+				throw new Error("Unknown rest client URL type: " + type);
+			}
+
 			var uri, method, path, uriString = this.restClientOptions[type];
 
 			uriString = uriString.replace(/:baseUrl/, this.restClientOptions.baseUrl);
@@ -87,14 +86,14 @@ Model.Persistence.RestClient = {
 					errors = null;
 				},
 				notAuthorized: function(xhr) {
-					this.addError("base", this.authorizationRequiredError);
+					this.errors.add("base", this.authorizationRequiredError);
 					callbacks.invalid.call(context, this.errors);
 				},
 				notFound: function(xhr) {
 					callbacks.notFound.call(context);
 				},
 				error: function(xhr) {
-					this.addError("base", this.generalError);
+					this.errors.add("base", this.generalError);
 					callbacks.error.call(context, this.errors);
 				}
 			});
@@ -122,7 +121,7 @@ Model.Persistence.RestClient = {
 						// not found
 						callbacks.notFound.call(context, this);
 					}
-					else if (this.status === 412) {
+					else if (this.status === 422) {
 						// validation failed
 						callbacks.invalid.call(context, this);
 					}
@@ -153,3 +152,4 @@ Model.Persistence.RestClient = {
 };
 
 Model.Base.include(Model.Persistence.RestClient);
+
