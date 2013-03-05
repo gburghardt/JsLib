@@ -4,7 +4,9 @@ Model.Persistence = {
 
 		destroyed: false,
 
-		newRecord: true
+		newRecord: true,
+
+		persisted: false
 
 	}
 

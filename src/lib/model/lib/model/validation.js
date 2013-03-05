@@ -72,8 +72,20 @@ Model.Validation = {
 			return !this.valid;
 		},
 
+		setErrorMessages: function(errors) {
+			var key, i, length;
+
+			for (key in errors) {
+				if (errors.hasOwnProperty(key)) {
+					for (i = 0, length = errors[key].length; i < length; i++) {
+						this.errors.add(key, errors[key][i]);
+					}
+				}
+			}
+		},
+
 		validate: function(context, callbacks) {
-			if (this.notify("beforeValidate")) {
+			if (this.notify("beforeValidate") !== false) {
 				this.errors.clear();
 				this.valid = true;
 				this.validateRequiredAttributes();

@@ -1,23 +1,41 @@
+'@import Model.Base';
+'@import Model.Validation';
+'@import Model.Persistence';
+
 Model.Persistence.RestClient = {
 
 	included: function(Klass) {
 		Klass.attempt("addCallbacks", {
-		  afterInitialize: "initRestClient"
+			afterInitialize: "initRestClient"
 		});
 	},
 
 	prototype: {
 
 		restClientOptions: {
+			ajaxHeaderName: "x-requested-with",
+			ajaxHeaderValue: "XMLHTTPREQUEST",
 			authorizationRequiredError: "You must be logged in to complete this operation.",
 			baseUrl: null,
 			create: "POST :baseUrl",
 			destroy: "DELETE :baseUrl/:id",
+			unmodified: "HEAD :baseUrl/:id",
 			show: "GET :baseUrl/:id",
 			update: "PUT :baseUrl/:id",
 			generalError: "An error occurred, please try again.",
-			rootElement: null
+			rootElement: null,
+			timeout: -1
 		},
+
+		REST_CLIENT_STATUS_OK: 200,
+		REST_CLIENT_STATUS_CREATED: 201,
+		REST_CLIENT_STATUS_NOT_MODIFIED: 304,
+		REST_CLIENT_STATUS_NOT_AUTHORIZED: 401,
+		REST_CLIENT_STATUS_NOT_FOUND: 404,
+		REST_CLIENT_STATUS_TIMEOUT: 408,
+		REST_CLIENT_STATUS_CONFLICT: 409,
+		REST_CLIENT_STATUS_UNSUPPORTED_MEDIA_TYPE: 415,
+		REST_CLIENT_STATUS_VALIDATION_FAILED: 422,
 
 		initRestClient: function() {
 			if (!this.__proto__.hasOwnProperty("compiledRestClientOptions")) {
@@ -53,37 +71,18 @@ Model.Persistence.RestClient = {
 			return {method: method, path: path};
 		},
 
-		getErrorsFromResponse: function(xhr) {
-			var errors = null;
-
-			try {
-				errors = JSON.parse(xhr.responseBody);
-			}
-			catch (error) {
-				// fail silently
+		destroy: function(context, callbacks) {
+			if (this.destroyed || !this.persisted || !this.getPrimaryKey()) {
+				callbacks.notFound.call(context);
 			}
 
-			return errors;
-		},
+			var uri = this.createRestClientUri("destroy", this.attributes);
 
-		saveToRestClient: function(context, callbacks) {
-			var uri = this.createRestClientUri((this.persisted) ? "update" : "create", this.attributes);
-
-			this.sendRequest(uri.method, uri.path, this, {
-				created: function(xhr) {
-					var attributes = JSON.parse(xhr.responseText);
-					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
-					callbacks.saved.call(context);
-				},
-				updated: function(xhr) {
-					var attributes = JSON.parse(xhr.responseText);
-					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
-					callbacks.saved.call(context);
-				},
-				invalid: function(xhr) {
-					this.errors = this.getErrorsFromResponse(xhr);
-					callbacks.invalid.call(context, this.errors);
-					errors = null;
+			this.sendRestRequest(uri.method, uri.path, null, this, {
+				destroyed: function(xhr) {
+					this.persisted = false;
+					this.destroyed = true;
+					callbacks.destroyed.call(context);
 				},
 				notAuthorized: function(xhr) {
 					this.errors.add("base", this.authorizationRequiredError);
@@ -95,45 +94,221 @@ Model.Persistence.RestClient = {
 				error: function(xhr) {
 					this.errors.add("base", this.generalError);
 					callbacks.error.call(context, this.errors);
+				},
+				complete: function(xhr) {
+					context = callbacks = xhr = uri = null;
 				}
 			});
 		},
 
-		sendRequest: function(method, url, context, callbacks) {
-			var onreadystatechange = function() {
-				if (this.readyState === 4) {
-					if (this.status === 200) {
-						if (method === "DELETE") {
-							callbacks.destroyed.call(context, this);
+		getErrorsFromResponse: function(xhr) {
+			var errors = null;
+
+			try {
+				errors = JSON.parse(xhr.responseText).errors;
+			}
+			catch (error) {
+				errors = null;
+				// fail silently
+			}
+
+			return errors;
+		},
+
+		load: function(context, callbacks) {
+			if (!this.getPrimaryKey()) {
+				this.persisted = false;
+				callbacks.notFound.call(context);
+			}
+
+			var uri = this.createRestClientUri("show", this.attributes);
+
+			this.sendRestRequest(uri.method, uri.path, null, this, {
+				found: function(xhr) {
+					var attributes = JSON.parse(xhr.responseText);
+					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
+					this.persisted = true;
+					this.destroyed = false;
+					callbacks.found.call(context);
+				},
+				notAuthorized: function(xhr) {
+					this.errors.add("base", this.authorizationRequiredError);
+					callbacks.invalid.call(context, this.errors);
+				},
+				notFound: function(xhr) {
+					this.persisted = false;
+					callbacks.notFound.call(context);
+				},
+				error: function(xhr) {
+					this.errors.add("base", this.generalError);
+					callbacks.error.call(context, this.errors);
+				},
+				complete: function(xhr) {
+					context = callbacks = xhr = uri = null;
+				}
+			});
+		},
+
+		save: function(context, callbacks) {
+			this.validate(this, {
+				valid: function() {
+					var uri = this.createRestClientUri((this.persisted) ? "update" : "create", this.attributes);
+					var data = this.serialize();
+
+					this.sendRestRequest(uri.method, uri.path, data, this, {
+						created: function(xhr) {
+							var attributes = JSON.parse(xhr.responseText);
+							this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
+							callbacks.saved.call(context, this, xhr);
+						},
+						updated: function(xhr) {
+							var attributes = JSON.parse(xhr.responseText);
+							this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
+							callbacks.saved.call(context, this, xhr);
+						},
+						invalid: function(xhr) {
+							var errors = this.getErrorsFromResponse(xhr);
+
+							if (errors) {
+								this.setErrorMessages(errors);
+							}
+
+							callbacks.invalid.call(context, this, xhr);
+							errors = null;
+						},
+						notAuthorized: function(xhr) {
+							this.errors.add("base", this.authorizationRequiredError);
+
+							if (callbacks.notAuthorized) {
+								callbacks.notAuthorized.call(context, this, xhr);
+							}
+							else {
+								callbacks.invalid.call(context, this, xhr);
+							}
+						},
+						notFound: function(xhr) {
+							callbacks.notFound.call(context, this, xhr);
+						},
+						error: function(xhr, error) {
+							this.errors.add("base", this.generalError);
+							callbacks.error.call(context, this, xhr, error);
+						},
+						complete: function(xhr) {
+							if (callbacks.complete) {
+								callbacks.complete.call(context, this, xhr);
+							}
+
+							context = callbacks = xhr = uri = null;
 						}
-						else {
-							callbacks.updated.call(context, this);
-						}
-					}
-					else if (this.status === 201) {
-						callbacks.created.call(context, this);
-					}
-					else if (this.status === 403) {
-						// not authorized
-						callbacks.notAuthorized.call(context, this);
-					}
-					else if (this.status === 404) {
-						// not found
-						callbacks.notFound.call(context, this);
-					}
-					else if (this.status === 422) {
-						// validation failed
-						callbacks.invalid.call(context, this);
-					}
-					else if (this.status > 399) {
-						// unhandled client or server error
-						callbacks.error.call(context, this);
-					}
+					});
+				},
+				invalid: function() {
+					callbacks.invalid.call(context, this);
+				}
+			});
+		},
+
+		sendRestRequest: function(method, url, data, context, callbacks) {
+			var async = true;
+			var xhr = this.createRequest(), model = this;
+			var timeoutTimer = null;
+			var that = this;
+
+			var startTimer = function() {
+				if (that.restClientOptions.timeout > 0 && callbacks.timeout) {
+					timeoutTimer = setInterval(requestTimedOut, that.restClientOptions.timeout);
 				}
 			};
-			var async = true;
-			var data = this.serialize();
-			var xhr = this.createRequest(), model = this;
+
+			var cancelTimer = function() {
+				clearTimeout(timeoutTimer);
+				timeoutTimer = null;
+			};
+
+			var requestTimedOut = function() {
+				cancelTimer();
+				xhr.abort();
+				callbacks.timeout.call(context, xhr);
+				cleanup();
+			};
+
+			var cleanup = function() {
+				cleanup = context = callbacks = xhr = xhr.onreadystatechange = data = that = null;
+			};
+
+			var onreadystatechange = function() {
+				var errorDetected = false, error = null;
+
+				if (this.readyState === 4) {
+					try {
+						cancelTimer();
+
+						if (this.status === that.REST_CLIENT_STATUS_OK) {
+							if (method === "GET") {
+								callbacks.found.call(context, this);
+							}
+							else if (method === "POST") {
+								callbacks.created.call(context, this);
+							}
+							else if (method === "PUT") {
+								callbacks.updated.call(context, this);
+							}
+							else if (method === "DELETE") {
+								callbacks.destroyed.call(context, this);
+							}
+							else {
+								throw new Error("Invalid HTTP method detected: " + method);
+							}
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_CREATED) {
+							callbacks.created.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_NOT_MODIFIED) {
+							callbacks.notModified.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_NOT_AUTHORIZED) {
+							// not authorized
+							callbacks.notAuthorized.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_NOT_FOUND) {
+							// not found
+							callbacks.notFound.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_TIMEOUT && callbacks.timeout) {
+							callbacks.timeout.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_CONFLICT && callbacks.conflict) {
+							callbacks.conflict.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_UNSUPPORTED_MEDIA_TYPE && callbacks.unsupportedMediaType) {
+							callbacks.unsupportedMediaType.call(context, this);
+						}
+						else if (this.status === that.REST_CLIENT_STATUS_VALIDATION_FAILED) {
+							// validation failed
+							callbacks.invalid.call(context, this);
+						}
+						else {
+							// unhandled client or server error
+							errorDetected = true;
+							error = new Error("Unhandled rest client error " + this.status + " for " + method + " " + url);
+						}
+					}
+					catch (e) {
+						errorDetected = true;
+						error = e;
+					}
+
+					if (errorDetected) {
+						callbacks.error.call(context, this, error);
+					}
+
+					if (callbacks.complete) {
+						callbacks.complete.call(context, this);
+					}
+
+					cleanup();
+				}
+			};
 
 			if (method === "GET" || method === "DELETE") {
 				url += ( url.indexOf("?") < 0 ? "?" : "&" ) + data;
@@ -142,9 +317,23 @@ Model.Persistence.RestClient = {
 
 			xhr.onreadystatechange = onreadystatechange;
 			xhr.open(method, url, async);
-			xhr.setRequestHeader("x-requested-with", "XMLHTTPREQUEST");
-			xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+
+			xhr.setRequestHeader(this.restClientOptions.ajaxHeaderName, this.restClientOptions.ajaxHeaderValue);
+
+			if (method === "POST" || method === "PUT") {
+				xhr.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+			}
+
+			startTimer();
 			xhr.send(data);
+		},
+
+    setErrorMessages: function(errors) {
+      this.errors = errors;
+    },
+
+		validate: function(context, callbacks) {
+			context.valid.call(context, this);
 		}
 
 	}
@@ -152,4 +341,3 @@ Model.Persistence.RestClient = {
 };
 
 Model.Base.include(Model.Persistence.RestClient);
-
