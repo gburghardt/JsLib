@@ -88,3 +88,7 @@ jasmine.Matchers.prototype.toHaveProperty = function(x) {
 jasmine.Matchers.prototype.toNotHaveProperty = function(x) {
 	return !this.actual.hasOwnProperty(x);
 };
+
+jasmine.Matchers.prototype.toBeString = function() {
+	return (typeof this.actual === "string") ? true : false;
+};
