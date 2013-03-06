@@ -82,20 +82,37 @@ Model.Persistence.RestClient = {
 				destroyed: function(xhr) {
 					this.persisted = false;
 					this.destroyed = true;
-					callbacks.destroyed.call(context);
+					callbacks.destroyed.call(context, this, xhr);
+				},
+				invalid: function(xhr) {
+					var errors = this.getErrorsFromResponse(xhr);
+
+					this.valid = false;
+
+					if (errors) {
+						this.setErrorMessages(errors);
+					}
+
+					callbacks.invalid.call(context, this, xhr);
+					errors = null;
 				},
 				notAuthorized: function(xhr) {
-					this.errors.add("base", this.authorizationRequiredError);
-					callbacks.invalid.call(context, this.errors);
+					this.valid = false;
+					this.errors.add("base", this.restClientOptions.authorizationRequiredError);
+					callbacks.invalid.call(context, this, xhr);
 				},
 				notFound: function(xhr) {
-					callbacks.notFound.call(context);
+					callbacks.notFound.call(context, this, xhr);
 				},
 				error: function(xhr) {
-					this.errors.add("base", this.generalError);
-					callbacks.error.call(context, this.errors);
+					this.errors.add("base", this.restClientOptions.generalError);
+					callbacks.error.call(context, this, xhr);
 				},
 				complete: function(xhr) {
+					if (callbacks.complete) {
+						callbacks.complete.call(context, this, xhr);
+					}
+
 					context = callbacks = xhr = uri = null;
 				}
 			});
@@ -168,6 +185,8 @@ Model.Persistence.RestClient = {
 						},
 						invalid: function(xhr) {
 							var errors = this.getErrorsFromResponse(xhr);
+
+							this.valid = false;
 
 							if (errors) {
 								this.setErrorMessages(errors);
@@ -328,9 +347,9 @@ Model.Persistence.RestClient = {
 			xhr.send(data);
 		},
 
-    setErrorMessages: function(errors) {
-      this.errors = errors;
-    },
+		setErrorMessages: function(errors) {
+			this.errors = errors;
+		},
 
 		validate: function(context, callbacks) {
 			context.valid.call(context, this);

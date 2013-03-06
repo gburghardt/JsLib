@@ -390,7 +390,75 @@ describe("Model", function() {
 			});
 
 			describe("destroy", function() {
-				xit("should be tested");
+
+				beforeEach(function() {
+					this.callbacks = {
+						error: function() {},
+						invalid: function() {},
+						notFound: function() {},
+						destroyed: function() {},
+						complete: function() {}
+					};
+
+					for (var key in this.callbacks) {
+						if (this.callbacks.hasOwnProperty(key)) {
+							spyOn(this.callbacks, key);
+						}
+					}
+
+					this.model = new MockModel();
+					this.request = new Mock.XMLHttpRequest();
+					spyOn(this.model, "createRequest").andReturn(this.request);
+				});
+
+				it("calls the 'destroyed' callback when destroying a resource that exists", function() {
+					this.request.returnsStatus(200);
+					this.model.destroy(this, this.callbacks);
+
+					expect(this.callbacks.destroyed).wasCalledWith(this.model, this.request);
+					expect(this.model.destroyed).toBeTrue();
+					expect(this.model.persisted).toBeFalse();
+				});
+
+				it("calls the 'invalid' callback and adds an error to 'base' when server returns 'Authorization Required'", function() {
+					this.request.returnsStatus(401);
+					this.model.destroy(this, this.callbacks);
+
+					expect(this.callbacks.invalid).wasCalledWith(this.model, this.request);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					expect(this.model.valid).toBeFalse();
+					expect(this.model.errors.length).toEqual(1);
+					expect(this.model.errors.get("base")[0]).toEqual("You must be logged in to complete this operation.");
+				});
+
+				it("calls the 'invalid' callback and sets errors", function() {
+					this.request.returnsStatus(422);
+					this.request.returnsBody('{"errors":{"id":["Id is missing"]}}');
+					this.model.destroy(this, this.callbacks);
+
+					expect(this.callbacks.invalid).wasCalledWith(this.model, this.request);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					expect(this.model.valid).toBeFalse();
+					expect(this.model.errors.length).toEqual(1);
+					expect(this.model.errors.get("id")[0]).toEqual("Id is missing");
+				});
+
+				it("calls the 'notFound' callback when destroying a resource that doesn't exist", function() {
+					this.request.returnsStatus(404);
+					this.model.destroy(this, this.callbacks);
+
+					expect(this.callbacks.notFound).wasCalledWith(this.model, this.request);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+				});
+
+				it("calls the 'error' callback when a catestrophic error occurs and adds an error to 'base'", function() {
+					this.request.returnsStatus(500);
+					this.model.destroy(this, this.callbacks);
+
+					expect(this.callbacks.error).wasCalledWith(this.model, this.request);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+				});
+
 			});
 
 			describe("load", function() {
