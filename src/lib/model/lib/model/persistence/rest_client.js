@@ -134,8 +134,7 @@ Model.Persistence.RestClient = {
 
 		load: function(context, callbacks) {
 			if (!this.getPrimaryKey()) {
-				this.persisted = false;
-				callbacks.notFound.call(context);
+				throw new Error("Cannot load model with no value for " + this.primaryKey);
 			}
 
 			var uri = this.createRestClientUri("show", this.attributes);
@@ -146,21 +145,34 @@ Model.Persistence.RestClient = {
 					this.attributes = (this.restClientOptions.rootElement) ? attributes[ this.restClientOptions.rootElement ] : attributes;
 					this.persisted = true;
 					this.destroyed = false;
-					callbacks.found.call(context);
+					callbacks.found.call(context, this, xhr);
 				},
 				notAuthorized: function(xhr) {
-					this.errors.add("base", this.authorizationRequiredError);
-					callbacks.invalid.call(context, this.errors);
+					this.errors.add("base", this.restClientOptions.authorizationRequiredError);
+
+					if (callbacks.notAuthorized) {
+						callbacks.notAuthorized.call(context, this, xhr);
+					}
+					else if (callbacks.invalid) {
+						callbacks.invalid.call(context, this, xhr);
+					}
+					else {
+						callbacks.error.call(context, this, xhr, new Error(this.restClientOptions.authorizationRequiredError));
+					}
 				},
 				notFound: function(xhr) {
 					this.persisted = false;
-					callbacks.notFound.call(context);
+					callbacks.notFound.call(context, this, xhr);
 				},
-				error: function(xhr) {
-					this.errors.add("base", this.generalError);
-					callbacks.error.call(context, this.errors);
+				error: function(xhr, error) {
+					this.errors.add("base", this.restClientOptions.generalError);
+					callbacks.error.call(context, this, xhr, error);
 				},
 				complete: function(xhr) {
+					if (callbacks.complete) {
+						callbacks.complete.call(context, this, xhr);
+					}
+
 					context = callbacks = xhr = uri = null;
 				}
 			});
@@ -196,13 +208,16 @@ Model.Persistence.RestClient = {
 							errors = null;
 						},
 						notAuthorized: function(xhr) {
-							this.errors.add("base", this.authorizationRequiredError);
+							this.errors.add("base", this.restClientOptions.authorizationRequiredError);
 
 							if (callbacks.notAuthorized) {
 								callbacks.notAuthorized.call(context, this, xhr);
 							}
-							else {
+							else if (callbacks.invalid) {
 								callbacks.invalid.call(context, this, xhr);
+							}
+							else {
+								callbacks.error.call(context, this, xhr, new Error(this.restClientOptions.authorizationRequiredError));
 							}
 						},
 						notFound: function(xhr) {

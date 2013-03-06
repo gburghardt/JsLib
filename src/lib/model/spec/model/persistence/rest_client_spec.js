@@ -337,23 +337,47 @@ describe("Model", function() {
 					expect(this.callbacks.notFound).wasCalledWith(this.model, this.request);
 				});
 
-				it("calls the 'notAuthorized' callback when authorization is required", function() {
-					this.request.returnsStatus(401);
-					this.request.returnsBody("Not Authorized");
+				describe("when authorization is required", function() {
 
-					this.model.save(this, this.callbacks);
-					expect(this.callbacks.notAuthorized).wasCalledWith(this.model, this.request);
-				});
+					beforeEach(function() {
+						this.request.returnsStatus(401);
+					});
 
-				it("calls the 'invalid' callback when authorization is required an the 'notAuthorized' callback is missing", function() {
-					var callback = this.callbacks.notAuthorized;
-					this.callbacks.notAuthorized = null;
-					this.request.returnsStatus(401);
-					this.request.returnsBody("Not Authorized");
+					it("calls the 'notAuthorized' callback if one exists", function() {
+						this.model.save(this, this.callbacks);
 
-					this.model.save(this, this.callbacks);
-					expect(callback).wasNotCalled();
-					expect(this.callbacks.invalid).wasCalledWith(this.model, this. request);
+						expect(this.callbacks.notAuthorized).wasCalledWith(this.model, this.request);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+						expect(this.model.errors.length).toEqual(1);
+						expect(this.model.errors.get("base")[0]).toBeString();
+					});
+
+					it("calls the 'invalid' callback if one exists", function() {
+						this.callbacks.notAuthorized = null;
+						this.model.save(this, this.callbacks);
+
+						expect(this.callbacks.invalid).wasCalledWith(this.model, this. request);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+						expect(this.model.errors.length).toEqual(1);
+						expect(this.model.errors.get("base")[0]).toBeString();
+					});
+
+					it("calls the 'error' callback if neither the 'notAuthorized' nor 'invalid' callbacks exist", function() {
+						var e;
+						this.callbacks.error = function(model, xhr, error) {
+							e = error;
+						};
+						spyOn(this.callbacks, "error").andCallThrough();
+						this.callbacks.notAuthorized = null;
+						this.callbacks.invalid = null;
+						this.model.save(this, this.callbacks);
+
+						expect(this.callbacks.error).wasCalledWith(this.model, this. request, e);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+						expect(this.model.errors.length).toEqual(1);
+						expect(this.model.errors.get("base")[0]).toBeString();
+					});
+
 				});
 
 				it("calls the 'error' callback when something catastrophic goes wrong", function() {
@@ -462,7 +486,113 @@ describe("Model", function() {
 			});
 
 			describe("load", function() {
-				xit("should be tested");
+
+				beforeEach(function() {
+					this.callbacks = {
+						found: function() {},
+						error: function() {},
+						invalid: function() {},
+						notFound: function() {},
+						complete: function() {},
+						notAuthorized: function() {}
+					};
+
+					for (var key in this.callbacks) {
+						if (this.callbacks.hasOwnProperty(key)) {
+							spyOn(this.callbacks, key);
+						}
+					}
+
+					this.model = new MockModel({id: 1234});
+					this.request = new Mock.XMLHttpRequest();
+					spyOn(this.model, "createRequest").andReturn(this.request);
+				});
+
+				it("calls the 'found' callback and sets attributes if the resource was found", function() {
+					this.request.returnsStatus(200);
+					this.request.returnsBody('{"mock_model":{"name":"Test","price":12.99}}');
+					this.model.load(this, this.callbacks);
+
+					expect(this.callbacks.found).wasCalledWith(this.model, this.request);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					expect(this.model.persisted).toBeTrue();
+					expect(this.model.destroyed).toBeFalse();
+					expect(this.model.name).toEqual("Test");
+					expect(this.model.price).toEqual(12.99);
+				});
+
+				it("throws an error if no primary key exists", function() {
+					this.model.id = null;
+					spyOn(this.request, "send").andCallThrough();
+
+					expect(function() {
+						this.model.load(this, this.callbacks);
+					}).toThrowError();
+
+					expect(this.request.send).wasNotCalled();
+					expect(this.callbacks.complete).wasNotCalled();
+				});
+
+				it("calls the 'notFound' callback if the resource was not found", function() {
+					this.request.returnsStatus(404);
+					this.model.load(this, this.callbacks);
+
+					expect(this.callbacks.notFound).wasCalledWith(this.model, this.request);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					expect(this.model.persisted).toBeFalse();
+				});
+
+				describe("when authentication is required", function() {
+
+					beforeEach(function() {
+						this.request.returnsStatus(401);
+					});
+
+					it("calls the 'notAuthorized' callback if one exists", function() {
+						this.model.load(this, this.callbacks);
+
+						expect(this.callbacks.notAuthorized).wasCalledWith(this.model, this.request);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					});
+
+					it("calls the 'invalid' callback if one exists", function() {
+						this.callbacks.notAuthorized = null;
+						this.model.load(this, this.callbacks);
+
+						expect(this.callbacks.invalid).wasCalledWith(this.model, this.request);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					});
+
+					it("calls the 'error' callback if neither the 'notAuthorized' nor 'invalid' callbacks exist", function() {
+						var e;
+						this.callbacks.notAuthorized = null;
+						this.callbacks.invalid = null;
+						this.callbacks.error = function(model, xhr, error) {
+							e = error;
+						};
+						spyOn(this.callbacks, "error").andCallThrough();
+						this.model.load(this, this.callbacks);
+
+						expect(this.callbacks.error).wasCalledWith(this.model, this.request, e);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+					});
+
+				});
+
+				it("calls the 'error' callback if something catestrophic goes wrong", function() {
+					var e;
+
+					this.callbacks.error = function(model, xhr, error) {
+						e = error;
+					};
+					spyOn(this.callbacks, "error").andCallThrough();
+					this.request.returnsStatus(500);
+					this.model.load(this, this.callbacks);
+
+					expect(this.callbacks.error).wasCalledWith(this.model, this.request, e);
+					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+				});
+
 			});
 
 		});
