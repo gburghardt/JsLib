@@ -15,11 +15,21 @@ Modules.ElementCache = {
 
 		elementCache: null,
 
+		elementCacheOptions: {
+			eagerLoad: false,
+			enabled: true
+		},
+
 		initElementCache: function() {
 			this.elementCache = {};
 			this.compileElementCollections();
 			this.compileElements();
+			this.compileElementCacheOptions();
 			this.initElementCacheGetters();
+
+			if (this.elementCacheOptions.eagerLoad) {
+				this.eagerLoadElementCache();
+			}
 		},
 
 		initElementCacheGetters: function() {
@@ -29,8 +39,8 @@ Modules.ElementCache = {
 
 			var property;
 
-			for (property in this.compiledElements) {
-				if (this.compiledElements.hasOwnProperty(property)) {
+			for (property in this.elements) {
+				if (this.elements.hasOwnProperty(property)) {
 					Object.defineProperty(this.__proto__, property, {
 						enumerable: true,
 						get: this.createElementGetter(property)
@@ -38,8 +48,8 @@ Modules.ElementCache = {
 				}
 			}
 
-			for (property in this.compiledElementCollections) {
-				if (this.compiledElementCollections.hasOwnProperty(property)) {
+			for (property in this.elementCollections) {
+				if (this.elementCollections.hasOwnProperty(property)) {
 					Object.defineProperty(this.__proto__, property, {
 						enumerable: true,
 						get: this.createElementCollectionGetter(property)
@@ -50,6 +60,20 @@ Modules.ElementCache = {
 			this.__proto__.elementCacheInitialized = true;
 		},
 
+		eagerLoadElementCache: function() {
+			var key, properties = ["elements", "elementCollections"], i, length, property;
+
+			for (i = 0, length = properties.length; i < length; i++) {
+				property = this[ properties[i] ];
+
+				for (key in property) {
+					if (property.hasOwnProperty(key)) {
+						this[key];
+					}
+				}
+			}
+		},
+
 		destroyElementCache: function() {
 			if (this.elementCache) {
 				this.expireElementCache();
@@ -57,36 +81,74 @@ Modules.ElementCache = {
 			}
 		},
 
+		compileElementCacheOptions: function() {
+			Object.defineProperty(this, "elementCacheOptions", {
+				get: function() {
+					if (!this.__proto__.compiledElementCacheOptions) {
+						this.__proto__.compiledElementCacheOptions = this.mergePropertyFromPrototypeChain("elementCacheOptions");
+					}
+
+					return this.compiledElementCacheOptions;
+				}
+			});
+		},
+
 		compileElementCollections: function() {
-			if (!this.__proto__.compiledElementCollections) {
-				this.__proto__.compiledElementCollections = this.mergePropertyFromPrototypeChain("elementCollections");
-			}
+			Object.defineProperty(this, "elementCollections", {
+				get: function() {
+					if (!this.__proto__.compiledElementCollections) {
+						this.__proto__.compiledElementCollections = this.mergePropertyFromPrototypeChain("elementCollections");
+					}
+
+					return this.compiledElementCollections;
+				}
+			});
 		},
 
 		compileElements: function() {
-			if (!this.__proto__.compiledElements) {
-				this.__proto__.compiledElements = this.mergePropertyFromPrototypeChain("elements");
-			}
+			Object.defineProperty(this, "elements", {
+				get: function() {
+					if (!this.__proto__.compiledElements) {
+						this.__proto__.compiledElements = this.mergePropertyFromPrototypeChain("elements");
+					}
+
+					return this.compiledElements;
+				}
+			});
 		},
 
 		createElementCollectionGetter: function(property) {
-			return function() {
-				if (!this.elementCache[property]) {
-					this.elementCache[property] = this.element.querySelectorAll( this.compiledElementCollections[property] );
-				}
+			if (this.elementCacheOptions.enabled) {
+				return function() {
+					if (!this.elementCache[property]) {
+						this.elementCache[property] = this.element.querySelectorAll( this.elementCollections[property] );
+					}
 
-				return this.elementCache[property];
-			};
+					return this.elementCache[property];
+				};
+			}
+			else {
+				return function() {
+					return this.element.querySelectorAll( this.elementCollections[property] );
+				};
+			}
 		},
 
 		createElementGetter: function(property) {
-			return function() {
-				if (!this.elementCache[property]) {
-					this.elementCache[property] = this.element.querySelector( this.compiledElements[property] );
-				}
+			if (this.elementCacheOptions.enabled) {
+				return function() {
+					if (!this.elementCache[property]) {
+						this.elementCache[property] = this.element.querySelector( this.elements[property] );
+					}
 
-				return this.elementCache[property];
-			};
+					return this.elementCache[property];
+				};
+			}
+			else {
+				return function() {
+					return this.element.querySelector( this.elements[property] );
+				};
+			}
 		},
 
 		expireElementCache: function() {
