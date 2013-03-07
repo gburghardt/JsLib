@@ -54,7 +54,15 @@
 			<h2>Daily Tasks</h2>
 			<p>Task: <input type="text" size="60" name="text" id="task-text"> <button type="submit">Add</button></p>
 
-			<div data-module-property="selectionManager" data-module="SelectionManagerModule" class="selectionManager">
+			<div class="selectionManager"
+			     data-module-property="selectionManager"
+			     data-module="SelectionManagerModule"
+					 data-module-info='{
+						 "options": {
+							 "confirmRemoveMessage": "Are you sure you want to remove this task?"
+						 }
+			     }'
+			>
 				<p>
 					Selected: <span class="selection-manager-counter">0</span> |
 					<button type="button" data-action="selectAll">Select All</button>
@@ -62,9 +70,18 @@
 					<button type="button" data-action="removeSelected">Remove Selected</button>
 				</p>
 				<ol>
-					<li data-action="toggleSelection"><button type="button" data-action="removeTask">X</button> Buy groceries</li>
-					<li data-action="toggleSelection"><button type="button" data-action="removeTask">X</button> Fix the sink</li>
-					<li data-action="toggleSelection"><button type="button" data-action="removeTask">X</button> Cut the grass</li>
+					<li data-action="toggleSelection">
+						<button type="button" data-action="removeItem">X</button> Buy groceries
+						<input type="hidden" name="task[0][_destroy]" value="">
+					</li>
+					<li data-action="toggleSelection">
+						<button type="button" data-action="removeItem">X</button> Fix the sink
+						<input type="hidden" name="task[1][_destroy]" value="">
+					</li>
+					<li data-action="toggleSelection">
+						<button type="button" data-action="removeItem">X</button> Cut the grass
+						<input type="hidden" name="task[2][_destroy]" value="">
+					</li>
 				</ol>
 			</div>
 		</form>
@@ -113,7 +130,8 @@
 		</form>
 	</script>
 	<script type="text/html" data-template-name="tasks/item">
-		<button type="button" data-action="removeTask">X</button> #{text}
+		<button type="button" data-action="removeItem">X</button> #{text}
+		<input type="hidden" name="task[#{guid}][_destroy]" value="">
 	</script>
 
 	<!-- Application JavaScript -->

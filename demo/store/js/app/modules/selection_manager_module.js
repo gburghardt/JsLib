@@ -3,7 +3,7 @@ SelectionManagerModule = Modules.Base.extend({
 	prototype: {
 
 		actions: {
-			click: ["deselectAll", "selectAll", "toggleSelection"]
+			click: ["deselectAll", "selectAll", "removeItem", "toggleSelection"]
 		},
 
 		callbacks: {
@@ -11,6 +11,8 @@ SelectionManagerModule = Modules.Base.extend({
 		},
 
 		options: {
+			confirmRemoveMessage: "Are you sure you want to remove this item?",
+			removalBehavior: "hide",
 			selectedClass: "selected"
 		},
 
@@ -44,6 +46,26 @@ SelectionManagerModule = Modules.Base.extend({
 			this.notify("selectionSizeChanged");
 		},
 
+		removeItem: function(event, element, params) {
+			event.stop();
+			var item = element.parentNode;
+
+			if (confirm(this.options.confirmRemoveMessage) && this.notify("beforeRemoveItem", {item: item}) !== false) {
+				if (this.options.removalBehavior === "hide") {
+					this.removeItemByHiding(item);
+				}
+				else {
+					this.removeItemFromDocumentTree(item);
+				}
+
+				this.notify("afterRemoveItem", {item: item});
+
+				if (item.hasClass(this.options.selectedClass)) {
+					this.notify("selectionSizeChanged");
+				}
+			}
+		},
+
 		toggleSelection: function(event, element, params) {
 			event.preventDefault();
 
@@ -63,6 +85,29 @@ SelectionManagerModule = Modules.Base.extend({
 
 		getSelectedItems: function() {
 			return this.element.querySelectorAll("li." + this.options.selectedClass) || [];
+		},
+
+		removeItemByHiding: function(item) {
+			item.style.display = "none";
+
+			var inputs = item.getElementsByTagName("input");
+			var regex = /_destroy\]$/, i = 0, length = inputs.length;
+
+			for (i; i < length; i++) {
+				if ( regex.test( inputs[0].name ) ) {
+					inputs[i].value = "1";
+				}
+			}
+
+			item = inputs = null;
+		},
+
+		removeItemFromDocumentTree: function(item) {
+			if (item.parentNode) {
+				item.parentNode.removeChild(item);
+			}
+
+			item = null;
 		},
 
 		updateCount: function(forceRecount) {

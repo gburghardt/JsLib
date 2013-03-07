@@ -34,22 +34,10 @@ TaskListModule = Modules.Base.extend({
 			event = element = params = null;
 		},
 
-		removeTask: function(event, element, params) {
-			event.stop();
-			var listItem = element.parentNode;
-
-			if (confirm("Are you sure you want to remove this task?")) {
-				listItem.parentNode.removeChild(listItem);
-			}
-
-			this.selectionManager.updateCount(true);
-
-			event = element = params = listItem = null;
-		},
-
 		save: function(event, element, params) {
 			event.stop();
 			var data = this.view.getFormData();
+			data.guid = new Date().getTime();
 			var newItem = document.createElement("li");
 			newItem.setAttribute("data-action", "toggleSelection");
 			Template.render("tasks/item", data, this, function(source) {
