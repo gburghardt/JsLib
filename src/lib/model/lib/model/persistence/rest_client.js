@@ -38,13 +38,15 @@ Model.Persistence.RestClient = {
 		REST_CLIENT_STATUS_VALIDATION_FAILED: 422,
 
 		initRestClient: function() {
-			if (!this.__proto__.hasOwnProperty("compiledRestClientOptions")) {
-				this.compiledRestClientOptions = this.mergePropertyFromPrototypeChain("restClientOptions");
+			Object.defineProperty(this, "restClientOptions", {
+				get: function() {
+					if (!this.__proto__.hasOwnProperty("compiledRestClientOptions")) {
+						this.__proto__.compiledRestClientOptions = this.mergePropertyFromPrototypeChain("restClientOptions");
+					}
 
-				Object.defineProperty(this, "restClientOptions", {
-					get: function() { return this.compiledRestClientOptions; }
-				});
-			}
+					return this.compiledRestClientOptions;
+				}
+			});
 		},
 
 		createRequest: function() {
@@ -99,7 +101,16 @@ Model.Persistence.RestClient = {
 				notAuthorized: function(xhr) {
 					this.valid = false;
 					this.errors.add("base", this.restClientOptions.authorizationRequiredError);
-					callbacks.invalid.call(context, this, xhr);
+
+					if (callbacks.notAuthorized) {
+						callbacks.notAuthorized.call(context, this, xhr);
+					}
+					else if (callbacks.invalid) {
+						callbacks.invalid.call(context, this, xhr);
+					}
+					else {
+						callbacks.error.call(context, this, xhr, new Error(this.restClientOptions.authorizationRequiredError));
+					}
 				},
 				notFound: function(xhr) {
 					callbacks.notFound.call(context, this, xhr);

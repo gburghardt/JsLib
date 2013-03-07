@@ -421,7 +421,8 @@ describe("Model", function() {
 						invalid: function() {},
 						notFound: function() {},
 						destroyed: function() {},
-						complete: function() {}
+						complete: function() {},
+						notAuthorized: function() {}
 					};
 
 					for (var key in this.callbacks) {
@@ -444,15 +445,50 @@ describe("Model", function() {
 					expect(this.model.persisted).toBeFalse();
 				});
 
-				it("calls the 'invalid' callback and adds an error to 'base' when server returns 'Authorization Required'", function() {
-					this.request.returnsStatus(401);
-					this.model.destroy(this, this.callbacks);
+				describe("when authorization is required", function() {
 
-					expect(this.callbacks.invalid).wasCalledWith(this.model, this.request);
-					expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
-					expect(this.model.valid).toBeFalse();
-					expect(this.model.errors.length).toEqual(1);
-					expect(this.model.errors.get("base")[0]).toEqual("You must be logged in to complete this operation.");
+					beforeEach(function() {
+						this.request.returnsStatus(401);
+					});
+
+					it("calls the 'notAuthorized' callback if one exists", function() {
+						this.model.destroy(this, this.callbacks);
+
+						expect(this.callbacks.notAuthorized).wasCalledWith(this.model, this.request);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+						expect(this.model.valid).toBeFalse();
+						expect(this.model.errors.length).toEqual(1);
+						expect(this.model.errors.get("base")[0]).toEqual("You must be logged in to complete this operation.");
+					});
+
+					it("calls the 'invalid' callback if one exists", function() {
+						this.callbacks.notAuthorized = null;
+						this.model.destroy(this, this.callbacks);
+
+						expect(this.callbacks.invalid).wasCalledWith(this.model, this.request);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+						expect(this.model.valid).toBeFalse();
+						expect(this.model.errors.length).toEqual(1);
+						expect(this.model.errors.get("base")[0]).toEqual("You must be logged in to complete this operation.");
+					});
+
+					it("calls the 'error' callback if neither the 'notAuthorized' nor 'invalid' callbacks exist.", function() {
+						var e;
+						this.callbacks.notAuthorized = null;
+						this.callbacks.invalid = null;
+						this.callbacks.error = function(model, xhr, error) {
+							e = error;
+						};
+						spyOn(this.callbacks, "error").andCallThrough();
+						this.model.destroy(this, this.callbacks);
+
+						expect(this.callbacks.error).wasCalledWith(this.model, this.request, e);
+						expect(this.callbacks.complete).wasCalledWith(this.model, this.request);
+						expect(this.model.valid).toBeFalse();
+						expect(this.model.errors.length).toEqual(1);
+						expect(this.model.errors.get("base")[0]).toEqual("You must be logged in to complete this operation.");
+					});
+
 				});
 
 				it("calls the 'invalid' callback and sets errors", function() {
