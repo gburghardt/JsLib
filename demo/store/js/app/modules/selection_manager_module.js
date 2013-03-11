@@ -3,15 +3,32 @@ SelectionManagerModule = Modules.Base.extend({
 	prototype: {
 
 		actions: {
-			click: ["deselectAll", "selectAll", "removeItem", "toggleSelection"]
+			click: [
+				"deselectAll",
+				"selectAll",
+				"removeItem",
+				"removeSelectedItems",
+				"toggleSelection"
+			]
 		},
 
 		callbacks: {
+			afterAddItem: "updateEmptyListIndicator",
+			afterRemoveItem: "updateEmptyListIndicator",
 			selectionSizeChanged: "updateCount"
+		},
+
+		elements: {
+			emptyListElement: "p.empty-list",
+			listElement: "ol.items",
+			listSizeElement: ".selection-manager-counter",
+			removedListElement: "ol.removed-items"
 		},
 
 		options: {
 			confirmRemoveMessage: "Are you sure you want to remove this item?",
+			confirmRemoveSelectedMessage: "Are you sure you want to remove these items?",
+			newItemTemplate: null,
 			removalBehavior: "hide",
 			selectedClass: "selected"
 		},
@@ -23,7 +40,7 @@ SelectionManagerModule = Modules.Base.extend({
 		deselectAll: function(event, element, params) {
 			event.stop();
 
-			var items = this.element.getElementsByTagName("li"), i = 0, length = items.length;
+			var items = this.getItems(), i = 0, length = items.length;
 
 			for (i; i < length; i++) {
 				items[i].removeClass(this.options.selectedClass);
@@ -33,10 +50,14 @@ SelectionManagerModule = Modules.Base.extend({
 			this.notify("selectionSizeChanged");
 		},
 
+		getItems: function() {
+			return this.listElement.getElementsByTagName("li");
+		},
+
 		selectAll: function(event, element, params) {
 			event.stop();
 
-			var items = this.element.getElementsByTagName("li"), i = 0, length = items.length;
+			var items = this.getItems(), i = 0, length = items.length;
 
 			for (i; i < length; i++) {
 				items[i].addClass(this.options.selectedClass);
@@ -46,24 +67,66 @@ SelectionManagerModule = Modules.Base.extend({
 			this.notify("selectionSizeChanged");
 		},
 
+		getItemCount: function() {
+			return this.getItems().length;
+		},
+
+		getSelectedItemCount: function() {
+			return this.getSelectedItems().length;
+		},
+
+		getSelectedItems: function() {
+			return this.listElement.querySelectorAll("li." + this.options.selectedClass) || [];
+		},
+
 		removeItem: function(event, element, params) {
 			event.stop();
 			var item = element.parentNode;
 
 			if (confirm(this.options.confirmRemoveMessage) && this.notify("beforeRemoveItem", {item: item}) !== false) {
-				if (this.options.removalBehavior === "hide") {
-					this.removeItemByHiding(item);
-				}
-				else {
-					this.removeItemFromDocumentTree(item);
+				if (this.removeItemFromList(item)) {
+					this.notify("selectionSizeChanged");
 				}
 
 				this.notify("afterRemoveItem", {item: item});
+			}
 
-				if (item.hasClass(this.options.selectedClass)) {
-					this.notify("selectionSizeChanged");
+			event = element = params = null;
+		},
+
+		removeSelectedItems: function(event, element, params) {
+			event.stop();
+
+			if (confirm(this.options.confirmRemoveSelectedMessage)) {
+				var items = this.getSelectedItems(), i = 0, length = items.length;
+				var selectionSizeChanged = true;
+
+				for (i; i < length; i++) {
+					if (this.notify("beforeRemoveItem", {item: items[i]}) !== false) {
+						selectionSizeChanged = selectionSizeChanged && this.removeItemFromList(items[i]) ? true : false;
+					}
 				}
 			}
+
+			if (selectionSizeChanged) {
+				this.notify("selectionSizeChanged");
+			}
+
+			event = element = params = null;
+		},
+
+		renderNewItem: function(data, context, callback) {
+			if (!this.options.newItemTemplate) {
+				throw new Error("You must specify options.newItemTemplate before rendering a new item");
+			}
+
+			Template.render(this.options.newItemTemplate, data, this, function(html, template) {
+				var newItem = Template.parseHTML(html)[0];
+				this.listElement.appendChild(newItem);
+				callback.call(context, newItem);
+				this.notify("afterAddItem");
+				newItem = data = template = null;
+			});
 		},
 
 		toggleSelection: function(event, element, params) {
@@ -83,8 +146,26 @@ SelectionManagerModule = Modules.Base.extend({
 
 // Access: Private
 
-		getSelectedItems: function() {
-			return this.element.querySelectorAll("li." + this.options.selectedClass) || [];
+		removeItemFromList: function(item) {
+			var selectionSizeChanged = false;
+
+			if (this.options.removalBehavior === "hide") {
+				this.removeItemByHiding(item);
+			}
+			else {
+				this.removeItemFromDocumentTree(item);
+			}
+
+			if (item.hasClass(this.options.selectedClass)) {
+				this.selectionSize--;
+				selectionSizeChanged = true;
+			}
+
+			this.notify("afterRemoveItem", {item: item});
+
+			item = null;
+
+			return selectionSizeChanged;
 		},
 
 		removeItemByHiding: function(item) {
@@ -94,10 +175,14 @@ SelectionManagerModule = Modules.Base.extend({
 			var regex = /_destroy\]$/, i = 0, length = inputs.length;
 
 			for (i; i < length; i++) {
-				if ( regex.test( inputs[0].name ) ) {
+				if ( regex.test( inputs[i].name ) ) {
 					inputs[i].value = "1";
+					break;
 				}
 			}
+
+			this.listElement.removeChild(item);
+			this.removedListElement.appendChild(item);
 
 			item = inputs = null;
 		},
@@ -110,16 +195,20 @@ SelectionManagerModule = Modules.Base.extend({
 			item = null;
 		},
 
-		updateCount: function(forceRecount) {
-			var counter = this.element.querySelectorAll(".selection-manager-counter")[0];
+		updateCount: function() {
+			this.listSizeElement.innerHTML = this.selectionSize;
+		},
 
-			if (forceRecount) {
-				this.selectionSize = this.getSelectedItems().length;
+		updateEmptyListIndicator: function() {
+			var itemCount = this.getItemCount();
+
+			if (itemCount === 0) {
+				this.emptyListElement.style.display = "";
+				this.listElement.style.display = "none";
 			}
-
-			if (counter) {
-				counter.innerHTML = this.selectionSize;
-				counter = null;
+			else {
+				this.emptyListElement.style.display = "none";
+				this.listElement.style.display = "";
 			}
 		}
 

@@ -3,8 +3,7 @@ TaskListModule = Modules.Base.extend({
 	prototype: {
 
 		actions: {
-			submit: "save",
-			click: ["removeTask", "removeSelected"]
+			submit: "save"
 		},
 
 		elements: {
@@ -13,39 +12,45 @@ TaskListModule = Modules.Base.extend({
 
 		selectionManager: null,
 
+		tasks: null,
+
+		template: "tasks/form",
+
 		run: function() {
+			this.tasks = [
+				new Task({id: 1, name: "Buy groceries", created_at: new Date(), updated_at: new Date()}),
+				new Task({id: 2, name: "Fix the sink", created_at: new Date(), updated_at: new Date()}),
+				new Task({id: 3, name: "Cut the grass", created_at: new Date(), updated_at: new Date()})
+			];
+
+			this.render(this.template, {tasks: this.tasks});
+			
 			this.createModuleProperty("selectionManager");
+			this.selectionManager.listen("beforeRemoveItem", this, "destroy");
 		},
 
-		removeSelected: function(event, element, params) {
-			event.stop();
-
-			if (confirm("Are you sure you want to remove these items?")) {
-				var items= this.selectionManager.getSelectedItems(), i = 0, length = items.length;
-
-				for (i; i < length; i++) {
-					items[i].parentNode.removeChild(items[i]);
-				};
-
-				this.selectionManager.updateCount(true);
-				items = null;
-			}
-
-			event = element = params = null;
+		destroy: function(item) {
+			console.info("TaskListModule#destroy");
+			console.debug(item);
 		},
 
 		save: function(event, element, params) {
 			event.stop();
 			var data = this.view.getFormData();
-			data.guid = new Date().getTime();
-			var newItem = document.createElement("li");
-			newItem.setAttribute("data-action", "toggleSelection");
-			Template.render("tasks/item", data, this, function(source) {
-				newItem.innerHTML = source;
-				this.element.getElementsByTagName("ol")[0].appendChild(newItem);
+			var task = new Task(data);
+
+			task.created_at = new Date();
+			task.updated_at = new Date();
+			task.id = task.created_at.getTime();
+
+			this.selectionManager.renderNewItem(task, this, function(newItem) {
 				this.taskField.value = "";
 				this.taskField.focus();
+				this.tasks.push(task);
+				newItem = null;
 			});
+
+			task = event = element = params = null;
 		}
 
 	}

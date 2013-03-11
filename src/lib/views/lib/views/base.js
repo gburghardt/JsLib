@@ -67,6 +67,20 @@ Views.Base = Object.extend({
 			this.element = this.ownerDocument = null;
 		},
 
+		focus: function() {
+			var firstField = this.querySelector("input,textarea,select");
+
+			if (firstField) {
+				firstField.focus();
+
+				if (firstField.select) {
+					firstField.select();
+				}
+			}
+
+			firstField = null;
+		},
+
 		getDefaultHTML: function() {
 			return '<div class="view-loading"></div><div class="view-content"></div>';
 		},
@@ -78,18 +92,7 @@ Views.Base = Object.extend({
 				this.model = model;
 				this.querySelector(".view-content").innerHTML = template.render(this.model);
 				this.toggleLoading(false);
-
-				var firstField = this.querySelector("input,textarea,select");
-
-				if (firstField) {
-					firstField.focus();
-
-					if (firstField.select) {
-						firstField.select();
-					}
-				}
-
-				firstField = template = null;
+				template = null;
 			});
 
 			return this;

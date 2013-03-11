@@ -126,6 +126,24 @@ Template = Object.extend({
 			return source;
 		},
 
+		parseHTML: function(html) {
+			var div = document.createElement("div")
+			var nodes = [], i, length, node;
+
+			div.innerHTML = html.replace(/^\s+|\s+$/g, "");
+			i = div.childNodes.length;
+
+			while (i--) {
+				node = div.childNodes[i];
+				node.parentNode.removeChild(node);
+				nodes.push(node);
+			}
+
+			node = div = null;
+
+			return nodes;
+		},
+
 		render: function(name, data, context, callback) {
 			Template.fetch(name, this, function(template) {
 				var source = template.render(data);

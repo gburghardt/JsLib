@@ -50,16 +50,24 @@
 			property matching the data-module-property attribute inside the <form>
 			controlled by the TaskListModule.
 		-->
-		<form action="#" method="get" data-action-domready="createModule" data-action="save" data-module="TaskListModule">
+		<div data-action-domready="createModule" data-module="TaskListModule"></div>
+	</section>
+
+	<!-- client side templates -->
+	
+	<script type="text/html" data-template-name="tasks/form">
+		<form action="#" method="get" data-action="save">
 			<h2>Daily Tasks</h2>
-			<p>Task: <input type="text" size="60" name="text" id="task-text"> <button type="submit">Add</button></p>
+			<p>Task: <input type="name" size="60" name="name" id="task-text"> <button type="submit">Add</button></p>
 
 			<div class="selectionManager"
 			     data-module-property="selectionManager"
 			     data-module="SelectionManagerModule"
 					 data-module-info='{
 						 "options": {
-							 "confirmRemoveMessage": "Are you sure you want to remove this task?"
+							 "confirmRemoveMessage": "Are you sure you want to remove this task?",
+							 "confirmRemoveSelectedMessage": "Are you sure you want to remove these tasks?",
+							 "newItemTemplate": "tasks/list"
 						 }
 			     }'
 			>
@@ -67,27 +75,28 @@
 					Selected: <span class="selection-manager-counter">0</span> |
 					<button type="button" data-action="selectAll">Select All</button>
 					<button type="button" data-action="deselectAll">Deselect All</button>
-					<button type="button" data-action="removeSelected">Remove Selected</button>
+					<button type="button" data-action="removeSelectedItems">Remove Selected</button>
 				</p>
-				<ol>
-					<li data-action="toggleSelection">
-						<button type="button" data-action="removeItem">X</button> Buy groceries
-						<input type="hidden" name="task[0][_destroy]" value="">
-					</li>
-					<li data-action="toggleSelection">
-						<button type="button" data-action="removeItem">X</button> Fix the sink
-						<input type="hidden" name="task[1][_destroy]" value="">
-					</li>
-					<li data-action="toggleSelection">
-						<button type="button" data-action="removeItem">X</button> Cut the grass
-						<input type="hidden" name="task[2][_destroy]" value="">
-					</li>
+				<p class="empty-list" style="display: none;">No tasks were found.</p>
+				<ol class="items">
+					#{render tasks/list with tasks}
 				</ol>
+				<ol class="removed-items" style="display: none;"></ol>
 			</div>
 		</form>
-	</section>
-
-	<!-- client side templates -->
+	</script>
+	<script type="text/html" data-template-name="tasks/list">
+		<li data-action="toggleSelection">
+			#{render tasks/item}
+		</li>
+	</script>
+	<script type="text/html" data-template-name="tasks/item">
+		<button type="button" data-action="removeItem">X</button> #{name}
+		<input type="hidden" name="task[#{guid}][id]" value="#{id}">
+		<input type="hidden" name="task[#{guid}][created_at]" value="#{created_at}">
+		<input type="hidden" name="task[#{guid}][updated_at]" value="#{updated_at}">
+		<input type="hidden" name="task[#{guid}][_destroy]" value="">
+	</script>
 	
 	<!--
 	     When viewing this Demo from a web server, uncomment the following tag to pull the "Create Product"
@@ -129,10 +138,6 @@
 			</p>
 		</form>
 	</script>
-	<script type="text/html" data-template-name="tasks/item">
-		<button type="button" data-action="removeItem">X</button> #{text}
-		<input type="hidden" name="task[#{guid}][_destroy]" value="">
-	</script>
 
 	<!-- Application JavaScript -->
 	<script type="text/javascript" src="../../src/lib/patches/lib/patches.js"></script>
@@ -161,6 +166,7 @@
 	<script type="text/javascript" src="../../src/lib/modules/lib/modules/base.js"></script>
 	<script type="text/javascript" src="../../src/lib/modules/lib/modules/element_cache.js"></script>
 	<script type="text/javascript" src="./js/app/models/products/base.js"></script>
+	<script type="text/javascript" src="./js/app/models/task.js"></script>
 	<script type="text/javascript" src="./js/app/modules/products/create_module.js"></script>
 	<script type="text/javascript" src="./js/app/modules/login_module.js"></script>
 	<script type="text/javascript" src="./js/app/modules/task_list_module.js"></script>

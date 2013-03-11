@@ -16,6 +16,14 @@ Model.Base = Object.extend({
 
 		attributesInitialized: false,
 
+		guidBase: new Date().getTime() + "-" + Math.round(Math.random() * 1000000000),
+
+		guidIndex: 0,
+
+		createGuid: function() {
+			return this.guidBase + "-" + (this.guidIndex++);
+		},
+
 		extend: function(descriptor) {
 			descriptor = descriptor || {};
 			// New class should manage its own instances
@@ -45,6 +53,7 @@ Model.Base = Object.extend({
 		schema: null,
 
 		initialize: function(attributes) {
+			this.guid = this.constructor.createGuid();
 			this._attributes = {};
 			this.previouslyChanged = {};
 			this._changedAttributes = {};

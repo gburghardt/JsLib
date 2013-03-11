@@ -4,6 +4,10 @@ Model.TemplateDataKeys = {
 			if (!this._templateKeys) {
 				var key, keys = [];
 
+				if (this.guid) {
+					keys.push("guid");
+				}
+
 				for (key in this.compiledSchema) {
 					if (this.compiledSchema.hasOwnProperty(key)) {
 						keys.push(key);
