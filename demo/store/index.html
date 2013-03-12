@@ -1,7 +1,9 @@
 <!DOCTYPE HTML>
 <html data-action-domready="createModules">
 <head>
+	<meta charset="utf-8">
 	<title>Demo Store</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 	<style type="text/css">
 		@import "./css/app.css";
 	</style>
@@ -10,38 +12,42 @@
 	<header>
 		<h1>Demo Store</h1>
 	</header>
-	<nav>
-		<ul>
-			<!--
-				Create an instance of products.CreateModule when this button is clicked.
-				The new module gets prepended to the section#main element.
-			-->
-			<li><button data-action-click="createModule"
-			            data-module="products.CreateModule"
-			            data-module-info='{"container": "#main"}'
-			>Create Product</button></li>
-		</ul>
-		<p style="font-size: smaller;">Works in Firefox, Chrome, Safari and IE 10</p>
-		<p style="font-size: smaller;">GitHub: https://github.com/gburghardt/JsLib/tree/modules</p>
-	</nav>
+	<section id="secondary">
+		<nav class="module">
+			<h2 class="module-title">Menu</h2>
+			<div class="module-content">
+			<ul>
+				<!--
+					Create an instance of products.CreateModule when this button is clicked.
+					The new module gets prepended to the section#main element.
+				-->
+				<li><a href="#" data-action-click="createModule" data-module="products.CreateModule" data-module-info='{"container": "#main"}'>Create Product</a></li>
+			</ul>
+			<p style="font-size: smaller;">Works in Firefox, Chrome, Safari and IE 10</p>
+			<p style="font-size: smaller;">GitHub: https://github.com/gburghardt/JsLib/tree/modules</p>
+		</nav>
+	</section>
 	<section id="main">
 		<!--
 			Create an instance of LoginModule on domready.
 		-->
-		<form method="get" action="#" data-action-domready="createModule" data-module="LoginModule" data-action="submit">
-			<p>
-				<label for="login-username">Username:</label>
-				<input type="text" size="30" name="username" id="login-username">
-			</p>
-			<p>
-				<label for="login-password">Password:</label>
-				<input type="password" size="30" name="password" id="login-password">
-			</p>
-			<p>
-				<button type="reset">Cancel</button>
-				<button type="submit">Login</button>
-			</p>
-		</form>
+		<div class="module" data-action-domready="createModule" data-module="LoginModule">
+			<h2 class="module-title">Log In</h2>
+			<form method="get" action="#" data-action="submit" class="module-content">
+				<p>
+					<label for="login-username">Username:</label>
+					<input type="text" size="30" name="username" id="login-username">
+				</p>
+				<p>
+					<label for="login-password">Password:</label>
+					<input type="password" size="30" name="password" id="login-password">
+				</p>
+				<p>
+					<button type="reset">Cancel</button>
+					<button type="submit">Login</button>
+				</p>
+			</form>
+		</div>
 
 		<!--
 			Create a TaskListModule on domready. During TaskListModule#run, an instance of
@@ -56,9 +62,13 @@
 	<!-- client side templates -->
 	
 	<script type="text/html" data-template-name="tasks/form">
-		<form action="#" method="get" data-action="save">
-			<h2>Daily Tasks</h2>
-			<p>Task: <input type="name" size="60" name="name" id="task-text"> <button type="submit">Add</button></p>
+		<h2 class="module-title">Daily Tasks</h2>
+		<form action="#" method="get" data-action="save" class="module-content">
+			<p>
+				<label for="task-text-#{guid}">Task:</label>
+				<input type="text" size="60" name="name" class="task-text-field" id="task-text-#{guid}">
+				<button type="submit">Add Task</button>
+			</p>
 
 			<div class="selectionManager"
 			     data-module-property="selectionManager"
@@ -71,17 +81,19 @@
 						 }
 			     }'
 			>
-				<p>
-					Selected: <span class="selection-manager-counter">0</span> |
-					<button type="button" data-action="selectAll">Select All</button>
-					<button type="button" data-action="deselectAll">Deselect All</button>
-					<button type="button" data-action="removeSelectedItems">Remove Selected</button>
-				</p>
-				<p class="empty-list" style="display: none;">No tasks were found.</p>
-				<ol class="items">
-					#{render tasks/list with tasks}
-				</ol>
-				<ol class="removed-items" style="display: none;"></ol>
+				<div class="module-content">
+					<p>
+						Selected: <span class="selection-manager-counter">0</span> |
+						<button type="button" data-action="selectAll">Select All</button>
+						<button type="button" data-action="deselectAll">Deselect All</button>
+						<button type="button" data-action="removeSelectedItems">Remove Selected</button>
+					</p>
+					<p class="empty-list" style="display: none;">No tasks were found.</p>
+					<ol class="items">
+						#{render tasks/list with tasks}
+					</ol>
+					<ol class="removed-items" style="display: none;"></ol>
+				</div>
 			</div>
 		</form>
 	</script>
@@ -110,32 +122,34 @@
 	-->
 	<script type="text/html" data-template-name="products/create_view">
 		<form action="#" data-action-submit="save" data-action-change="markDirty" method="get">
-			<h2>Create a Product</h2>
+			<h2 class="module-title">Create a Product</h2>
 
-			<p>Note: If running this demo locally, submitting this form will fail because it attempts to make an AJAX request. Run this demo from a web server for best results.</p>
+			<div class="module-content">
+				<p>Note: If running this demo locally, submitting this form will fail because it attempts to make an AJAX request. Run this demo from a web server for best results.</p>
 
-			<p>
-				<label for="product-name-#{guid}">Name:</label>
-				<input type="text" name="name" id="product-name-#{guid}" value="#{name}" size="40">
-			</p>
+				<p>
+					<label for="product-name-#{guid}">Name:</label>
+					<input type="text" name="name" id="product-name-#{guid}" value="#{name}" size="40">
+				</p>
 
-			<p>
-				<label for="product-description-#{guid}">Description:</label><br>
-				<textarea cols="60" rows="12" name="description" id="product-description-#{guid}">#{description}</textarea>
-			</p>
+				<p>
+					<label for="product-description-#{guid}">Description:</label>
+					<textarea cols="60" rows="12" name="description" id="product-description-#{guid}">#{description}</textarea>
+				</p>
 
-			<p>
-				<label for="product-price-#{guid}">Price:</label>
-				<input type="text" name="price" id="product-price-#{guid}" value="#{price}">
-			</p>
+				<p>
+					<label for="product-price-#{guid}">Price:</label>
+					<input type="number" name="price" id="product-price-#{guid}" value="#{price}">
+				</p>
 
-			<p>
-				<input type="hidden" name="id" value="#{id}">
-				<input type="hidden" name="created_at" value="#{created_at}">
-				<input type="hidden" name="updated_at" value="#{updated_at}">
-				<button type="button" data-action="cancel">Cancel</button>
-				<button type="submit">Save</button>
-			</p>
+				<p>
+					<input type="hidden" name="id" value="#{id}">
+					<input type="hidden" name="created_at" value="#{created_at}">
+					<input type="hidden" name="updated_at" value="#{updated_at}">
+					<button type="button" data-action="cancel">Cancel</button>
+					<button type="submit">Save</button>
+				</p>
+			</div>
 		</form>
 	</script>
 

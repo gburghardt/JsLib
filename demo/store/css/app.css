@@ -1,44 +1,77 @@
 body {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12pt;
+	margin: 0;
+	padding: 1em 1em 0 1em;
 }
 header {
-	background-color: #00c;
+	background-color: #444;
+	border-radius: 8px;
 	color: #fff;
-	height: 48px;
-	left: 0;
+	margin-bottom: 1em;
 	padding: 6px .5em;
-	position: fixed;
-	overflow: hidden;
-	right: 0;
-	top: 0;
 }
 header h1 {
 	margin: 0;
 }
+input[type=password],
+input[type=text],
+textarea {
+	max-width: 600px;
+	width: 98%;
+}
+label {
+	display: block;
+}
+.module {
+	background-color: #e0e0e0;
+	border: 1px solid #777;
+	border-radius: 8px;
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+.module-content {
+	padding: 0 1em;
+}
+.module-title {
+	background-color: #444;
+	border-radius: 8px 8px 0 0;
+	color: #fff;
+	font-size: 1em;
+	margin: 0 0 .33em 0;
+	padding: .2em 1em;
+}
+.module-task_list_module button[type="submit"] {
+	display: block;
+	margin: 1em 0;
+}
 nav {
 	background-color: #f0f0f0;
-	bottom: 0;
-	left: 0;
 	padding: .5em;
-	position: fixed;
-	right: 70%;
-	top: 60px;
 }
 nav ul {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 }
+nav ul a {
+	background-color: #00c;
+	border-radius: 8px;
+	color: #fff;
+	display: block;
+	margin-bottom: .5em;
+	padding: .2em .5em;
+	text-decoration: none;
+}
+section#secondary {
+	float: left;
+	width: 30%;
+}
+section#secondary .module {
+	margin-right: 1em;
+}
 section#main {
-	border-left: 1px solid #000;
-	bottom: 0;
-	left: 30%;
-	padding: .67em;
-	position: fixed;
-	overflow: auto;
-	right: 0;
-	top: 60px;
+	margin-left: 30%;
 }
 .selected {
 	background-color: #FDFFCF;
@@ -52,10 +85,31 @@ section#main {
 .selectionManager ol > li {
 	margin: .33em 0;
 }
-.module {
-	border-bottom: 1px solid #000;
-}
 .view-loading {
 	background: transparent url(../images/ajax-spinner.gif) no-repeat scroll center center;
 	min-height: 100px;
+}
+
+@media screen and (max-width: 800px) {
+	button,
+	input[type=text],
+	input[type=password],
+	input[type=number],
+	nav ul a,
+	textarea {
+		font-size: 1.5em;
+	}
+	nav ul a {
+		padding: .5em 1em;
+	}
+	section#secondary {
+		float: none;
+		width: auto;
+	}
+	section#secondary .module {
+		margin-right: 0;
+	}
+	section#main {
+		margin-left: 0;
+	}
 }

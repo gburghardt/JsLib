@@ -7,7 +7,7 @@ TaskListModule = Modules.Base.extend({
 		},
 
 		elements: {
-			taskField: "#task-text"
+			taskField: ".task-text-field"
 		},
 
 		selectionManager: null,
