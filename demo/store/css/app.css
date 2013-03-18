@@ -41,9 +41,8 @@ label {
 	margin: 0 0 .33em 0;
 	padding: .2em 1em;
 }
-.module-task_list_module button[type="submit"] {
-	display: block;
-	margin: 1em 0;
+.module-task_list_module .task-create_form-container button[type="button"] {
+	display: none;
 }
 nav {
 	background-color: #f0f0f0;
@@ -90,14 +89,22 @@ section#main {
 	min-height: 100px;
 }
 
+.module-task_list_module li {
+	line-height: 1.5em;
+}
+
+.module-task_list_module li button {
+	margin-left: .33em;
+	float: right;
+}
+
 @media screen and (max-width: 800px) {
-	button,
 	input[type=text],
 	input[type=password],
 	input[type=number],
 	nav ul a,
 	textarea {
-		font-size: 1.5em;
+		padding: .5em 0;
 	}
 	nav ul a {
 		padding: .5em 1em;

@@ -33,15 +33,16 @@ products.CreateModule = Modules.Base.extend({
 			event.stop();
 
 			console.info("products.CreateModule#save - Save the new product!");
-			this.product.attributes = this.view.getFormData();
+			var data = this.view.getFormData();
+			this.product.attributes = data.product;
 			this.view.toggleLoading(true);
 
 			// TODO: The model should make this Ajax call
 			var xhr = new XMLHttpRequest(), that = this;
 			xhr.onreadystatechange = function() {
 				if (this.readyState === 4 && this.status === 200) {
-					var data = eval("(" + this.responseText + ")");
-					that.product.attributes = data.product;
+					var responseData = eval("(" + this.responseText + ")");
+					that.product.attributes = responseData.product;
 					console.info("Finished saving product", that.product);
 					that.destructor();
 					that = data = xhr = null;

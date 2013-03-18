@@ -210,11 +210,49 @@ describe("Views", function() {
 			it("returns an empty object when no form fields exist", function() {
 				this.form.innerHTML = '<p>Non form fields only</p>';
 				var data = this.formView.getFormData();
+				expect(data).toEqual({});
 			});
 
-			xit("returns an object of form field names and values as strings");
+			it("returns an object of form field names and values as strings", function() {
+				this.form.innerHTML = [
+					'<input type="text" name="title" value="Test">',
+					'<input type="hidden" name="id" value="1234">',
+					'<select name="color">',
+						'<option value="red" selected>Red</option>',
+						'<option value="green">Green</option>',
+					'</select>'
+				].join("");
+				var data = this.formView.getFormData();
+
+				expect(data.title).toEqual("Test");
+				expect(data.id).toEqual("1234");
+				expect(data.color).toEqual("red");
+			});
 		});
 
+		it("returns a multidimensional object if field names use brackets", function() {
+			this.form.innerHTML = [
+				'<input type="text" name="product[title]" value="Test">',
+				'<input type="text" name="product[features][0][id]" value="3">',
+				'<input type="text" name="product[features][0][name]" value="color">',
+				'<input type="text" name="product[features][0][value]" value="Red">',
+				'<input type="text" name="product[price][retail]" value="12.99">',
+				'<input type="text" name="product[price][wholesale]" value="4.5">'
+			].join("");
+
+			var data = this.formView.getFormData();
+
+			expect(data.product).toBeObject();
+			expect(data.product.title).toEqual("Test");
+			expect(data.product.features).toBeObject();
+			expect(data.product.features["0"]).toBeObject();
+			expect(data.product.features["0"].id).toEqual("3");
+			expect(data.product.features["0"].name).toEqual("color");
+			expect(data.product.features["0"].value).toEqual("Red");
+			expect(data.product.price).toBeObject();
+			expect(data.product.price.retail).toEqual("12.99");
+			expect(data.product.price.wholesale).toEqual("4.5");
+		});
 	});
 
 });

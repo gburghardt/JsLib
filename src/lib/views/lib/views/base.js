@@ -85,13 +85,18 @@ Views.Base = Object.extend({
 			return '<div class="view-loading"></div><div class="view-content"></div>';
 		},
 
-		render: function(model) {
+		render: function(model, context, callback) {
 			this.toggleLoading(true);
 
 			Template.fetch(this.templateName, this, function(template) {
 				this.model = model;
 				this.querySelector(".view-content").innerHTML = template.render(this.model);
 				this.toggleLoading(false);
+
+				if (callback) {
+					callback.call(context, this, template);
+				}
+
 				template = null;
 			});
 

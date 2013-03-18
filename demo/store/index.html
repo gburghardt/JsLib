@@ -61,15 +61,15 @@
 
 	<!-- client side templates -->
 	
-	<script type="text/html" data-template-name="tasks/form">
+	<script type="text/html" data-template-name="tasks/index">
 		<h2 class="module-title">Daily Tasks</h2>
-		<form action="#" method="get" data-action="save" class="module-content">
-			<p>
-				<label for="task-text-#{guid}">Task:</label>
-				<input type="text" size="60" name="name" class="task-text-field" id="task-text-#{guid}">
-				<button type="submit">Add Task</button>
-			</p>
-
+		<div class="module-content task-create_form-container">
+			#{render tasks/create_form with task}
+		</div>
+		<div class="module-content task-update_form-container" style="display: none;">
+			#{render tasks/update_form with task}
+		</div>
+		<div class="module-content">
 			<div class="selectionManager"
 			     data-module-property="selectionManager"
 			     data-module="SelectionManagerModule"
@@ -95,19 +95,45 @@
 					<ol class="removed-items" style="display: none;"></ol>
 				</div>
 			</div>
+		</div>
+	</script>
+	<script type="text/html" data-template-name="tasks/create_form">
+		<form action="#" method="get" data-action="create">
+			#{render tasks/form_fields}
 		</form>
 	</script>
+	<script type="text/html" data-template-name="tasks/update_form">
+		<form action="#" method="get" data-action="update">
+			#{render tasks/form_fields}
+		</form>
+	</script>
+	<script type="text/html" data-template-name="tasks/form_fields">
+		<p class="task-form">
+			<label for="task-text-#{guid}">Task:</label>
+			<input type="text" size="60" name="task[name]" class="task-text-field" id="task-text-#{guid}" value="#{name}">
+			<input type="hidden" name="task[id]" value="#{id}">
+			<input type="hidden" name="task[created_at]" value="#{created_at}">
+			<input type="hidden" name="task[updated_at]" value="#{updated_at}">
+		</p>
+		<p>
+			<button type="button" data-action="cancel">Cancel</button>
+			<button type="submit">Save Task</button>
+		</p>
+	</script>
 	<script type="text/html" data-template-name="tasks/list">
-		<li data-action="toggleSelection">
+		<li data-action="toggleSelection" data-selection-item-id="#{id}">
 			#{render tasks/item}
 		</li>
 	</script>
 	<script type="text/html" data-template-name="tasks/item">
-		<button type="button" data-action="removeItem">X</button> #{name}
-		<input type="hidden" name="task[#{guid}][id]" value="#{id}">
-		<input type="hidden" name="task[#{guid}][created_at]" value="#{created_at}">
-		<input type="hidden" name="task[#{guid}][updated_at]" value="#{updated_at}">
-		<input type="hidden" name="task[#{guid}][_destroy]" value="">
+		<button type="button" data-action="edit" data-actionparams='{"key":"#{guid}"}'>Edit</button>
+		<button type="button" data-action="removeItem">X</button>
+		<span class="task-name">#{name}</span>
+		<input type="hidden" name="tasks[#{guid}][id]" value="#{id}">
+		<input type="hidden" name="tasks[#{guid}][name]" value="#{name}">
+		<input type="hidden" name="tasks[#{guid}][created_at]" value="#{created_at}">
+		<input type="hidden" name="tasks[#{guid}][updated_at]" value="#{updated_at}">
+		<input type="hidden" name="tasks[#{guid}][_destroy]" value="">
 	</script>
 	
 	<!--
@@ -129,23 +155,23 @@
 
 				<p>
 					<label for="product-name-#{guid}">Name:</label>
-					<input type="text" name="name" id="product-name-#{guid}" value="#{name}" size="40">
+					<input type="text" name="product[name]" id="product-name-#{guid}" value="#{name}" size="40">
 				</p>
 
 				<p>
 					<label for="product-description-#{guid}">Description:</label>
-					<textarea cols="60" rows="12" name="description" id="product-description-#{guid}">#{description}</textarea>
+					<textarea cols="60" rows="12" name="product[description]" id="product-description-#{guid}">#{description}</textarea>
 				</p>
 
 				<p>
 					<label for="product-price-#{guid}">Price:</label>
-					<input type="number" name="price" id="product-price-#{guid}" value="#{price}">
+					<input type="number" name="product[price]" id="product-price-#{guid}" value="#{price}">
 				</p>
 
 				<p>
-					<input type="hidden" name="id" value="#{id}">
-					<input type="hidden" name="created_at" value="#{created_at}">
-					<input type="hidden" name="updated_at" value="#{updated_at}">
+					<input type="hidden" name="product[id]" value="#{id}">
+					<input type="hidden" name="product[created_at]" value="#{created_at}">
+					<input type="hidden" name="product[updated_at]" value="#{updated_at}">
 					<button type="button" data-action="cancel">Cancel</button>
 					<button type="submit">Save</button>
 				</p>

@@ -6,16 +6,14 @@ Views.Forms = {
 
 		model: null,
 
-		getFormData: function(fromCache) {
+		getFormData: function(element, fromCache) {
+			element = element || this.element;
+
 			if (!fromCache || !this.currentData) {
-				var inputs = this.element.getElementsByTagName("input");
-				var selects = this.element.getElementsByTagName("select");
-				var textareas = this.element.getElementsByTagName("textarea");
+				var controls = element.querySelectorAll("input,select,textarea");
 
 				this.currentData = {};
-				this.extractFormControlsData(inputs, this.currentData);
-				this.extractFormControlsData(selects, this.currentData);
-				this.extractFormControlsData(textareas, this.currentData);
+				this.extractFormControlsData(controls, this.currentData);
 
 				inputs = selects = textareas = null;
 			}
@@ -83,21 +81,13 @@ Views.Forms = {
 
 			for (i; i < length; i++) {
 				name = controls[i].name;
-				value = this.extractControlValue(controls[i]);
 
-				if (value === null) {
-					continue;
-				}
-				else if (data.hasOwnProperty(name)) {
-					if (data[name] instanceof Array) {
-						data[name].push(value);
+				if (controls[i].name) {
+					value = this.extractControlValue(controls[i]);
+
+					if (value !== null) {
+						data = this.setDataValue(data, name, value);
 					}
-					else {
-						data[name] = [data[name], value];
-					}
-				}
-				else {
-					data[name] = value;
 				}
 			}
 
@@ -133,6 +123,28 @@ Views.Forms = {
 			}
 
 			errorElements = formErrorElement = null;
+		},
+
+		setDataValue: function(data, name, value) {
+			var keys = name.replace(/\]$/, "").split(/[\[\].]+/g);
+			var i = 0, length = keys.length - 1, key;
+			var currentData = data;
+
+			for (i; i < length; i++) {
+				key = keys[i];
+
+				if (!currentData.hasOwnProperty(key)) {
+					currentData[key] = {};
+				}
+
+				currentData = currentData[key];
+			}
+
+			key = keys[i];
+
+			currentData[key] = value;
+
+			return data;
 		},
 
 		setFieldErrors: function(errors) {

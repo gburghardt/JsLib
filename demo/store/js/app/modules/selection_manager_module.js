@@ -50,6 +50,23 @@ SelectionManagerModule = Modules.Base.extend({
 			this.notify("selectionSizeChanged");
 		},
 
+		getItemElementById: function(id) {
+			id = String(id);
+			var items = this.getItems(), i = 0, length = items.length;
+			var item = null;
+
+			for (i; i < length; i++) {
+				if (id === items[i].getAttribute("data-selection-item-id")) {
+					item = items[i];
+					break;
+				}
+			}
+
+			items = null;
+
+			return item;
+		},
+
 		getItems: function() {
 			return this.listElement.getElementsByTagName("li");
 		},

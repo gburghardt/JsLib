@@ -184,13 +184,13 @@ Modules.Base = Object.extend({
 			return module;
 		},
 
-		render: function(templateName, context) {
+		render: function(templateName, data, context, callback) {
 			if (!this.view) {
 				this.view = Views.Base.getInstance(this.element, templateName);
 			}
 
 			this.view.templateName = templateName;
-			this.view.render(context);
+			this.view.render(data, context, callback);
 		},
 
 		run: function() {
