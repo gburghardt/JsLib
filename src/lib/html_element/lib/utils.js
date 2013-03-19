@@ -1,7 +1,7 @@
 (function() {
 	var idIndex = 0;
 
-	HTMLElement.Adaptors = {
+	HTMLElement.Utils = {
 
 		self: {
 
@@ -45,5 +45,4 @@
 })();
 
 // HTMLElement is a special object which is not instantiable, but has a prototype.
-Function.prototype.include.call(HTMLElement, HTMLElement.Adaptors);
-document.querySelector = document.querySelector || HTMLElement.Adaptors.querySelector;
+Function.prototype.include.call(HTMLElement, HTMLElement.Utils);
