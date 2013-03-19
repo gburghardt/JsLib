@@ -1,3 +1,0 @@
-CollectionOperation = SubOperation.extend({
-	
-});
