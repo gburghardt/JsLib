@@ -2,20 +2,27 @@
 	var idIndex = 0;
 
 	HTMLElement.Adaptors = {
+
 		self: {
+
 			include: function(mixin) {
 				Function.prototype.include.call(this, mixin);
 			}
+
 		},
+
 		prototype: {
+
 			addClass: function(className) {
 				if (!this.hasClass(className)) {
 					this.className += " " + className;
 				}
 			},
+
 			hasClass: function(className) {
 				return new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)").test(this.className);
 			},
+
 			identify: function() {
 				if (!this.id) {
 					this.id = this.getAttribute("id") || 'anonoymous-' + this.nodeName.toLowerCase() + '-' + (idIndex++);
@@ -24,16 +31,16 @@
 
 				return this.id;
 			},
-			querySelector: function(selector) {
-				return this.querySelectorAll(selector)[0] || null;
-			},
+
 			removeClass: function(className) {
 				// TODO: Fix this
 				if (this.hasClass(className)) {
 					this.className = this.className.replace(new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)"), "");
 				}
 			}
+
 		}
+
 	};
 })();
 
