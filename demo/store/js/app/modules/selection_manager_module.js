@@ -98,7 +98,7 @@ SelectionManagerModule = Modules.Base.extend({
 
 		removeItem: function(event, element, params) {
 			event.stop();
-			var item = element.parentNode;
+			var item = element.getParentByTagName("li");
 
 			if (confirm(this.options.confirmRemoveMessage) && this.notify("beforeRemoveItem", {item: item}) !== false) {
 				if (this.removeItemFromList(item)) {
