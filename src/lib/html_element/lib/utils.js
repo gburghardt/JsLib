@@ -13,10 +13,28 @@
 
 		prototype: {
 
-			addClass: function(className) {
-				if (!this.hasClass(className)) {
-					this.className += " " + className;
+			addClassName: function(className) {
+				if (!this.hasClassName(className)) {
+					this.className += (this.className) ? " " + className : className;
 				}
+			},
+
+			getParentByClassName: function(className) {
+				var parent = null;
+				var currentElement = this;
+
+				while (currentElement.parentNode) {
+					currentElement = currentElement.parentNode;
+
+					if (currentElement.hasClassName(className)) {
+						parent = currentElement;
+						break;
+					}
+				}
+
+				currentElement = null;
+
+				return parent;
 			},
 
 			getParentByTagName: function(tagName) {
@@ -43,8 +61,24 @@
 				return parent;
 			},
 
+			getParentsByClassName: function(className) {
+				var parents = new HTMLArray(), node = this;
+
+				while (node.parentNode) {
+					node = node.parentNode;
+
+					if (node.hasClassName(className)) {
+						parents.push(node);
+					}
+				}
+
+				parents.freeze();
+
+				return parents;
+			},
+
 			getParentsByTagName: function(tagName) {
-				var parents = [], node = this;
+				var parents = new HTMLArray(), node = this;
 				tagName = tagName.toUpperCase();
 
 				if (tagName === "*") {
@@ -63,10 +97,12 @@
 					}
 				}
 
+				parents.freeze();
+
 				return parents;
 			},
 
-			hasClass: function(className) {
+			hasClassName: function(className) {
 				return new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)").test(this.className);
 			},
 
@@ -79,9 +115,9 @@
 				return this.id;
 			},
 
-			removeClass: function(className) {
+			removeClassName: function(className) {
 				// TODO: Fix this
-				if (this.hasClass(className)) {
+				if (this.hasClassName(className)) {
 					this.className = this.className.replace(new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)"), "");
 				}
 			}
