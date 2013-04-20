@@ -97,7 +97,7 @@ HTMLElementCollections.Utils = {
 			var nodes = null, collection = new HTMLArray();
 
 			for (var i = 0, length = this.length; i < length; i++) {
-				nodes = this[i].getParentsByClassName(tagName);
+				nodes = this[i].getParentsByClassName(className);
 
 				if (nodes.length) {
 					collection.push.apply(collection, nodes);
@@ -112,6 +112,7 @@ HTMLElementCollections.Utils = {
 		},
 
 		getParentsByTagName: function(tagName) {
+			var now = new Date().getTime();
 			var nodes = null, collection = new HTMLArray();
 
 			for (var i = 0, length = this.length; i < length; i++) {
@@ -129,7 +130,9 @@ HTMLElementCollections.Utils = {
 			return collection;
 		},
 
-		set innerHTML(html) {
+		setInnerHTML: function(html) {
+			html = (html === undefined) ? "" : html;
+
 			for (var i = 0, length = this.length; i < length; i++) {
 				this[i].innerHTML = html;
 			}
@@ -164,22 +167,17 @@ HTMLElementCollections.Utils = {
 		},
 
 		querySelector: function(selector) {
-			var node = null, collection = new HTMLArray();
+			var node = null;
 
 			for (var i = 0, length = this.length; i < length; i++) {
 				node = this[i].querySelector(selector);
 
 				if (node) {
-					collection.push(node);
 					break;
 				}
 			}
 
-			collection.freeze();
-
-			node = null;
-
-			return collection;
+			return node || null;
 		},
 
 		querySelectorAll: function(selector) {

@@ -91,6 +91,8 @@
 
 			function execJasmine() {
 				jasmineEnv.execute();
+				document.querySelector(".jasmine_reporter").className += " show-passed";
+				document.getElementById("__jasmine_TrivialReporter_showPassed__").checked = true;
 			}
 
 		})();

@@ -64,6 +64,11 @@ describe("HTMLArray", function() {
 			}).toThrowError();
 		});
 
+		it("does not add duplicates", function() {
+			this.collection.push(this.div);
+			this.collection.push(this.div);
+			expect(this.collection.length).toEqual(1);
+		});
 	});
 
 	describe("pop", function() {
