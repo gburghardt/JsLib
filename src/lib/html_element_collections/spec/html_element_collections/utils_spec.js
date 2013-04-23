@@ -459,9 +459,48 @@ describe("HTMLElementCollections", function() {
 			});
 		});
 
-		describe("querySelectorAll", function() {});
+		describe("querySelectorAll", function() {
+			beforeEach(function() {
+				this.elements = new TestCollection();
+				this.elements.push(document.createElement("div"), document.createElement("li"));
+				this.elements[0].innerHTML = '<span><span></span></span>';
+				this.elements.push(this.elements[0].firstChild);
+				this.elements[1].innerHTML = '<span><strong></strong></span>';
+			});
 
-		describe("setAttribute", function() {});
+			it("returns an empty HTMLArray if there are no matches", function() {
+				var matches = this.elements.querySelectorAll("em.foo");
+
+				expect(matches).toBeInstanceof(HTMLArray);
+				expect(matches.length).toEqual(0);
+			});
+
+			it("returns an HTMLArray of all matched elements", function() {
+				var matches = this.elements.querySelectorAll("span");
+
+				expect(matches.length).toEqual(3);
+			});
+		});
+
+		describe("setAttribute", function() {
+			beforeEach(function() {
+				this.elements = new TestCollection();
+				this.elements.push(document.createElement("div"), document.createElement("p"));
+				this.elements.forEach(function(element) {
+					spyOn(element, "setAttribute").andCallThrough();
+				});
+			});
+
+			it("Sets the attribute on all matched elements", function() {
+				this.elements.setAttribute("data-test", "test");
+
+				expect(this.elements[0].setAttribute).wasCalledWith("data-test", "test");
+				expect(this.elements[0].getAttribute("data-test")).toEqual("test");
+				expect(this.elements[1].setAttribute).wasCalledWith("data-test", "test");
+
+				expect(this.elements[1].getAttribute("data-test")).toEqual("test");
+			});
+		});
 
 	});
 
