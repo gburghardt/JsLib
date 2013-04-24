@@ -2,7 +2,34 @@ describe("HTMLElement", function() {
 
 	describe("Utils", function() {
 
-		describe("addClassName", function() {});
+		describe("addClassName", function() {
+			beforeEach(function() {
+				this.element = document.createElement("div");
+			});
+
+			it("adds a class to an empty class name", function() {
+				this.element.addClassName("foo");
+				expect(this.element.className).toEqual("foo");
+			});
+
+			it("adds the class to the end if it does not exist", function() {
+				this.element.setAttribute("class", "foo bar");
+				this.element.addClassName("testing");
+				expect(this.element.className).toEqual("foo bar testing");
+			});
+
+			it("does not add the class if it already exists", function() {
+				this.element.setAttribute("class", "foo bar");
+				this.element.addClassName("bar");
+				expect(this.element.className).toEqual("foo bar");
+			});
+
+			it("adds the class if it is a partial match", function() {
+				this.element.setAttribute("class", "foobar");
+				this.element.addClassName("foo");
+				expect(this.element.className).toEqual("foobar foo");
+			});
+		});
 
 		describe("getParentByTagName", function() {
 
