@@ -43,7 +43,7 @@ SelectionManagerModule = Modules.Base.extend({
 			var items = this.getItems(), i = 0, length = items.length;
 
 			for (i; i < length; i++) {
-				items[i].removeClass(this.options.selectedClass);
+				items[i].removeClassName(this.options.selectedClass);
 			}
 
 			this.selectionSize = 0;
@@ -77,7 +77,7 @@ SelectionManagerModule = Modules.Base.extend({
 			var items = this.getItems(), i = 0, length = items.length;
 
 			for (i; i < length; i++) {
-				items[i].addClass(this.options.selectedClass);
+				items[i].addClassName(this.options.selectedClass);
 			}
 
 			this.selectionSize = items.length;
@@ -149,12 +149,12 @@ SelectionManagerModule = Modules.Base.extend({
 		toggleSelection: function(event, element, params) {
 			event.preventDefault();
 
-			if (element.hasClass(this.options.selectedClass)) {
-				element.removeClass(this.options.selectedClass);
+			if (element.hasClassName(this.options.selectedClass)) {
+				element.removeClassName(this.options.selectedClass);
 				this.selectionSize--;
 			}
 			else {
-				element.addClass(this.options.selectedClass);
+				element.addClassName(this.options.selectedClass);
 				this.selectionSize++;
 			}
 
@@ -173,7 +173,7 @@ SelectionManagerModule = Modules.Base.extend({
 				this.removeItemFromDocumentTree(item);
 			}
 
-			if (item.hasClass(this.options.selectedClass)) {
+			if (item.hasClassName(this.options.selectedClass)) {
 				this.selectionSize--;
 				selectionSizeChanged = true;
 			}

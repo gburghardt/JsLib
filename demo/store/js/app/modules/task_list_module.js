@@ -85,8 +85,8 @@ TaskListModule = Modules.Base.extend({
 
 			this.selectionManager.renderNewItem(task, this, function(newItem) {
 				newItem.setAttribute("data-selection-item-id", task.id);
-				this.taskField.value = "";
-				this.taskField.focus();
+				this.createTaskField.value = "";
+				this.createTaskField.focus();
 				this.tasks.push(task);
 
 				newItem = null;
