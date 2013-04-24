@@ -115,8 +115,15 @@
 				return this.id;
 			},
 
-			insertAfter: function(referenceNode, newNode) {
-				throw new Error("Please implement HTMLElement#insertAfter");
+			insertAfter: function(newNode, referenceNode) {
+				if (referenceNode.nextSibling) {
+					this.insertBefore(newNode, referenceNode.nextSibling);
+				}
+				else {
+					this.appendChild(newNode);
+				}
+
+				newNode = referenceNode = null;
 			},
 
 			removeClassName: function(className) {

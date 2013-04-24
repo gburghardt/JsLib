@@ -133,6 +133,30 @@ describe("HTMLElement", function() {
 			});
 		});
 
+		describe("insertAfter", function() {
+			beforeEach(function() {
+				this.element = document.createElement("div");
+			});
+
+			it("inserts the new element after the reference element's nextSibling", function() {
+				this.element.appendChild(document.createElement("p"));
+				this.element.appendChild(document.createElement("span"));
+				this.element.insertAfter(document.createElement("strong"), this.element.getElementsByTagName("p")[0]);
+
+				expect(this.element.childNodes[0].nodeName).toEqual("P");
+				expect(this.element.childNodes[1].nodeName).toEqual("STRONG");
+				expect(this.element.childNodes[2].nodeName).toEqual("SPAN");
+			});
+
+			it("appends the new element if the reference element has no nextSibling", function() {
+				this.element.appendChild(document.createElement("p"));
+				this.element.insertAfter(document.createElement("strong"), this.element.getElementsByTagName("p")[0]);
+
+				expect(this.element.childNodes[0].nodeName).toEqual("P");
+				expect(this.element.childNodes[1].nodeName).toEqual("STRONG");
+			});
+		});
+
 		describe("removeClassName", function() {
 			beforeEach(function() {
 				this.element = document.createElement("div");
