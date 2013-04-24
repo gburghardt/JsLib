@@ -120,8 +120,18 @@
 				if (this.hasClassName(className)) {
 					this.className = this.className.replace(new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)"), "");
 				}
-			}
+			},
 
+			replaceClassName: function(findClass, replaceClass) {
+				var findRegex = new RegExp("(^|\\s+)(" + findClass + ")(\\s+|$)", "g");
+
+				if (findRegex.test(this.className)) {
+					this.className = this.className.replace(findRegex, "$1" + replaceClass + "$3");
+				}
+				else {
+					this.addClassName(replaceClass);
+				}
+			}
 		}
 
 	};

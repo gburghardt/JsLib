@@ -2,6 +2,8 @@ describe("HTMLElement", function() {
 
 	describe("Utils", function() {
 
+		describe("addClassName", function() {});
+
 		describe("getParentByTagName", function() {
 
 			beforeEach(function() {
@@ -67,6 +69,51 @@ describe("HTMLElement", function() {
 				expect(parents.length).toEqual(0);
 			});
 
+		});
+
+		describe("removeClassName", function() {});
+
+		describe("replaceClassName", function() {
+			beforeEach(function() {
+				this.element = document.createElement("div");
+			});
+
+			it("adds the class if it doesn't exist", function() {
+				this.element.replaceClassName("a", "b");
+				expect(this.element.className).toEqual("b");
+			});
+
+			it("replaces the class when it is the only class", function() {
+				this.element.setAttribute("class", "a");
+				this.element.replaceClassName("a", "b");
+				expect(this.element.className).toEqual("b");
+			});
+
+			it("replaces the class when it occurs at the beginning", function() {
+				this.element.setAttribute("class", "a c d");
+				this.element.replaceClassName("a", "b");
+				expect(this.element.className).toEqual("b c d");
+			});
+
+			it("replaces the class when it occurs at the end", function() {
+				this.element.setAttribute("class", "c d a");
+				this.element.replaceClassName("a", "e");
+				expect(this.element.className).toEqual("c d e");
+			});
+
+			it("replaces the class when it occurs in the middle", function() {
+				this.element.setAttribute("class", "a e c");
+				this.element.replaceClassName("e", "b");
+				expect(this.element.className).toEqual("a b c");
+			});
+
+			it("does not replace the class for a partial match", function() {
+				this.element.setAttribute("class", "testing blueberry");
+				this.element.replaceClassName("test", "foo");
+				expect(this.element.className).toEqual("testing blueberry foo");
+				this.element.replaceClassName("blue", "rasp");
+				expect(this.element.className).toEqual("testing blueberry foo rasp");
+			});
 		});
 
 	});
