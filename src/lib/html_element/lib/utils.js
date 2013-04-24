@@ -103,7 +103,7 @@
 			},
 
 			hasClassName: function(className) {
-				return new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)").test(this.className);
+				return new RegExp("(^\\s*|\\s+)" + className + "(\\s+|\\s*$)").test(this.className);
 			},
 
 			identify: function() {
@@ -123,7 +123,7 @@
 			},
 
 			replaceClassName: function(findClass, replaceClass) {
-				var findRegex = new RegExp("(^|\\s+)(" + findClass + ")(\\s+|$)", "g");
+				var findRegex = new RegExp("(^\\s*|\\s+)(" + findClass + ")(\\s+|\\s*$)", "g");
 
 				if (findRegex.test(this.className)) {
 					this.className = this.className.replace(findRegex, "$1" + replaceClass + "$3");

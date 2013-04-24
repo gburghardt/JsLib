@@ -71,6 +71,41 @@ describe("HTMLElement", function() {
 
 		});
 
+		describe("hasClassName", function() {
+			beforeEach(function() {
+				this.element = document.createElement("div");
+			});
+
+			it("returns false if the class does not exist", function() {
+				expect(this.element.hasClassName("testing")).toBeFalse();
+			});
+
+			it("returns true if the class is the only class", function() {
+				this.element.setAttribute("class", "testing");
+				expect(this.element.hasClassName("testing")).toBeTrue();
+			});
+
+			it("returns true if the class occurs at the beginning", function() {
+				this.element.setAttribute("class", "foo bar");
+				expect(this.element.hasClassName("foo")).toBeTrue();
+			});
+
+			it("returns true if the class occurs in the middle", function() {
+				this.element.setAttribute("class", "testing foo bar");
+				expect(this.element.hasClassName("foo")).toBeTrue();
+			});
+
+			it("returns true if the class occurs at the end", function() {
+				this.element.setAttribute("class", "testing foo bar");
+				expect(this.element.hasClassName("bar")).toBeTrue();
+			});
+
+			it("returns false when the class is a partial match", function() {
+				this.element.setAttribute("class", "foo testing bar");
+				expect(this.element.hasClassName("test")).toBeFalse();
+			});
+		});
+
 		describe("removeClassName", function() {});
 
 		describe("replaceClassName", function() {
