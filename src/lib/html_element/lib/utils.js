@@ -115,10 +115,16 @@
 				return this.id;
 			},
 
+			insertAfter: function(referenceNode, newNode) {
+				throw new Error("Please implement HTMLElement#insertAfter");
+			},
+
 			removeClassName: function(className) {
-				// TODO: Fix this
 				if (this.hasClassName(className)) {
-					this.className = this.className.replace(new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)"), "");
+					this.className = this.className
+						.replace(new RegExp("(^\\s*|\\s*)" + className + "(\\s*|\\s*$)", "g"), "$1$2")
+						.replace(/\s+/g, " ")
+						.replace(/^\s+|\s+$/g, "");
 				}
 			},
 

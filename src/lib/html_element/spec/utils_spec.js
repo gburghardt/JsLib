@@ -133,7 +133,52 @@ describe("HTMLElement", function() {
 			});
 		});
 
-		describe("removeClassName", function() {});
+		describe("removeClassName", function() {
+			beforeEach(function() {
+				this.element = document.createElement("div");
+			});
+
+			it("does nothing if the class name is empty", function() {
+				this.element.removeClassName("testing");
+				expect(this.element.className).toEqual("");
+			});
+
+			it("removes the class if it is the only class name", function() {
+				this.element.setAttribute("class", "testing");
+				this.element.removeClassName("testing");
+				expect(this.element.className).toEqual("");
+			});
+
+			it("removes the class when it occurs at the beginning", function() {
+				this.element.setAttribute("class", "testing foo");
+				this.element.removeClassName("testing");
+				expect(this.element.className).toEqual("foo");
+			});
+
+			it("removes the class when it occurs at the end", function() {
+				this.element.setAttribute("class", "foo testing");
+				this.element.removeClassName("testing");
+				expect(this.element.className).toEqual("foo");
+			});
+
+			it("removes the class when it occurs in the middle", function() {
+				this.element.setAttribute("class", "foo testing bar");
+				this.element.removeClassName("testing");
+				expect(this.element.className).toEqual("foo bar");
+			});
+
+			it("removes multiple occurences of the same class name", function() {
+				this.element.setAttribute("class", "foo testing bar testing blah");
+				this.element.removeClassName("testing");
+				expect(this.element.className).toEqual("foo bar blah");
+			});
+
+			it("does not remove the class if it is a partial match", function() {
+				this.element.setAttribute("class", "bar testing foo");
+				this.element.removeAttribute("test");
+				expect(this.element.className).toEqual("bar testing foo");
+			});
+		});
 
 		describe("replaceClassName", function() {
 			beforeEach(function() {
