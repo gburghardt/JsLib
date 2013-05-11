@@ -31,6 +31,87 @@ describe("HTMLElement", function() {
 			});
 		});
 
+		describe("appendHTML", function() {
+			beforeEach(function() {
+				this.element = document.createElement("div");
+			});
+
+			it("appends new nodes as HTML and returns an HTMLArray of those new nodes", function() {
+				var html = '<div></div><p></p>';
+				var nodes = this.element.appendHTML(html);
+
+				expect(this.element.childNodes.length).toEqual(2);
+				expect(nodes).toBeInstanceof(HTMLArray);
+				expect(nodes.length).toEqual(2);
+				expect(nodes[0]).toStrictlyEqual(this.element.childNodes[0]);
+				expect(nodes[1]).toStrictlyEqual(this.element.childNodes[1]);
+			});
+
+			it("appends nothing and returns an empty HTMLArray if the HTML is blank", function() {
+				var html = '   	';
+				var nodes = this.element.appendHTML(html);
+
+				expect(this.element.childNodes.length).toEqual(0);
+				expect(nodes).toBeInstanceof(HTMLArray);
+				expect(nodes.length).toEqual(0);
+			});
+		});
+
+		describe("getData", function() {
+
+			beforeEach(function() {
+				this.div = document.createElement("div");
+			});
+
+			it("throws an error if no key is provided", function() {
+				expect(function() {
+					this.div.getData();
+				}).toThrowError();
+
+				expect(function() {
+					this.div.getData("");
+				}).toThrowError();
+
+				expect(function() {
+					this.div.getData(null);
+				}).toThrowError();
+
+				expect(function() {
+					this.div.getData(undefined);
+				}).toThrowError();
+			});
+
+			it("returns null if the attribute does not exist", function() {
+				expect(this.div.getAttribute("data-testing")).toBeNull();
+				expect(this.div.getData("testing")).toBeNull();
+			});
+
+			it("returns null if there is invalid JSON", function() {
+				this.div.setAttribute("data-testing", "I am invalid {JSON!");
+				expect(this.div.getData("testing")).toBeNull();
+			});
+
+			it("returns the value of a JavaScript primative", function() {
+				this.div.setAttribute("data-testing", 1);
+				expect(this.div.getData("testing")).toEqual(1);
+
+				this.div.setAttribute("data-testing", true);
+				expect(this.div.getData("testing")).toBeTrue();
+
+				this.div.setAttribute("data-testing", false);
+				expect(this.div.getData("testing")).toBeFalse();
+
+				this.div.setAttribute("data-testing", null);
+				expect(this.div.getData("testing")).toBeNull();
+			});
+
+			it("returns the parsed JSON as an object", function() {
+				this.div.setAttribute("data-testing", '{"foo":"bar"}');
+				expect(this.div.getData("testing")).toEqual({foo: "bar"});
+			});
+
+		});
+
 		describe("getParentByTagName", function() {
 
 			beforeEach(function() {
@@ -245,6 +326,77 @@ describe("HTMLElement", function() {
 				this.element.replaceClassName("blue", "rasp");
 				expect(this.element.className).toEqual("testing blueberry foo rasp");
 			});
+		});
+
+		describe("setData", function() {
+
+			beforeEach(function() {
+				this.div = document.createElement("div");
+			});
+
+			it("throws an error if no key is provided", function() {
+				expect(function() {
+					this.div.setData();
+				}).toThrowError();
+
+				expect(function() {
+					this.div.setData("");
+				}).toThrowError();
+
+				expect(function() {
+					this.div.setData(null);
+				}).toThrowError();
+
+				expect(function() {
+					this.div.setData(undefined);
+				}).toThrowError();
+			});
+
+			it("throws an error if no data is provided", function() {
+				expect(function() {
+					this.div.setData("testing");
+				});
+				expect(function() {
+					this.div.setData("testing", "");
+				});
+				expect(function() {
+					this.div.setData("testing", null);
+				});
+				expect(function() {
+					this.div.setData("testing", undefined);
+				});
+			});
+
+			it("sets a string value", function() {
+				this.div.setData("testing", '{"foo":"bar"}');
+				expect(this.div.getAttribute("data-testing")).toEqual('{"foo":"bar"}');
+			});
+
+			it("converts an object into JSON", function() {
+				this.div.setData("testing", {foo:"bar"});
+				expect(this.div.getAttribute("data-testing")).toEqual('{"foo":"bar"}');
+			});
+
+			it("converts the key to lower case", function() {
+				this.div.setData("TestingSetData", {foo:"bar"});
+				expect(this.div.getAttribute("data-testingsetdata")).toEqual('{"foo":"bar"}');
+			});
+
+			it("allows invalid JSON strings to be set", function() {
+				this.div.setData("testing", "I am an invalid JSON string}");
+				expect(this.div.getAttribute("data-testing")).toEqual('I am an invalid JSON string}');
+			});
+
+			it("allows primative JavaScript values to be set", function() {
+				this.div.setData("test-1", 1);
+				this.div.setData("test-2", null);
+				this.div.setData("test-3", true);
+
+				expect(this.div.getAttribute("data-test-1")).toEqual("1");
+				expect(this.div.getAttribute("data-test-2")).toEqual("null");
+				expect(this.div.getAttribute("data-test-3")).toEqual("true");
+			});
+
 		});
 
 	});

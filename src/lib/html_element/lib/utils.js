@@ -19,6 +19,34 @@
 				}
 			},
 
+			appendHTML: function(html) {
+				var nodes = new HTMLArray(), i, length;
+				nodes.parseHTML(html);
+
+				for (i = 0, length = nodes.length; i < length; i++) {
+					this.appendChild(nodes[i]);
+				}
+
+				return nodes;
+			},
+
+			getData: function(key) {
+				var value = this.getAttribute("data-" + key.toLowerCase());
+				var data = null;
+
+				if (value) {
+					try {
+						data = JSON.parse(value);
+					}
+					catch (error) {
+						// fail silently
+						data = null;
+					}
+				}
+
+				return data;
+			},
+
 			getParentByClassName: function(className) {
 				var parent = null;
 				var currentElement = this;
@@ -72,8 +100,6 @@
 					}
 				}
 
-				parents.freeze();
-
 				return parents;
 			},
 
@@ -96,8 +122,6 @@
 						}
 					}
 				}
-
-				parents.freeze();
 
 				return parents;
 			},
@@ -144,7 +168,23 @@
 				else {
 					this.addClassName(replaceClass);
 				}
+			},
+
+			setData: function(key, data) {
+				if (!key) {
+					throw new Error("A key argument is required for setData(key, data)");
+				}
+				else if (data === undefined) {
+					throw new Error("A data argument is required for setData(key, data)");
+				}
+				else if (typeof data === "string") {
+					this.setAttribute("data-" + String(key).toLowerCase(), data);
+				}
+				else {
+					this.setAttribute("data-" + String(key).toLowerCase(), JSON.stringify(data));
+				}
 			}
+
 		}
 
 	};
@@ -152,3 +192,62 @@
 
 // HTMLElement is a special object which is not instantiable, but has a prototype.
 Function.prototype.include.call(HTMLElement, HTMLElement.Utils);
+
+Object.defineProperty(HTMLElement.prototype, "absoluteLeft", {
+	enumerable: false,
+	get: function() {
+		var node = this;
+		var left = node.offsetLeft;
+
+		while (node = node.offsetParent) {
+			left += node.offsetLeft;
+		}
+
+		node = null;
+
+		return left;
+	}
+});
+
+Object.defineProperty(HTMLElement.prototype, "absolutePosition", {
+	enumerable: false,
+	get: function() {
+		var node = this;
+		var top = node.offsetTop;
+		var left = node.offsetLeft;
+		var bottom, right;
+
+		while (node = node.offsetParent) {
+			left += node.offsetLeft;
+			top += node.offsetTop;
+		}
+
+		right = left + this.offsetWidth;
+		bottom = top + this.offsetHeight;
+
+		node = null;
+
+		return {
+			top: top,
+			right: right,
+			left: left,
+			bottom: bottom
+		};
+	}
+});
+
+Object.defineProperty(HTMLElement.prototype, "absoluteTop", {
+	enumerable: false,
+	get: function() {
+		var node = this;
+		var top = node.offsetTop;
+
+		while (node = node.offsetParent) {
+			top += node.offsetTop;
+		}
+
+		node = null;
+
+		return top;
+	}
+});

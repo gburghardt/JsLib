@@ -17,66 +17,40 @@ var HTMLArray = Array.extend({
 		initialize: function(htmlOrElements) {
 			Array.call(this);
 
-			var _frozen = false;
-
-			Object.defineProperty(this, "frozen", {
-				get: function() {
-					return _frozen;
-				},
-				set: function(frozen) {
-					if (!_frozen || frozen) {
-						_frozen = !!frozen;
-					}
-					else {
-						throw new Error("Cannot unfreeze a frozen HTMLArray");
-					}
-				}
-			});
-
 			this.elementMap = {};
 
 			var type = (htmlOrElements === null) ? "null" : typeof htmlOrElements;
 
 			if (type === "string") {
 				this.parseHTML(htmlOrElements);
-				this.freeze();
 			}
 			else if (type === "object") {
 				this.push.apply(this, htmlOrElements);
-				this.freeze();
 			}
 		},
 
-		freeze: function() {
-			this.frozen = true;
+		destroy: function() {
+			for (var i = 0, length = this.length; i < length; i++) {
+				this[i] = null;
+			}
 		},
 
 		parseHTML: function(html) {
 			var node, div = document.createElement("div");
 
-			div.innerHTML = html.replace(/(^[\s+])|([\s+]$)/g, "");
+			div.innerHTML = html.replace(/(^\s+)|(\s+$)/g, "");
 
-			while (div.lastChild) {
-				node = div.removeChild(div.lastChild);
+			while (div.firstChild) {
+				node = div.removeChild(div.firstChild);
 				this.push(node);
 			}
 
 			div = null;
-		},
 
-		pop: function() {
-			if (this.frozen) {
-				throw new Error("Cannot call pop() on a frozen HTMLArray");
-			}
-
-			return Array.prototype.pop.apply(this, arguments);
+			return this;
 		},
 
 		push: function() {
-			if (this.frozen) {
-				throw new Error("Cannot call push() on a frozen HTMLArray");
-			}
-
 			var elements = arguments, i = 0, length = elements.length, element;
 
 			for (i; i < length; i++) {
@@ -95,25 +69,12 @@ var HTMLArray = Array.extend({
 			// return Array.prototype.push.apply(this, arguments);
 		},
 
-		shift: function() {
-			if (this.frozen) {
-				throw new Error("Cannot call shift() on a frozen HTMLArray");
-			}
-
-			return Array.prototype.shift.call(this);
-		},
-
 		slice: function() {
 			var collection = new HTMLArray();
 
 			collection.push.apply(collection, Array.prototype.slice.apply(this, arguments));
-			collection.freeze();
 
 			return collection;
-		},
-
-		sort: function() {
-			throw new Error("Cannot sort an HTMLArray");
 		},
 
 		splice: function() {
@@ -122,14 +83,6 @@ var HTMLArray = Array.extend({
 			collection.push.apply(collection, Array.prototype.splice.apply(this, arguments));
 
 			return collection;
-		},
-
-		unshift: function() {
-			if (this.frozen) {
-				throw new Error("Cannot call unshift() on a frozen HTMLArray");
-			}
-
-			Array.prototype.unshift.apply(this, arguments);
 		}
 
 	}
