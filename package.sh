@@ -4,21 +4,21 @@ package_file_name="`pwd`/JsLib.pack.js"
 
 echo -n "" > $package_file_name
 
-for source_file in  src/lib/patches/Function.js \
-                    src/lib/patches/Object.js \
-                    src/lib/patches/String.js \
-                    src/lib/HTMLElement/Adaptors.js \
-                    src/lib/dom/events/Delegator.js \
-                    src/lib/events/Dispatcher.js \
-                    src/lib/events/Event.js \
-                    src/lib/Object/ApplicationEvents.js \
-                    src/lib/Object/Callbacks.js \
-                    src/lib/ModuleFactory.js \
-                    src/lib/Template.js \
+for source_file in  src/vendor/patches/Function.js \
+                    src/vendor/patches/Object.js \
+                    src/vendor/patches/String.js \
+                    src/vendor/HTMLElement/Adaptors.js \
+                    src/vendor/dom/events/Delegator.js \
+                    src/vendor/events/Dispatcher.js \
+                    src/vendor/events/Event.js \
+                    src/vendor/Object/ApplicationEvents.js \
+                    src/vendor/Object/Callbacks.js \
+                    src/vendor/ModuleFactory.js \
+                    src/vendor/Template.js \
                     src/framework/views/BaseView.js \
-                    src/lib/BaseView/Forms.js \
+                    src/vendor/BaseView/Forms.js \
                     src/framework/models/BaseModel.js \
-                    src/lib/BaseModel/TemplateDataKeys.js \
+                    src/vendor/BaseModel/TemplateDataKeys.js \
                     src/framework/modules/BaseModule.js \
                     src/framework/application/Application.js \
                     demo/store/js/app/models/products/Base.js \
